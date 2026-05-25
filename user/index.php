@@ -9,6 +9,7 @@ $kuota_maksimal = $setting['Setting_Value'] ?? 5;
 ?>
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,9 +18,13 @@ $kuota_maksimal = $setting['Setting_Value'] ?? 5;
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
     </style>
 </head>
+
 <body class="bg-white text-slate-800 antialiased">
 
     <nav class="bg-white border-b border-gray-100 sticky top-0 z-50 shadow-sm">
@@ -42,7 +47,7 @@ $kuota_maksimal = $setting['Setting_Value'] ?? 5;
 
     <section id="home" class="relative bg-[#0b1329] text-white pt-20 pb-40 z-10">
         <div class="absolute inset-0 opacity-15 bg-cover bg-center" style="background-image: url('images/utama.jpg');"></div>
-        
+
         <div class="relative max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             <div class="lg:col-span-8 space-y-6">
                 <div class="inline-flex items-center gap-2 bg-slate-800/60 border border-slate-700/50 rounded-full px-4 py-1.5 shadow-inner">
@@ -61,7 +66,7 @@ $kuota_maksimal = $setting['Setting_Value'] ?? 5;
                     <span class="flex items-center gap-2"><i class="fas fa-check-circle text-yellow-400"></i> Bergaransi</span>
                 </div>
                 <div class="pt-4">
-                    <a href="buat_reservasi.php" class="inline-block bg-yellow-400 hover:bg-yellow-500 text-slate-900 font-extrabold px-6 py-3.5 rounded-full text-sm transition shadow-lg shadow-yellow-400/20">
+                    <a href="cek_estimasi.php" class="inline-block bg-yellow-400 hover:bg-yellow-500 text-slate-900 font-extrabold px-6 py-3.5 rounded-full text-sm transition shadow-lg shadow-yellow-400/20">
                         Cek Kerusakan & Estimasi Harga
                     </a>
                 </div>
@@ -75,8 +80,8 @@ $kuota_maksimal = $setting['Setting_Value'] ?? 5;
                     <p class="text-xs text-slate-400 font-medium">Lacak Progres Unit Service Anda</p>
                 </div>
                 <form action="lacak_status.php" method="GET" class="flex flex-col sm:flex-row gap-3">
-                    <input type="text" name="tiket" placeholder="Masukkan Nomor Tiket (Misal: HB260520-001)" required 
-                           class="flex-1 px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl text-sm focus:bg-white focus:ring-2 focus:ring-yellow-400 outline-none font-medium transition">
+                    <input type="text" name="tiket" placeholder="Masukkan Nomor Tiket (Misal: HB260520-001)" required
+                        class="flex-1 px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl text-sm focus:bg-white focus:ring-2 focus:ring-yellow-400 outline-none font-medium transition">
                     <button type="submit" class="bg-black hover:bg-slate-900 text-white font-bold text-xs uppercase px-8 py-4 rounded-2xl transition tracking-wider shrink-0">
                         Lacak
                     </button>
@@ -138,7 +143,7 @@ $kuota_maksimal = $setting['Setting_Value'] ?? 5;
         </div>
 
         <div class="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-8">
-            
+
             <div class="bg-white border border-gray-200 rounded-[2rem] shadow-xl overflow-hidden flex flex-col justify-between">
                 <div>
                     <div class="h-32 w-full overflow-hidden bg-slate-100">
@@ -227,7 +232,7 @@ $kuota_maksimal = $setting['Setting_Value'] ?? 5;
         <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-12 gap-10 mb-12">
             <div class="md:col-span-5 space-y-4">
                 <div class="flex items-center gap-3">
-                    <img src="../logo.png" alt="Logo Hanbit" class="w-8 h-8 object-contain">
+                    <img src="../logo warna.png" alt="Logo Hanbit" class="w-8 h-8 object-contain">
                     <span class="text-lg font-black text-white tracking-tight">Hanbit</span>
                 </div>
                 <p class="text-xs text-slate-400 leading-relaxed font-medium max-w-sm">
@@ -256,4 +261,5 @@ $kuota_maksimal = $setting['Setting_Value'] ?? 5;
     </footer>
 
 </body>
+
 </html>
