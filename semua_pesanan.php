@@ -3,14 +3,13 @@ require_once 'config.php';
 require_once 'koneksi.php';
 proteksi_halaman();
 
-// Query SQL untuk menggabungkan data Reservasi, Customer, dan Seri Laptop secara realtime
-$query = "SELECT r.*, c.Nama_Customer, c.No_Hp, s.Nama_Series 
-          FROM reservations r
-          JOIN customers c ON r.ID_Customer = c.ID_Customer
-          JOIN laptop_series s ON r.ID_Series = s.ID_Series
-          WHERE r.Status_Aktif = 1 
-          ORDER BY r.Tgl_Reservasi DESC, r.Jam_Slot ASC";
-
+// Query SQL murni menggunakan huruf kecil sesuai struktur database baru
+$query = "SELECT r.*, c.nama_customer, c.no_hp, s.nama_series 
+          FROM reservations r 
+          JOIN customers c ON r.id_customer = c.id_customer 
+          JOIN laptop_series s ON r.id_series = s.id_series 
+          WHERE r.status_aktif = 1 
+          ORDER BY r.id_reservasi DESC";
 $result = mysqli_query($koneksi, $query);
 ?>
 <!DOCTYPE html>
@@ -22,7 +21,7 @@ $result = mysqli_query($koneksi, $query);
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
     </style>
 </head>
@@ -67,19 +66,19 @@ $result = mysqli_query($koneksi, $query);
                         <?php if (mysqli_num_rows($result) > 0): ?>
                             <?php while($row = mysqli_fetch_assoc($result)): ?>
                                 <tr class="hover:bg-gray-50/80 transition-colors">
-                                    <td class="py-5 px-6 font-bold text-slate-800">#<?= $row['Kode_Order']; ?></td>
+                                    <td class="py-5 px-6 font-bold text-slate-800">#<?= htmlspecialchars($row['kode_order']); ?></td>
                                     <td class="py-5 px-6">
-                                        <p class="font-bold text-slate-800 uppercase text-xs"><?= $row['Nama_Customer']; ?></p>
-                                        <p class="text-[11px] text-slate-400 mt-0.5"><i class="fab fa-whatsapp text-emerald-500 mr-1"></i><?= $row['No_Hp']; ?></p>
+                                        <p class="font-bold text-slate-800 uppercase text-xs"><?= htmlspecialchars($row['nama_customer']); ?></p>
+                                        <p class="text-[11px] text-slate-400 mt-0.5"><i class="fab fa-whatsapp text-emerald-500 mr-1"></i><?= htmlspecialchars($row['no_hp']); ?></p>
                                     </td>
-                                    <td class="py-5 px-6 text-xs font-bold text-slate-700 uppercase italic"><?= $row['Nama_Series']; ?></td>
+                                    <td class="py-5 px-6 text-xs font-bold text-slate-700 uppercase italic"><?= htmlspecialchars($row['nama_series']); ?></td>
                                     <td class="py-5 px-6">
-                                        <p class="text-xs font-bold text-slate-800"><?= date('d M Y', strtotime($row['Tgl_Reservasi'])); ?></p>
-                                        <p class="text-[11px] text-slate-400 mt-0.5"><i class="far fa-clock mr-1"></i>Slot <?= $row['Jam_Slot']; ?></p>
+                                        <p class="text-xs font-bold text-slate-800"><?= date('d M Y', strtotime($row['tgl_reservasi'])); ?></p>
+                                        <p class="text-[11px] text-slate-400 mt-0.5"><i class="far fa-clock mr-1"></i>Slot <?= htmlspecialchars($row['jam_slot']); ?></p>
                                     </td>
                                     <td class="py-5 px-6">
                                         <?php 
-                                        $status = $row['Status_Pengerjaan'];
+                                        $status = $row['status_pengerjaan'];
                                         if ($status == 'Menunggu Unit') {
                                             echo '<span class="bg-blue-50 text-blue-600 border border-blue-100 text-[10px] font-black uppercase px-3 py-1.5 rounded-xl">Menunggu Unit</span>';
                                         } elseif ($status == 'Sedang Dikerjakan') {

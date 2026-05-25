@@ -14,14 +14,14 @@ if (isset($_POST['login'])) {
     $username = mysqli_real_escape_string($koneksi, $_POST['username']);
     $password = $_POST['password'];
 
-    $query  = "SELECT * FROM users WHERE Username = '$username'";
+    $query = "SELECT * FROM admin_accounts WHERE username='$username' AND password='$password'";
     $result = mysqli_query($koneksi, $query);
 
     if (mysqli_num_rows($result) === 1) {
         $row = mysqli_fetch_assoc($result);
 
         // Menggunakan pencocokan teks biasa (Plain Text) agar anti-gagal di database saat ini
-        if ($password === $row['Password']) {
+        if ($password === $row['password']) {
             $_SESSION['login_admin'] = true;
             $_SESSION['id_user']     = $row['ID_User'];
             $_SESSION['nama_admin']  = $row['Nama_Admin'];

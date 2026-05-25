@@ -3,15 +3,15 @@ require_once 'config.php';
 require_once 'koneksi.php';
 proteksi_halaman();
 
-// Query untuk mengambil data master Brand
-$query_brand = "SELECT * FROM laptop_brands ORDER BY Nama_Brand ASC";
+// Query untuk mengambil data master Brand (Menggunakan huruf kecil)
+$query_brand = "SELECT * FROM laptop_brands ORDER BY nama_brand ASC";
 $result_brand = mysqli_query($koneksi, $query_brand);
 
-// Query untuk mengambil data master Series (di-JOIN dengan Brand)
-$query_series = "SELECT s.*, b.Nama_Brand 
+// Query untuk mengambil data master Series (JOIN menggunakan huruf kecil)
+$query_series = "SELECT s.*, b.nama_brand 
                  FROM laptop_series s
-                 JOIN laptop_brands b ON s.ID_Brand = b.ID_Brand
-                 ORDER BY b.Nama_Brand ASC, s.Nama_Series ASC";
+                 JOIN laptop_brands b ON s.id_brand = b.id_brand
+                 ORDER BY b.nama_brand ASC, s.nama_series ASC";
 $result_series = mysqli_query($koneksi, $query_series);
 ?>
 <!DOCTYPE html>
@@ -66,12 +66,13 @@ $result_series = mysqli_query($koneksi, $query_series);
                                 <th class="py-4 px-6">Nama Brand</th>
                                 <th class="py-4 px-6 text-center">Aksi</th>
                             </tr>
-                        </thead>
+                        </table>
+                        <table class="w-full text-left border-collapse">
                         <tbody class="divide-y divide-gray-50 text-sm font-medium text-slate-600">
                             <?php while($row_b = mysqli_fetch_assoc($result_brand)): ?>
                                 <tr class="hover:bg-gray-50/50 transition-colors">
-                                    <td class="py-4 px-6 font-bold text-slate-400">#BRD-<?= $row_b['ID_Brand']; ?></td>
-                                    <td class="py-4 px-6 font-black text-slate-800 uppercase text-xs tracking-wider"><?= $row_b['Nama_Brand']; ?></td>
+                                    <td class="py-4 px-6 font-bold text-slate-400">#BRD-<?= $row_b['id_brand']; ?></td>
+                                    <td class="py-4 px-6 font-black text-slate-800 uppercase text-xs tracking-wider"><?= htmlspecialchars($row_b['nama_brand']); ?></td>
                                     <td class="py-4 px-6 text-center">
                                         <div class="flex items-center justify-center gap-1.5">
                                             <button class="w-7 h-7 bg-slate-100 text-slate-600 hover:bg-slate-900 hover:text-yellow-400 rounded-lg flex items-center justify-center text-xs transition-all">
@@ -106,14 +107,14 @@ $result_series = mysqli_query($koneksi, $query_series);
                         <tbody class="divide-y divide-gray-50 text-sm font-medium text-slate-600">
                             <?php while($row_s = mysqli_fetch_assoc($result_series)): ?>
                                 <tr class="hover:bg-gray-50/50 transition-colors">
-                                    <td class="py-4 px-6 font-bold text-slate-400">#SRS-<?= str_pad($row_s['ID_Series'], 3, '0', STR_PAD_LEFT); ?></td>
+                                    <td class="py-4 px-6 font-bold text-slate-400">#SRS-<?= str_pad($row_s['id_series'], 3, '0', STR_PAD_LEFT); ?></td>
                                     <td class="py-4 px-6">
                                         <span class="bg-slate-100 text-slate-800 text-[10px] font-black uppercase px-2.5 py-1 rounded-lg border border-slate-200/40">
-                                            <?= $row_s['Nama_Brand']; ?>
+                                            <?= htmlspecialchars($row_s['nama_brand']); ?>
                                         </span>
                                     </td>
                                     <td class="py-4 px-6 font-bold text-slate-700 uppercase text-xs italic tracking-wide">
-                                        <?= $row_s['Nama_Series']; ?>
+                                        <?= htmlspecialchars($row_s['nama_series']); ?>
                                     </td>
                                     <td class="py-4 px-6 text-center">
                                         <div class="flex items-center justify-center gap-1.5">

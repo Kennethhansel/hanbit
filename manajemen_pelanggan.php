@@ -3,8 +3,8 @@ require_once 'config.php';
 require_once 'koneksi.php';
 proteksi_halaman();
 
-// Query SQL untuk mengambil seluruh data customer di Hanbit
-$query = "SELECT * FROM customers ORDER BY Nama_Customer ASC";
+// Query SQL disesuaikan dengan huruf kecil sesuai database db_hanbit yang baru
+$query = "SELECT * FROM customers ORDER BY nama_customer ASC";
 $result = mysqli_query($koneksi, $query);
 ?>
 <!DOCTYPE html>
@@ -16,7 +16,7 @@ $result = mysqli_query($koneksi, $query);
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
     </style>
 </head>
@@ -60,17 +60,17 @@ $result = mysqli_query($koneksi, $query);
                         <?php if (mysqli_num_rows($result) > 0): ?>
                             <?php while($row = mysqli_fetch_assoc($result)): ?>
                                 <tr class="hover:bg-gray-50/80 transition-colors">
-                                    <td class="py-5 px-6 font-bold text-slate-400">#CS-<?= str_pad($row['ID_Customer'], 3, '0', STR_PAD_LEFT); ?></td>
+                                    <td class="py-5 px-6 font-bold text-slate-400">#CS-<?= str_pad($row['id_customer'], 3, '0', STR_PAD_LEFT); ?></td>
                                     <td class="py-5 px-6 font-bold text-slate-800 uppercase text-xs tracking-wide">
-                                        <?= $row['Nama_Customer']; ?>
+                                        <?= htmlspecialchars($row['nama_customer']); ?>
                                     </td>
                                     <td class="py-5 px-6">
-                                        <a href="https://wa.me/<?= $row['No_Hp']; ?>" target="_blank" class="inline-flex items-center gap-1.5 text-emerald-600 hover:text-emerald-700 font-bold bg-emerald-50 px-3 py-1 rounded-xl border border-emerald-100/50 text-xs">
-                                            <i class="fab fa-whatsapp text-sm"></i> <?= $row['No_Hp']; ?>
+                                        <a href="https://wa.me/<?= $row['no_hp']; ?>" target="_blank" class="inline-flex items-center gap-1.5 text-emerald-600 hover:text-emerald-700 font-bold bg-emerald-50 px-3 py-1 rounded-xl border border-emerald-100/50 text-xs">
+                                            <i class="fab fa-whatsapp text-sm"></i> <?= htmlspecialchars($row['no_hp']); ?>
                                         </a>
                                     </td>
                                     <td class="py-5 px-6 text-slate-500 font-semibold">
-                                        <?= (!empty($row['Email'])) ? $row['Email'] : '<span class="text-slate-300 italic text-xs">Tidak ada email</span>'; ?>
+                                        <?= !empty($row['email']) ? htmlspecialchars($row['email']) : '<span class="text-slate-300 italic text-xs">Tidak ada email</span>'; ?>
                                     </td>
                                     <td class="py-5 px-6 text-center">
                                         <div class="flex items-center justify-center gap-2">
