@@ -1,16 +1,16 @@
 <?php
 require_once '../koneksi.php';
 
-// Array data dummy 8 merek laptop sesuai figma kamu
+// Array data 8 merek laptop sesuai instruksi Figma kamu beserta path file logonya
 $brands_list = [
-    ['id' => 1, 'nama' => 'ASUS'],
-    ['id' => 2, 'nama' => 'LENOVO'],
-    ['id' => 3, 'nama' => 'HP'],
-    ['id' => 4, 'nama' => 'DELL'],
-    ['id' => 5, 'nama' => 'ACER'],
-    ['id' => 6, 'nama' => 'ADVAN'],
-    ['id' => 7, 'nama' => 'AXIOO'],
-    ['id' => 8, 'nama' => 'MSI']
+    ['id' => 1, 'nama' => 'ASUS', 'logo' => 'images/asus.png'],
+    ['id' => 2, 'nama' => 'LENOVO', 'logo' => 'images/lenovo.png'],
+    ['id' => 3, 'nama' => 'HP', 'logo' => 'images/hp.png'],
+    ['id' => 4, 'nama' => 'DELL', 'logo' => 'images/dell.png'],
+    ['id' => 5, 'nama' => 'ACER', 'logo' => 'images/acer.png'],
+    ['id' => 6, 'nama' => 'ADVAN', 'logo' => 'images/advan.png'],
+    ['id' => 7, 'nama' => 'AXIOO', 'logo' => 'images/axioo.png'],
+    ['id' => 8, 'nama' => 'MSI', 'logo' => 'images/msi.png']
 ];
 ?>
 <!DOCTYPE html>
@@ -48,53 +48,65 @@ $brands_list = [
         </div>
     </nav>
 
-    <main class="max-w-5xl mx-auto w-full px-6 py-12 flex-1 flex flex-col justify-center space-y-12">
+    <main class="max-w-5xl mx-auto w-full px-6 pt-10 pb-16 flex-1 flex flex-col justify-start gap-5">
         
-        <div class="text-center space-y-2">
-            <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight uppercase">PILIH MEREK LAPTOP ANDA</h1>
-            <p class="text-xs text-slate-400 font-medium tracking-wide">Silakan tentukan manufaktur atau brand perangkat laptop yang ingin Anda perbaiki</p>
+        <div class="text-center space-y-1">
+            <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900">Pilih Merek Laptop Anda</h1>
+            <p class="text-sm text-slate-400 font-medium">Silakan pilih merek Laptop yang sesuai dengan Laptop anda.</p>
         </div>
 
-        <div class="flex flex-wrap items-center justify-center gap-6 md:gap-8 text-[11px] font-black tracking-wider uppercase border-b border-gray-200/60 pb-4">
-            <div class="text-yellow-500 flex items-center gap-1.5"><span class="w-5 h-5 rounded-full bg-yellow-400 text-slate-950 flex items-center justify-center font-bold text-[10px]">1</span> PILIH MEREK</div>
-            <div class="text-slate-400 flex items-center gap-1.5"><span class="w-5 h-5 rounded-full bg-white border border-gray-200 text-slate-400 flex items-center justify-center font-bold text-[10px]">2</span> PILIH SERIES</div>
-            <div class="text-slate-400 flex items-center gap-1.5"><span class="w-5 h-5 rounded-full bg-white border border-gray-200 text-slate-400 flex items-center justify-center font-bold text-[10px]">3</span> PILIH MASALAH</div>
-            <div class="text-slate-400 flex items-center gap-1.5"><span class="w-5 h-5 rounded-full bg-white border border-gray-200 text-slate-400 flex items-center justify-center font-bold text-[10px]">4</span> DETAIL DAN BOOK</div>
-        </div>
-
-        <form action="cek_estimasi_series.php" method="GET" class="space-y-12">
-            
-            <div class="text-center md:text-left">
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Pilih Merek Laptop :</p>
+        <div class="flex flex-row flex-nowrap items-center justify-center gap-x-3 md:gap-x-5 text-[11px] md:text-xs font-black uppercase pb-4 border-b border-gray-200/60 overflow-x-auto whitespace-nowrap">
+            <div class="text-slate-900 flex items-center gap-2 shrink-0">
+                <span class="w-7 h-7 rounded-full bg-[#facc15] text-slate-950 flex items-center justify-center font-black text-xs shadow-sm">1</span> 
+                <span class="whitespace-nowrap">Pilih Merek</span>
             </div>
+            <div class="h-[2px] w-6 md:w-10 bg-gray-200 shrink-0"></div>
+            
+            <div class="text-slate-400 flex items-center gap-2 shrink-0">
+                <span class="w-7 h-7 rounded-full bg-gray-200 text-slate-400 flex items-center justify-center font-black text-xs">2</span> 
+                <span class="whitespace-nowrap">Pilih Series</span>
+            </div>
+            <div class="h-[2px] w-6 md:w-10 bg-gray-200 shrink-0"></div>
+            
+            <div class="text-slate-400 flex items-center gap-2 shrink-0">
+                <span class="w-7 h-7 rounded-full bg-gray-200 text-slate-400 flex items-center justify-center font-black text-xs">3</span> 
+                <span class="whitespace-nowrap">Pilih Masalah</span>
+            </div>
+            <div class="h-[2px] w-6 md:w-10 bg-gray-200 shrink-0"></div>
+            
+            <div class="text-slate-400 flex items-center gap-2 shrink-0">
+                <span class="w-7 h-7 rounded-full bg-gray-200 text-slate-400 flex items-center justify-center font-black text-xs">4</span> 
+                <span class="whitespace-nowrap">Detail & Book</span>
+            </div>
+        </div>
+
+        <form action="cek_estimasi_series.php" method="GET" class="space-y-6 pt-2">
 
             <input type="hidden" name="brand_id" id="selected_brand_id" required>
 
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-6">
-                <?php foreach($brands_list as $brand): 
-                    $logo_file = "images/" . strtolower($brand['nama']) . ".png";
-                ?>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-5">
+                <?php foreach($brands_list as $brand): ?>
                     <div type="button" onclick="pilihBrand(this, '<?= $brand['id']; ?>')" 
-                            class="brand-card flex flex-col items-center justify-center p-6 bg-white border border-gray-200 rounded-2xl cursor-pointer hover:border-yellow-400 hover:bg-yellow-50/10 transition-all duration-200 group select-none shadow-sm">
+                            class="brand-card flex flex-col items-center justify-center pt-8 pb-6 px-4 bg-white border border-gray-200 rounded-2xl cursor-pointer hover:border-yellow-400 hover:bg-yellow-50/10 transition-all duration-200 group select-none shadow-sm shadow-slate-100">
                         
-                        <div class="w-14 h-14 flex items-center justify-center mb-3">
-                            <img src="<?= $logo_file; ?>" alt="Logo <?= $brand['nama']; ?>" 
+                        <div class="w-28 h-16 flex items-center justify-center mb-4 bg-white">
+                            <img src="<?= $brand['logo']; ?>" alt="Logo <?= $brand['nama']; ?>" 
                                  class="max-w-full max-h-full object-contain filter grayscale group-hover:grayscale-0 transition-all duration-200">
                         </div>
                         
-                        <span class="text-xs font-bold uppercase tracking-wider text-slate-600 group-hover:text-slate-900">
+                        <span class="text-xs font-extrabold uppercase tracking-normal text-slate-700 group-hover:text-slate-900">
                             <?= $brand['nama']; ?>
                         </span>
                     </div>
                 <?php endforeach; ?>
             </div>
 
-            <div class="flex justify-between items-center pt-6 border-t border-gray-200">
-                <a href="index.php" class="bg-white border border-gray-200 hover:bg-gray-50 text-slate-700 font-extrabold text-xs uppercase px-8 py-3.5 rounded-xl shadow-sm transition">
-                    Kembali
+            <div class="flex justify-between items-center pt-4">
+                <a href="index.php" class="bg-[#e2e8f0] hover:bg-[#cbd5e1] text-slate-600 font-bold text-xs uppercase px-7 py-3 rounded-lg flex items-center gap-2 transition">
+                    <i class="fas fa-chevron-left text-[10px]"></i> Kembali
                 </a>
-                <button type="submit" class="bg-[#facc15] hover:bg-[#eab308] text-slate-950 font-black text-xs uppercase px-8 py-3.5 rounded-xl tracking-wider transition shadow-md shadow-yellow-400/10">
-                    Selanjutnya
+                <button type="submit" class="bg-[#ffd54f] hover:bg-[#ffca28] text-slate-900 font-extrabold text-xs uppercase px-7 py-3 rounded-lg flex items-center gap-2 tracking-normal transition shadow-sm">
+                    Selanjutnya <i class="fas fa-chevron-right text-[10px]"></i>
                 </button>
             </div>
 
@@ -133,13 +145,13 @@ $brands_list = [
         function pilihBrand(elemenTarget, idBrand) {
             const semuaCard = document.querySelectorAll('.brand-card');
             semuaCard.forEach(card => {
-                card.classList.remove('border-yellow-400', 'bg-yellow-50/10');
-                card.classList.add('border-gray-200', 'bg-white');
+                card.classList.remove('border-2', 'border-yellow-400', 'bg-yellow-50/10');
+                card.classList.add('border-gray-100', 'bg-white');
                 card.querySelector('img').classList.add('grayscale');
             });
 
-            elemenTarget.classList.remove('border-gray-200', 'bg-white');
-            elemenTarget.classList.add('border-yellow-400', 'bg-yellow-50/10');
+            elemenTarget.classList.remove('border-gray-100', 'bg-white');
+            elemenTarget.classList.add('border-2', 'border-yellow-400', 'bg-yellow-50/10');
             elemenTarget.querySelector('img').classList.remove('grayscale');
 
             document.getElementById('selected_brand_id').value = idBrand;
