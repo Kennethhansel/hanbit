@@ -1,11 +1,6 @@
 <?php
 require_once '../koneksi.php';
-
-// Ambil kuota harian dari database untuk informasi dinamis bagi customer
-$query_kuota = "SELECT Setting_Value FROM system_settings WHERE Setting_Key = 'max_kuota_harian' LIMIT 1";
-$result_kuota = mysqli_query($koneksi, $query_kuota);
-$setting = mysqli_fetch_assoc($result_kuota);
-$kuota_maksimal = $setting['Setting_Value'] ?? 5;
+// Query kuota harian dihapus total karena tabel system_settings sudah ditiadakan
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -37,7 +32,7 @@ $kuota_maksimal = $setting['Setting_Value'] ?? 5;
                 <a href="#home" class="text-yellow-600 hover:text-yellow-500 transition">Home</a>
                 <a href="#layanan" class="hover:text-slate-900 transition">Katalog</a>
                 <a href="#layanan" class="hover:text-slate-900 transition">Layanan</a>
-                <a href="#kontak" class="hover:text-slate-900 transition">Kontak</a>
+                <a href="#kontak" class="hover:text-slate-900 transition">Contak</a>
             </div>
             <a href="https://wa.me/6285159794427" target="_blank" class="bg-[#00e676] hover:bg-[#00c853] text-white text-xs font-bold px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-md shadow-emerald-500/10 transition">
                 <i class="fab fa-whatsapp text-sm"></i> Chat Via WA
@@ -49,22 +44,26 @@ $kuota_maksimal = $setting['Setting_Value'] ?? 5;
         <div class="absolute inset-0 opacity-15 bg-cover bg-center" style="background-image: url('images/utama.jpg');"></div>
 
         <div class="relative max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            <div class="lg:col-span-8 space-y-6">
-                <div class="inline-flex items-center gap-2 bg-slate-800/60 border border-slate-700/50 rounded-full px-4 py-1.5 shadow-inner">
-                    <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
-                    <p class="text-[11px] font-bold text-slate-300 uppercase tracking-wider">Slot Terbatas: Maksimal <?= $kuota_maksimal; ?> Laptop / Hari</p>
-                </div>
+            <div class="lg:col-span-10 space-y-6">
 
-                <h1 class="text-4xl md:text-5xl lg:text-[3.25rem] font-extrabold uppercase tracking-tight leading-none">
-                    Solusi Profesional Untuk <br>
-                    <span class="text-yellow-400">Perawatan</span> & <span class="text-yellow-400">Perbaikan</span> <br>
-                    Laptop Anda
+                <h1 class="flex flex-col text-3xl md:text-4xl lg:text-[3.25rem] font-extrabold uppercase tracking-tight leading-[1.1] lg:leading-[1.15]">
+                    <span class="w-full">Solusi Profesional Untuk</span>
+                    
+                    <span class="text-yellow-400 mt-1.5 block">
+                        Perawatan & Perbaikan
+                    </span>
+                    
+                    <span class="text-white block mt-0.5">
+                        Laptop Anda
+                    </span>
                 </h1>
+                
                 <div class="flex flex-wrap items-center gap-6 text-sm font-medium text-slate-300 pt-2">
                     <span class="flex items-center gap-2"><i class="fas fa-check-circle text-yellow-400"></i> Cepat</span>
                     <span class="flex items-center gap-2"><i class="fas fa-check-circle text-yellow-400"></i> Transparansi</span>
                     <span class="flex items-center gap-2"><i class="fas fa-check-circle text-yellow-400"></i> Bergaransi</span>
                 </div>
+                
                 <div class="pt-4">
                     <a href="cek_estimasi.php" class="inline-block bg-yellow-400 hover:bg-yellow-500 text-slate-900 font-extrabold px-6 py-3.5 rounded-full text-sm transition shadow-lg shadow-yellow-400/20">
                         Cek Kerusakan & Estimasi Harga

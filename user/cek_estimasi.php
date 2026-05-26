@@ -1,7 +1,7 @@
 <?php
 require_once '../koneksi.php';
 
-// Array data 8 merek laptop sesuai instruksi Figma kamu beserta path file logonya
+// Array data 8 merek laptop
 $brands_list = [
     ['id' => 1, 'nama' => 'ASUS', 'logo' => 'images/asus.png'],
     ['id' => 2, 'nama' => 'LENOVO', 'logo' => 'images/lenovo.png'],
@@ -55,7 +55,7 @@ $brands_list = [
             <p class="text-sm text-slate-400 font-medium">Silakan pilih merek Laptop yang sesuai dengan Laptop anda.</p>
         </div>
 
-        <div class="flex flex-row flex-nowrap items-center justify-center gap-x-3 md:gap-x-5 text-[11px] md:text-xs font-black uppercase pb-4 border-b border-gray-200/60 overflow-x-auto whitespace-nowrap">
+        <div class="flex flex-row flex-nowrap items-center justify-center gap-x-3 md:gap-x-5 text-[11px] md:text-xs font-black uppercase overflow-x-auto whitespace-nowrap">
             <div class="text-slate-900 flex items-center gap-2 shrink-0">
                 <span class="w-7 h-7 rounded-full bg-[#facc15] text-slate-950 flex items-center justify-center font-black text-xs shadow-sm">1</span> 
                 <span class="whitespace-nowrap">Pilih Merek</span>
@@ -81,19 +81,16 @@ $brands_list = [
         </div>
 
         <form action="cek_estimasi_series.php" method="GET" class="space-y-6 pt-2">
-
             <input type="hidden" name="brand_id" id="selected_brand_id" required>
 
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-5">
                 <?php foreach($brands_list as $brand): ?>
                     <div type="button" onclick="pilihBrand(this, '<?= $brand['id']; ?>')" 
                             class="brand-card flex flex-col items-center justify-center pt-8 pb-6 px-4 bg-white border border-gray-200 rounded-2xl cursor-pointer hover:border-yellow-400 hover:bg-yellow-50/10 transition-all duration-200 group select-none shadow-sm shadow-slate-100">
-                        
                         <div class="w-28 h-16 flex items-center justify-center mb-4 bg-white">
                             <img src="<?= $brand['logo']; ?>" alt="Logo <?= $brand['nama']; ?>" 
                                  class="max-w-full max-h-full object-contain filter grayscale group-hover:grayscale-0 transition-all duration-200">
                         </div>
-                        
                         <span class="text-xs font-extrabold uppercase tracking-normal text-slate-700 group-hover:text-slate-900">
                             <?= $brand['nama']; ?>
                         </span>
@@ -109,54 +106,22 @@ $brands_list = [
                     Selanjutnya <i class="fas fa-chevron-right text-[10px]"></i>
                 </button>
             </div>
-
         </form>
     </main>
-
-    <footer class="bg-[#1e293b] text-slate-300 pt-16 pb-8 border-t border-slate-800">
-        <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-12 gap-10 mb-12">
-            <div class="md:col-span-5 space-y-4">
-                <div class="flex items-center gap-3">
-                    <img src="../logo warna.png" alt="Logo Hanbit" class="w-8 h-8 object-contain">
-                    <span class="text-lg font-black text-white tracking-tight">Hanbit</span>
-                </div>
-                <p class="text-xs text-slate-400 font-medium leading-relaxed max-w-sm">Solusi profesional untuk perawatan dan perbaikan laptop Anda dengan garansi terpercaya.</p>
-            </div>
-            <div class="md:col-span-4 space-y-3.5">
-                <h4 class="text-white font-bold text-sm uppercase tracking-wider">Kontak</h4>
-                <ul class="space-y-2.5 text-xs font-semibold text-slate-400">
-                    <li><i class="fas fa-phone-alt text-yellow-400 mr-2"></i> +62 851-5979-4427</li>
-                    <li><i class="fas fa-envelope text-yellow-400 mr-2"></i> hanbit0925@gmail.com</li>
-                </ul>
-            </div>
-            <div class="md:col-span-3 space-y-3.5">
-                <h4 class="text-white font-bold text-sm uppercase tracking-wider">Jam Operasional</h4>
-                <ul class="space-y-2 text-xs font-semibold text-slate-400">
-                    <li>Senin - Jumat: 09.00 - 18.00</li>
-                </ul>
-            </div>
-        </div>
-        <div class="max-w-7xl mx-auto px-6 pt-6 border-t border-slate-800/80 text-center text-[11px] font-medium text-slate-500">
-            &copy; 2026 Hanbit. All rights reserved.
-        </div>
-    </footer>
 
     <script>
         function pilihBrand(elemenTarget, idBrand) {
             const semuaCard = document.querySelectorAll('.brand-card');
             semuaCard.forEach(card => {
                 card.classList.remove('border-2', 'border-yellow-400', 'bg-yellow-50/10');
-                card.classList.add('border-gray-100', 'bg-white');
+                card.classList.add('border-gray-200', 'bg-white');
                 card.querySelector('img').classList.add('grayscale');
             });
-
-            elemenTarget.classList.remove('border-gray-100', 'bg-white');
+            elemenTarget.classList.remove('border-gray-200', 'bg-white');
             elemenTarget.classList.add('border-2', 'border-yellow-400', 'bg-yellow-50/10');
             elemenTarget.querySelector('img').classList.remove('grayscale');
-
             document.getElementById('selected_brand_id').value = idBrand;
         }
     </script>
-
 </body>
 </html>
