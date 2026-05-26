@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 25, 2026 at 07:40 AM
+-- Generation Time: May 26, 2026 at 08:39 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -31,15 +31,20 @@ CREATE TABLE `admin_accounts` (
   `id_admin` int(11) NOT NULL,
   `username` varchar(50) NOT NULL,
   `password` varchar(255) NOT NULL,
-  `nama_lengkap` varchar(100) NOT NULL
+  `nama_lengkap` varchar(100) NOT NULL,
+  `max_kuota_harian` int(11) NOT NULL DEFAULT 50,
+  `status_toko` varchar(10) NOT NULL DEFAULT 'buka',
+  `jam_tutup_store` time NOT NULL DEFAULT '18:00:00',
+  `pesan_penutupan` text DEFAULT NULL,
+  `jam_buka_store` time NOT NULL DEFAULT '09:00:00'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `admin_accounts`
 --
 
-INSERT INTO `admin_accounts` (`id_admin`, `username`, `password`, `nama_lengkap`) VALUES
-(1, 'admin', 'admin123', 'Kenneth Hansel');
+INSERT INTO `admin_accounts` (`id_admin`, `username`, `password`, `nama_lengkap`, `max_kuota_harian`, `status_toko`, `jam_tutup_store`, `pesan_penutupan`, `jam_buka_store`) VALUES
+(1, 'admin', 'admin123', 'Kenneth Hansel', 50, 'buka', '18:00:00', 'Maaf, Hanbit sedang tidak menerima antrean perbaikan untuk sementara waktu.', '09:00:00');
 
 -- --------------------------------------------------------
 
@@ -129,26 +134,6 @@ INSERT INTO `reservations` (`id_reservasi`, `kode_order`, `id_customer`, `id_ser
 (1, 'HB260520-001', 1, 1, '2026-05-25', '09.00 - 11.00', 'Ganti thermal paste & cleaning debu fan', 'Menunggu Unit', 1),
 (2, 'HB260520-002', 2, 2, '2026-05-25', '13.00 - 15.00', 'Laptop lemot, mau upgrade SSD', 'Sedang Dikerjakan', 1);
 
--- --------------------------------------------------------
-
---
--- Table structure for table `system_settings`
---
-
-CREATE TABLE `system_settings` (
-  `id_setting` int(11) NOT NULL,
-  `setting_key` varchar(50) NOT NULL,
-  `setting_value` varchar(100) NOT NULL,
-  `keterangan` varchar(255) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `system_settings`
---
-
-INSERT INTO `system_settings` (`id_setting`, `setting_key`, `setting_value`, `keterangan`) VALUES
-(1, 'max_kuota_harian', '4', 'Batasan maksimal unit laptop harian');
-
 --
 -- Indexes for dumped tables
 --
@@ -189,13 +174,6 @@ ALTER TABLE `reservations`
   ADD KEY `id_series` (`id_series`);
 
 --
--- Indexes for table `system_settings`
---
-ALTER TABLE `system_settings`
-  ADD PRIMARY KEY (`id_setting`),
-  ADD UNIQUE KEY `setting_key` (`setting_key`);
-
---
 -- AUTO_INCREMENT for dumped tables
 --
 
@@ -228,12 +206,6 @@ ALTER TABLE `laptop_series`
 --
 ALTER TABLE `reservations`
   MODIFY `id_reservasi` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-
---
--- AUTO_INCREMENT for table `system_settings`
---
-ALTER TABLE `system_settings`
-  MODIFY `id_setting` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- Constraints for dumped tables
