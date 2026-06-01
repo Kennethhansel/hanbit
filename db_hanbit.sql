@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 26, 2026 at 08:39 AM
+-- Generation Time: Jun 01, 2026 at 07:58 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -85,7 +85,12 @@ CREATE TABLE `laptop_brands` (
 INSERT INTO `laptop_brands` (`id_brand`, `nama_brand`) VALUES
 (1, 'ASUS'),
 (2, 'LENOVO'),
-(3, 'ACER');
+(3, 'HP'),
+(4, 'DELL'),
+(5, 'ACER'),
+(6, 'ADVAN'),
+(7, 'AXIOO'),
+(8, 'MSI');
 
 -- --------------------------------------------------------
 
@@ -104,9 +109,70 @@ CREATE TABLE `laptop_series` (
 --
 
 INSERT INTO `laptop_series` (`id_series`, `id_brand`, `nama_series`) VALUES
-(1, 1, 'ROG Zephyrus G14'),
-(2, 2, 'Legion 5 Pro'),
-(3, 3, 'Swift 3 Infinite');
+(1, 1, 'REPUBLIC OF GAMERS'),
+(2, 1, 'ZENBOOK'),
+(3, 1, 'VIVOBOOK'),
+(4, 1, 'TUF GAMING'),
+(5, 1, 'ZENBOOK PRO'),
+(6, 1, 'TRANSFORMER'),
+(7, 1, 'EXPERT BOOK'),
+(8, 1, 'PROART SERIES'),
+(9, 2, 'THINKPAD'),
+(10, 2, 'IDEAPAD'),
+(11, 2, 'YOGA SERIES'),
+(12, 2, 'LEGION GAMING'),
+(13, 2, 'LOQ SERIES'),
+(14, 2, 'THINKBOOK'),
+(15, 2, 'FLEX SERIES'),
+(16, 2, 'SLIM SERIES'),
+(17, 3, 'PAVILION'),
+(18, 3, 'ENVY SERIES'),
+(19, 3, 'SPECTRE'),
+(20, 3, 'OMEN GAMING'),
+(21, 3, 'VICTUS BY HP'),
+(22, 3, 'HP ELITEBOOK'),
+(23, 3, 'PROBOOK'),
+(24, 3, 'HP ESSENTIAL'),
+(25, 4, 'INSPIRON'),
+(26, 4, 'XPS SERIES'),
+(27, 4, 'VOSTRO'),
+(28, 4, 'LATITUDE'),
+(29, 4, 'ALIENWARE'),
+(30, 4, 'G SERIES GAMING'),
+(31, 4, 'PRECISION'),
+(32, 4, 'CHROMEBOOK'),
+(33, 5, 'ASPIRE'),
+(34, 5, 'SWIFT SERIES'),
+(35, 5, 'SPIN SERIES'),
+(36, 5, 'NITRO GAMING'),
+(37, 5, 'PREDATOR HELIOS'),
+(38, 5, 'TRAVELMATE'),
+(39, 5, 'ENDURO'),
+(40, 5, 'ONE SERIES'),
+(41, 6, 'SOULMATE'),
+(42, 6, 'WORKPLUS'),
+(43, 6, 'WORKPRO'),
+(44, 6, 'PIXELWAR GAMING'),
+(45, 6, '360 STYLUS'),
+(46, 6, 'NASA SERIES'),
+(47, 6, 'STARTGO'),
+(48, 6, 'AVIO SERIES'),
+(49, 7, 'MYBOOK'),
+(50, 7, 'SLIMBOOK'),
+(51, 7, 'PONGO GAMING'),
+(52, 7, 'CHRONOS'),
+(53, 7, 'SAGA SERIES'),
+(54, 7, 'HYPE SERIES'),
+(55, 7, 'WINDROID'),
+(56, 7, 'NEON SERIES'),
+(57, 8, 'KATANA GAMING'),
+(58, 8, 'CYBORG SERIES'),
+(59, 8, 'STEALTH'),
+(60, 8, 'TITAN GT'),
+(61, 8, 'MODERN SERIES'),
+(62, 8, 'PRESTIGE'),
+(63, 8, 'CREATOR'),
+(64, 8, 'RAIDER GAMING');
 
 -- --------------------------------------------------------
 
@@ -125,14 +191,6 @@ CREATE TABLE `reservations` (
   `status_pengerjaan` enum('Menunggu Unit','Sedang Dikerjakan','Selesai') NOT NULL DEFAULT 'Menunggu Unit',
   `status_aktif` int(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `reservations`
---
-
-INSERT INTO `reservations` (`id_reservasi`, `kode_order`, `id_customer`, `id_series`, `tgl_reservasi`, `jam_slot`, `keluhan`, `status_pengerjaan`, `status_aktif`) VALUES
-(1, 'HB260520-001', 1, 1, '2026-05-25', '09.00 - 11.00', 'Ganti thermal paste & cleaning debu fan', 'Menunggu Unit', 1),
-(2, 'HB260520-002', 2, 2, '2026-05-25', '13.00 - 15.00', 'Laptop lemot, mau upgrade SSD', 'Sedang Dikerjakan', 1);
 
 --
 -- Indexes for dumped tables
@@ -193,13 +251,13 @@ ALTER TABLE `customers`
 -- AUTO_INCREMENT for table `laptop_brands`
 --
 ALTER TABLE `laptop_brands`
-  MODIFY `id_brand` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id_brand` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `laptop_series`
 --
 ALTER TABLE `laptop_series`
-  MODIFY `id_series` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id_series` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=65;
 
 --
 -- AUTO_INCREMENT for table `reservations`
