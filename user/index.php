@@ -1,6 +1,6 @@
 <?php
 require_once '../koneksi.php';
-// Query kuota harian dihapus total karena tabel system_settings sudah ditiadakan
+// Query kuota harian ditiadakan sesuai pembaruan sistem database Hanbit
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -22,6 +22,7 @@ require_once '../koneksi.php';
 
 <body class="bg-white text-slate-800 antialiased">
 
+    <!-- Navigation Bar -->
     <nav class="bg-white border-b border-gray-100 sticky top-0 z-50 shadow-sm">
         <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
             <div class="flex items-center gap-3">
@@ -32,7 +33,7 @@ require_once '../koneksi.php';
                 <a href="#home" class="text-yellow-600 hover:text-yellow-500 transition">Home</a>
                 <a href="#layanan" class="hover:text-slate-900 transition">Katalog</a>
                 <a href="#layanan" class="hover:text-slate-900 transition">Layanan</a>
-                <a href="#kontak" class="hover:text-slate-900 transition">Contak</a>
+                <a href="#kontak" class="hover:text-slate-900 transition">Kontak</a>
             </div>
             <a href="https://wa.me/6285159794427" target="_blank" class="bg-[#00e676] hover:bg-[#00c853] text-white text-xs font-bold px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-md shadow-emerald-500/10 transition">
                 <i class="fab fa-whatsapp text-sm"></i> Chat Via WA
@@ -40,6 +41,7 @@ require_once '../koneksi.php';
         </div>
     </nav>
 
+    <!-- Hero Section -->
     <section id="home" class="relative bg-[#0b1329] text-white pt-20 pb-40 z-10">
         <div class="absolute inset-0 opacity-15 bg-cover bg-center" style="background-image: url('images/utama.jpg');"></div>
 
@@ -48,14 +50,8 @@ require_once '../koneksi.php';
 
                 <h1 class="flex flex-col text-3xl md:text-4xl lg:text-[3.25rem] font-extrabold uppercase tracking-tight leading-[1.1] lg:leading-[1.15]">
                     <span class="w-full">Solusi Profesional Untuk</span>
-                    
-                    <span class="text-yellow-400 mt-1.5 block">
-                        Perawatan & Perbaikan
-                    </span>
-                    
-                    <span class="text-white block mt-0.5">
-                        Laptop Anda
-                    </span>
+                    <span class="text-yellow-400 mt-1.5 block">Perawatan & Perbaikan</span>
+                    <span class="text-white block mt-0.5">Laptop Anda</span>
                 </h1>
                 
                 <div class="flex flex-wrap items-center gap-6 text-sm font-medium text-slate-300 pt-2">
@@ -72,23 +68,28 @@ require_once '../koneksi.php';
             </div>
         </div>
 
+        <!-- REVISI KOTAK FORM STATUS TRACKING INTERAKTIF -->
         <div class="absolute left-6 right-6 bottom-0 transform translate-y-1/2 max-w-4xl mx-auto z-30">
             <div class="bg-white text-slate-900 p-6 md:p-8 rounded-[2rem] shadow-2xl border border-gray-100">
                 <div class="mb-4">
                     <h3 class="text-lg font-extrabold uppercase tracking-tight text-slate-900">Status Tracking</h3>
                     <p class="text-xs text-slate-400 font-medium">Lacak Progres Unit Service Anda</p>
                 </div>
-                <form action="lacak_status.php" method="GET" class="flex flex-col sm:flex-row gap-3">
-                    <input type="text" name="tiket" placeholder="Masukkan Nomor Tiket (Misal: HB260520-001)" required
-                        class="flex-1 px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl text-sm focus:bg-white focus:ring-2 focus:ring-yellow-400 outline-none font-medium transition">
+                
+                <!-- Diarahkan ke file status_tracking.php dengan metode pencarian GET -->
+                <form action="status_tracking.php" method="GET" class="flex flex-col sm:flex-row gap-3">
+                    <!-- Atribut name diubah menjadi kode_order agar dibaca oleh halaman penangkap -->
+                    <input type="text" name="kode_order" placeholder="Masukkan Kode Order Anda (Contoh: #HB2026-0042)" required
+                        class="flex-1 px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl text-sm font-bold focus:bg-white focus:ring-2 focus:ring-yellow-400 outline-none transition">
                     <button type="submit" class="bg-black hover:bg-slate-900 text-white font-bold text-xs uppercase px-8 py-4 rounded-2xl transition tracking-wider shrink-0">
-                        Lacak
+                        Lacak Status
                     </button>
                 </form>
             </div>
         </div>
     </section>
 
+    <!-- Services Section -->
     <section id="layanan" class="pt-36 pb-20 bg-gray-50/50">
         <div class="max-w-7xl mx-auto px-6 text-center mb-12">
             <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight mb-2">Layanan Kami</h2>
@@ -135,6 +136,7 @@ require_once '../koneksi.php';
         </div>
     </section>
 
+    <!-- Pricing Section -->
     <section class="py-20 bg-gradient-to-t from-[#FFF9D7] to-white">
         <div class="max-w-7xl mx-auto px-6 text-center mb-16">
             <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight mb-2">Paket Maintenance</h2>
@@ -142,7 +144,7 @@ require_once '../koneksi.php';
         </div>
 
         <div class="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-8">
-
+            <!-- Paket Basic -->
             <div class="bg-white border border-gray-200 rounded-[2rem] shadow-xl overflow-hidden flex flex-col justify-between">
                 <div>
                     <div class="h-32 w-full overflow-hidden bg-slate-100">
@@ -169,6 +171,7 @@ require_once '../koneksi.php';
                 </div>
             </div>
 
+            <!-- Paket Standard -->
             <div class="bg-white border-2 border-yellow-400 rounded-[2rem] shadow-2xl overflow-hidden flex flex-col justify-between relative transform lg:-translate-y-2">
                 <span class="absolute top-3 right-3 bg-yellow-400 text-black text-[9px] font-black uppercase px-2.5 py-1 rounded-full tracking-wider z-10">POPULER</span>
                 <div>
@@ -197,6 +200,7 @@ require_once '../koneksi.php';
                 </div>
             </div>
 
+            <!-- Paket Premium -->
             <div class="bg-white border border-gray-200 rounded-[2rem] shadow-xl overflow-hidden flex flex-col justify-between">
                 <div>
                     <div class="h-32 w-full overflow-hidden bg-slate-100">
@@ -223,10 +227,10 @@ require_once '../koneksi.php';
                     <a href="buat_reservasi.php?paket=premium" class="block w-full bg-black hover:bg-slate-900 text-white font-bold text-xs uppercase py-3.5 rounded-xl tracking-wider transition">Pilih Paket</a>
                 </div>
             </div>
-
         </div>
     </section>
 
+    <!-- Footer Footer Section -->
     <footer id="kontak" class="bg-[#1e293b] text-slate-300 pt-16 pb-8 border-t border-slate-800">
         <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-12 gap-10 mb-12">
             <div class="md:col-span-5 space-y-4">

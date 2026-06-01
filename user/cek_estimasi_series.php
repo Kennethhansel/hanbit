@@ -115,10 +115,13 @@ while ($row = mysqli_fetch_assoc($result_series)) {
             </div>
         </div>
 
-        <form action="cek_estimasi_masalah.php" method="GET" class="space-y-8 pt-4">
+        <!-- Form dengan Tambahan onsubmit untuk Validasi -->
+        <form action="cek_estimasi_masalah.php" method="GET" onsubmit="return validasiPilihan()" class="space-y-8 pt-4">
             <input type="hidden" name="brand_id" value="<?= htmlspecialchars($brand_id); ?>">
-            <input type="hidden" name="series_id" id="selected_series_id" required>
+            <!-- Hapus atribut required HTML bawaan karena kita ganti pakai JavaScript yang lebih pintar -->
+            <input type="hidden" name="series_id" id="selected_series_id">
 
+            <!-- Tampilan Grid Box 8 Series per Merek -->
             <div class="flex flex-wrap justify-center gap-5">
                 <?php foreach($series_list as $series): ?>
                     <div type="button" onclick="pilihSeries(this, '<?= htmlspecialchars($series['id']); ?>')" 
@@ -136,6 +139,7 @@ while ($row = mysqli_fetch_assoc($result_series)) {
                 <?php endforeach; ?>
             </div>
 
+            <!-- Tombol Navigasi Bawah -->
             <div class="flex justify-between items-center pt-6 border-t border-gray-100">
                 <a href="cek_estimasi.php" class="bg-[#e2e8f0] hover:bg-[#cbd5e1] text-slate-600 font-bold text-xs uppercase px-7 py-3 rounded-lg flex items-center gap-2 transition">
                     <i class="fas fa-chevron-left text-[10px]"></i> Kembali
@@ -153,6 +157,7 @@ while ($row = mysqli_fetch_assoc($result_series)) {
         </div>
     </footer>
 
+    <!-- JavaScript dengan Fungsi Validasi Pengunci Halaman -->
     <script>
         function pilihSeries(elemenTarget, idSeries) {
             const semuaCard = document.querySelectorAll('.series-card');
@@ -162,7 +167,25 @@ while ($row = mysqli_fetch_assoc($result_series)) {
             });
             elemenTarget.classList.remove('border-gray-100', 'bg-white');
             elemenTarget.classList.add('border-2', 'border-yellow-400', 'bg-yellow-50/10');
+            
+            // Isi nilai ID Series ke input hidden
             document.getElementById('selected_series_id').value = idSeries;
+        }
+
+        // FUNGSI PENGUNCI: Memastikan user sudah klik salah satu kartu sebelum pindah
+        function validasiPilihan() {
+            const idSeriesTerpilih = document.getElementById('selected_series_id').value;
+            
+            if (idSeriesTerpilih === "" || idSeriesTerpilih === null) {
+                // Munculkan notifikasi penolak
+                alert("Silakan pilih salah satu Series Laptop anda terlebih dahulu sebelum melanjutkan!");
+                
+                // Kembalikan false agar form membatalkan proses submit dan tetap di halaman ini
+                return false; 
+            }
+            
+            // Jika aman, izinkan lanjut ke halaman masalah
+            return true;
         }
     </script>
 </body>

@@ -55,6 +55,7 @@ $brands_list = [
             <p class="text-sm text-slate-400 font-medium">Silakan pilih merek Laptop yang sesuai dengan Laptop anda.</p>
         </div>
 
+        <!-- Stepper Progress Bar -->
         <div class="flex flex-row flex-nowrap items-center justify-center gap-x-3 md:gap-x-5 text-[11px] md:text-xs font-black uppercase overflow-x-auto whitespace-nowrap">
             <div class="text-slate-900 flex items-center gap-2 shrink-0">
                 <span class="w-7 h-7 rounded-full bg-[#facc15] text-slate-950 flex items-center justify-center font-black text-xs shadow-sm">1</span> 
@@ -80,8 +81,9 @@ $brands_list = [
             </div>
         </div>
 
-        <form action="cek_estimasi_series.php" method="GET" class="space-y-6 pt-2">
-            <input type="hidden" name="brand_id" id="selected_brand_id" required>
+        <!-- Ditambahkan onsubmit untuk interogasi validasi javascript sebelum dikirim -->
+        <form action="cek_estimasi_series.php" method="GET" onsubmit="return validasiMerek()" class="space-y-6 pt-2">
+            <input type="hidden" name="brand_id" id="selected_brand_id">
 
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-5">
                 <?php foreach($brands_list as $brand): ?>
@@ -109,6 +111,12 @@ $brands_list = [
         </form>
     </main>
 
+    <footer class="bg-[#1e293b] text-slate-300 pt-12 pb-6 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-6 text-center text-[11px] font-medium text-slate-500">
+            &copy; 2026 Hanbit. All rights reserved.
+        </div>
+    </footer>
+
     <script>
         function pilihBrand(elemenTarget, idBrand) {
             const semuaCard = document.querySelectorAll('.brand-card');
@@ -120,7 +128,21 @@ $brands_list = [
             elemenTarget.classList.remove('border-gray-200', 'bg-white');
             elemenTarget.classList.add('border-2', 'border-yellow-400', 'bg-yellow-50/10');
             elemenTarget.querySelector('img').classList.remove('grayscale');
+            
+            // Set data ID ke input hidden
             document.getElementById('selected_brand_id').value = idBrand;
+        }
+
+        // FUNGSI PENGUNCI: Mencegah user langsung klik selanjutnya jika belum pilih merek
+        function validasiMerek() {
+            const idMerekTerpilih = document.getElementById('selected_brand_id').value;
+            
+            if (idMerekTerpilih === "" || idMerekTerpilih === null) {
+                // Tampilkan alert error halus
+                alert("Silakan pilih salah satu Merek Laptop anda terlebih dahulu sebelum melanjutkan!");
+                return false; // Mengunci / membatalkan submit form
+            }
+            return true; // Lolos, boleh lanjut ke halaman series
         }
     </script>
 </body>
