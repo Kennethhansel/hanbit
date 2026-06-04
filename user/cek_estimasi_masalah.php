@@ -42,7 +42,10 @@ $masalah_list = [
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
     </style>
 </head>
 
@@ -50,10 +53,10 @@ $masalah_list = [
 
     <nav class="bg-white border-b border-gray-100 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
-            <div class="flex items-center gap-3">
+            <a href="index.php" class="flex items-center gap-3 hover:opacity-90 transition select-none">
                 <img src="../logo warna.png" alt="Logo Hanbit" class="w-10 h-10 object-contain">
-                <span class="text-3xl font-extrabold tracking-tight">Hanbit</span>
-            </div>
+                <span class="text-3xl font-extrabold tracking-tight text-slate-900">Hanbit</span>
+            </a>
             <div class="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-600">
                 <a href="index.php" class="hover:text-yellow-600 transition">Home</a>
                 <a href="index.php#layanan" class="hover:text-slate-900 transition">Katalog</a>
@@ -67,7 +70,7 @@ $masalah_list = [
     </nav>
 
     <main class="max-w-5xl mx-auto w-full px-6 pt-10 pb-16 flex-1 flex flex-col justify-start gap-5">
-        
+
         <div class="text-center space-y-1">
             <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900">Apa Kendala Laptop Anda?</h1>
             <p class="text-sm text-slate-400 font-medium">Pilih satu atau beberapa masalah yang dialami untuk mendapatkan estimasi harga akurat.</p>
@@ -75,25 +78,25 @@ $masalah_list = [
 
         <div class="flex flex-row flex-nowrap items-center justify-center gap-x-3 md:gap-x-5 text-[11px] md:text-xs font-black uppercase overflow-x-auto whitespace-nowrap py-2">
             <div class="text-slate-400 flex items-center gap-2 shrink-0">
-                <span class="w-7 h-7 rounded-full bg-gray-200 text-slate-400 flex items-center justify-center font-black text-xs">1</span> 
+                <span class="w-7 h-7 rounded-full bg-gray-200 text-slate-400 flex items-center justify-center font-black text-xs">1</span>
                 <span>Pilih Merek</span>
             </div>
             <div class="h-[2px] w-6 md:w-10 bg-gray-200 shrink-0"></div>
-            
+
             <div class="text-slate-400 flex items-center gap-2 shrink-0">
-                <span class="w-7 h-7 rounded-full bg-gray-200 text-slate-400 flex items-center justify-center font-black text-xs">2</span> 
+                <span class="w-7 h-7 rounded-full bg-gray-200 text-slate-400 flex items-center justify-center font-black text-xs">2</span>
                 <span>Pilih Series</span>
             </div>
             <div class="h-[2px] w-6 md:w-10 bg-gray-200 shrink-0"></div>
-            
+
             <div class="text-slate-900 flex items-center gap-2 shrink-0">
-                <span class="w-7 h-7 rounded-full bg-[#facc15] text-slate-950 flex items-center justify-center font-black text-xs shadow-sm">3</span> 
+                <span class="w-7 h-7 rounded-full bg-[#facc15] text-slate-950 flex items-center justify-center font-black text-xs shadow-sm">3</span>
                 <span>Pilih Masalah</span>
             </div>
             <div class="h-[2px] w-6 md:w-10 bg-gray-200 shrink-0"></div>
-            
+
             <div class="text-slate-400 flex items-center gap-2 shrink-0">
-                <span class="w-7 h-7 rounded-full bg-gray-200 text-slate-400 flex items-center justify-center font-black text-xs">4</span> 
+                <span class="w-7 h-7 rounded-full bg-gray-200 text-slate-400 flex items-center justify-center font-black text-xs">4</span>
                 <span>Detail & Book</span>
             </div>
         </div>
@@ -105,26 +108,26 @@ $masalah_list = [
             <input type="hidden" name="masalah_custom" id="masalah_custom_input">
 
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5 justify-center">
-                <?php foreach($masalah_list as $m): ?>
+                <?php foreach ($masalah_list as $m): ?>
                     <div type="button" data-id="<?= $m['id']; ?>" onclick="toggleMasalah(this, '<?= $m['id']; ?>')"
-                         class="masalah-card flex flex-col items-center justify-start pt-8 pb-6 px-5 bg-white border border-gray-100 rounded-[1.5rem] cursor-pointer hover:border-yellow-400 hover:bg-yellow-50/5 transition-all duration-200 group select-none shadow-sm shadow-slate-100 min-h-[200px]">
-                        
+                        class="masalah-card flex flex-col items-center justify-start pt-8 pb-6 px-5 bg-white border border-gray-100 rounded-[1.5rem] cursor-pointer hover:border-yellow-400 hover:bg-yellow-50/5 transition-all duration-200 group select-none shadow-sm shadow-slate-100 min-h-[200px]">
+
                         <div class="w-12 h-12 flex items-center justify-center mb-4 bg-yellow-50/60 group-hover:bg-yellow-100 rounded-xl transition-colors">
                             <i class="fas <?= $m['icon']; ?> text-xl"></i>
                         </div>
-                        
+
                         <h3 class="text-sm font-extrabold text-slate-800 text-center mb-1 group-hover:text-slate-900"><?= $m['nama']; ?></h3>
                         <p class="text-[11px] text-slate-400 font-medium text-center leading-normal"><?= $m['deskripsi']; ?></p>
                     </div>
                 <?php endforeach; ?>
 
                 <div id="card_masalah_lainnya" data-id="8" type="button" onclick="bukaModalMasalahLainnya()"
-                     class="masalah-card flex flex-col items-center justify-start pt-8 pb-6 px-5 bg-white border border-gray-100 rounded-[1.5rem] cursor-pointer hover:border-yellow-400 hover:bg-yellow-50/5 transition-all duration-200 group select-none shadow-sm shadow-slate-100 min-h-[200px]">
-                    
+                    class="masalah-card flex flex-col items-center justify-start pt-8 pb-6 px-5 bg-white border border-gray-100 rounded-[1.5rem] cursor-pointer hover:border-yellow-400 hover:bg-yellow-50/5 transition-all duration-200 group select-none shadow-sm shadow-slate-100 min-h-[200px]">
+
                     <div class="w-12 h-12 flex items-center justify-center mb-4 bg-yellow-50/60 group-hover:bg-yellow-100 rounded-xl transition-colors">
                         <i class="fas fa-bars text-amber-500 text-xl"></i>
                     </div>
-                    
+
                     <h3 class="text-sm font-extrabold text-slate-800 text-center mb-1 group-hover:text-slate-900">Masalah Lainnya</h3>
                     <p id="deskripsi_masalah_lainnya" class="text-[11px] text-slate-400 font-medium text-center leading-normal">Kendala fisik atau software lainnya.</p>
                 </div>
@@ -158,6 +161,23 @@ $masalah_list = [
         </div>
     </div>
 
+    <div id="modal_validasi_masalah" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center px-4">
+        <div class="bg-white rounded-[1.5rem] max-w-sm w-full p-6 shadow-xl space-y-4 border border-gray-100 text-center">
+            <div class="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center mx-auto text-amber-500">
+                <i class="fas fa-exclamation-circle text-xl"></i>
+            </div>
+            <div class="space-y-1">
+                <h3 class="text-base font-extrabold text-slate-900">Kendala Belum Dipilih</h3>
+                <p class="text-xs text-slate-400 font-medium leading-relaxed">Silakan pilih minimal satu kendala laptop Anda terlebih dahulu sebelum melanjutkan ke halaman hasil analisa!</p>
+            </div>
+            <div class="pt-2">
+                <button type="button" onclick="tutupModalValidasi()" class="w-full bg-[#ffd54f] hover:bg-[#ffca28] text-slate-900 text-xs font-black py-3 rounded-xl transition block text-center shadow-sm uppercase tracking-wider">
+                    Paham, Pilih Masalah
+                </button>
+            </div>
+        </div>
+    </div>
+
     <footer class="bg-[#1e293b] text-slate-300 pt-16 pb-8 border-t border-slate-800">
         <div class="max-w-7xl mx-auto px-6 text-center text-[11px] font-medium text-slate-500">
             &copy; 2026 Hanbit. All rights reserved.
@@ -183,11 +203,11 @@ $masalah_list = [
                 elemenTarget.classList.add('border-2', 'border-yellow-400', 'bg-yellow-50/10');
             }
 
-            // Gabungkan barisan array jadi string pakai koma (misal: "1,3,6") ke input hidden
+            // Gabungkan barisan array jadi string pakai koma ke input hidden
             document.getElementById('selected_masalah_id').value = kumpulanMasalahTerpilih.join(',');
         }
 
-        // Fungsi kontrol Pop-up Modal
+        // Fungsi kontrol Pop-up Modal Tulis Masalah
         function bukaModalMasalahLainnya() {
             document.getElementById('modal_masalah_lainnya').classList.remove('hidden');
         }
@@ -199,22 +219,19 @@ $masalah_list = [
         function simpanMasalahCustom() {
             const textInput = document.getElementById('text_masalah_custom').value.trim();
             const cardLainnya = document.getElementById('card_masalah_lainnya');
-            
+
             if (textInput !== "") {
                 document.getElementById('masalah_custom_input').value = textInput;
                 document.getElementById('deskripsi_masalah_lainnya').innerText = textInput;
-                
-                // Jika belum terpilih, masukkan ID 8 ke array Multi-select
+
                 if (kumpulanMasalahTerpilih.indexOf('8') === -1) {
                     kumpulanMasalahTerpilih.push('8');
                     cardLainnya.classList.remove('border-gray-100', 'bg-white');
                     cardLainnya.classList.add('border-2', 'border-yellow-400', 'bg-yellow-50/10');
                     document.getElementById('selected_masalah_id').value = kumpulanMasalahTerpilih.join(',');
                 }
-                
                 tutupModalMasalahLainnya();
             } else {
-                // Jika dikosongkan saat edit, hapus ID 8 dari pilihan
                 const index = kumpulanMasalahTerpilih.indexOf('8');
                 if (index > -1) {
                     kumpulanMasalahTerpilih.splice(index, 1);
@@ -228,15 +245,21 @@ $masalah_list = [
             }
         }
 
-        // PENGUNCI FORM: Wajib klik minimal 1 masalah sebelum next
+        // REVISI: FUNGSI PENGUNCI POP-UP MODAL CUSTOM DI TENGAH LAYAR UNTUK KENDALA
         function validasiMasalah() {
             const nilaiInput = document.getElementById('selected_masalah_id').value;
             if (nilaiInput === "" || nilaiInput === null || kumpulanMasalahTerpilih.length === 0) {
-                alert("Silakan pilih minimal satu kendala laptop Anda terlebih dahulu!");
-                return false;
+                // Munculkan boks modal tengah dengan melepas class hidden
+                document.getElementById('modal_validasi_masalah').classList.remove('hidden');
+                return false; // Mengunci / membatalkan perpindahan halaman
             }
-            return true;
+            return true; // Lolos, diizinkan ke halaman ringkasan detail
+        }
+
+        function tutupModalValidasi() {
+            document.getElementById('modal_validasi_masalah').classList.add('hidden');
         }
     </script>
 </body>
+
 </html>

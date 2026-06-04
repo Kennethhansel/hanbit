@@ -82,10 +82,10 @@ foreach ($array_id_masalah as $id) {
 
     <nav class="bg-white border-b border-gray-100 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
-            <div class="flex items-center gap-3">
+            <a href="index.php" class="flex items-center gap-3 hover:opacity-90 transition select-none">
                 <img src="../logo warna.png" alt="Logo Hanbit" class="w-10 h-10 object-contain">
-                <span class="text-3xl font-extrabold tracking-tight">Hanbit</span>
-            </div>
+                <span class="text-3xl font-extrabold tracking-tight text-slate-900">Hanbit</span>
+            </a>
             <div class="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-600">
                 <a href="index.php" class="hover:text-yellow-600 transition">Home</a>
                 <a href="index.php#layanan" class="hover:text-slate-900 transition">Katalog</a>

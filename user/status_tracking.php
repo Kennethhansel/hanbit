@@ -18,7 +18,7 @@ $error_msg = '';
 if (!empty($kode_cari)) {
     // Memastikan strtoupper bawaan PHP berjalan dengan benar tanpa Fatal Error
     if (strpos(strtoupper($kode_cari), 'HB') !== false) {
-        
+
         // DEFAULT MOCK-DATA: Kondisi laptop sedang dikerjakan (Sesuai gambar STATUS ORDER_2.jpg kamu)
         $data_order = [
             'kode' => strtoupper($kode_cari),
@@ -28,7 +28,7 @@ if (!empty($kode_cari)) {
             'estimasi_selesai' => '6 Mei 2026 (15:00)',
             'catatan_teknisi' => 'Pengecekan komponen motherboard selesai. Ditemukan short pada IC Power. Sedang melakukan pembersihan jalur sebelum penggantian part baru.',
             'total_harga' => 1150000,
-            'rincian_invoice' => [ 
+            'rincian_invoice' => [
                 'komponen' => 'Keyboard Replacement Original + Thermal Paste',
                 'harga_komponen' => 950000,
                 'jasa_pasang' => 200000,
@@ -60,7 +60,10 @@ if (!empty($kode_cari)) {
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
     </style>
 </head>
 
@@ -68,10 +71,10 @@ if (!empty($kode_cari)) {
 
     <nav class="bg-white border-b border-gray-100 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
-            <div class="flex items-center gap-3">
+            <a href="index.php" class="flex items-center gap-3 hover:opacity-90 transition select-none">
                 <img src="../logo warna.png" alt="Logo Hanbit" class="w-10 h-10 object-contain">
-                <span class="text-3xl font-extrabold tracking-tight">Hanbit</span>
-            </div>
+                <span class="text-3xl font-extrabold tracking-tight text-slate-900">Hanbit</span>
+            </a>
             <div class="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-600">
                 <a href="index.php" class="hover:text-yellow-600 transition">Home</a>
                 <a href="index.php#layanan" class="hover:text-slate-900 transition">Katalog</a>
@@ -85,7 +88,7 @@ if (!empty($kode_cari)) {
     </nav>
 
     <main class="max-w-4xl mx-auto w-full px-6 pt-10 pb-16 flex-1 flex flex-col justify-start gap-6">
-        
+
         <div class="text-center space-y-1">
             <h1 class="text-3xl md:text-4xl font-black italic tracking-tight text-slate-900 uppercase">STATUS PENGERJAAN</h1>
             <p class="text-sm text-slate-400 font-medium">Lacak progres perbaikan laptop Anda secara real-time.</p>
@@ -95,8 +98,8 @@ if (!empty($kode_cari)) {
             <form action="status_tracking.php" method="GET" class="flex flex-col sm:flex-row gap-3">
                 <div class="relative flex-1">
                     <i class="fas fa-ticket-alt absolute left-4 top-4 text-slate-400"></i>
-                    <input type="text" name="kode_order" value="<?= htmlspecialchars($kode_cari); ?>" placeholder="Masukkan Nomor Tiket (Misal: #HB2026-0042)" required 
-                           class="w-full bg-slate-50 border border-slate-100 rounded-xl pl-11 pr-4 py-3.5 text-sm font-bold focus:outline-none focus:border-yellow-400 focus:bg-white transition duration-200">
+                    <input type="text" name="kode_order" value="<?= htmlspecialchars($kode_cari); ?>" placeholder="Masukkan Nomor Tiket (Misal: #HB2026-0042)" required
+                        class="w-full bg-slate-50 border border-slate-100 rounded-xl pl-11 pr-4 py-3.5 text-sm font-bold focus:outline-none focus:border-yellow-400 focus:bg-white transition duration-200">
                 </div>
                 <button type="submit" class="bg-black hover:bg-slate-900 text-white font-bold text-xs uppercase px-8 py-4 rounded-xl transition tracking-wider shrink-0">
                     Lacak
@@ -104,15 +107,15 @@ if (!empty($kode_cari)) {
             </form>
         </div>
 
-        <?php if(!empty($error_msg)): ?>
+        <?php if (!empty($error_msg)): ?>
             <div class="max-w-xl mx-auto w-full bg-rose-50 border border-rose-100 text-rose-600 rounded-xl p-4 text-center text-xs font-bold">
                 <?= $error_msg; ?>
             </div>
         <?php endif; ?>
 
-        <?php if($data_order): ?>
+        <?php if ($data_order): ?>
             <div class="bg-white border border-gray-200 rounded-[2rem] shadow-2xl overflow-hidden max-w-3xl w-full mx-auto flex flex-col justify-between">
-                
+
                 <div class="bg-[#1e293b] py-6 px-6 md:px-8 flex flex-row justify-between items-center gap-4">
                     <div class="space-y-0.5">
                         <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">NOMOR TIKET</p>
@@ -124,12 +127,12 @@ if (!empty($kode_cari)) {
                 </div>
 
                 <div class="p-6 md:p-8 space-y-8 bg-white">
-                    
+
                     <div class="relative flex flex-row justify-between items-center w-full px-4 md:px-8">
                         <div class="absolute top-5 left-8 right-8 h-[3px] bg-gray-200 z-0"></div>
-                        <?php 
-                            $persentase_garis = [1 => 'w-0', 2 => 'w-[33%]', 3 => 'w-[66%]', 4 => 'w-[88%]'];
-                            $lebar_aktif = $persentase_garis[$data_order['status_num']] ?? 'w-0';
+                        <?php
+                        $persentase_garis = [1 => 'w-0', 2 => 'w-[33%]', 3 => 'w-[66%]', 4 => 'w-[88%]'];
+                        $lebar_aktif = $persentase_garis[$data_order['status_num']] ?? 'w-0';
                         ?>
                         <div class="absolute top-5 left-8 right-8 h-[3px] bg-yellow-400 z-0 transition-all duration-500 <?= $lebar_aktif; ?>"></div>
 
@@ -163,7 +166,7 @@ if (!empty($kode_cari)) {
                         <div class="space-y-0.5">
                             <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">ESTIMASI SELESAI</p>
                             <p class="text-base font-extrabold text-slate-800"><?= $data_order['estimasi_selesai']; ?></p>
-                            </div>
+                        </div>
                     </div>
 
                     <div class="bg-blue-50/60 border-l-4 border-blue-500 rounded-r-2xl p-5 space-y-2">
@@ -187,7 +190,7 @@ if (!empty($kode_cari)) {
                             <i class="fab fa-whatsapp text-sm"></i> Hubungi Admin
                         </a>
 
-                        <?php if($data_order['status_num'] == 4): ?>
+                        <?php if ($data_order['status_num'] == 4): ?>
                             <button type="button" onclick="bukaModalInvoiceFinal()" class="flex-1 sm:flex-none bg-[#1e293b] hover:bg-slate-800 text-[#facc15] font-black text-xs uppercase px-5 py-3.5 rounded-xl flex items-center justify-center gap-2 tracking-wider shadow-sm transition shrink-0 select-none">
                                 Lihat Invoice Final <i class="fas fa-file-invoice-dollar text-sm"></i>
                             </button>
@@ -208,57 +211,57 @@ if (!empty($kode_cari)) {
         <?php endif; ?>
     </main>
 
-    <?php if($data_order && $data_order['status_num'] == 4 && $data_order['rincian_invoice']): 
+    <?php if ($data_order && $data_order['status_num'] == 4 && $data_order['rincian_invoice']):
         $inv = $data_order['rincian_invoice'];
     ?>
-    <div id="modal_invoice_final" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-[2rem] max-w-xl w-full overflow-hidden shadow-2xl border border-gray-100 flex flex-col justify-between">
-            <div class="bg-[#1e293b] p-6 text-white flex justify-between items-center">
-                <div class="flex items-center gap-2.5">
-                    <img src="../logo warna.png" class="w-6 h-6 object-contain" alt="Logo">
-                    <h3 class="text-base font-black tracking-tight text-[#facc15]">INVOICE FINAL #HANBIT</h3>
-                </div>
-                <button type="button" onclick="tutupModalInvoiceFinal()" class="text-slate-400 hover:text-white transition"><i class="fas fa-times text-lg"></i></button>
-            </div>
-            <div class="p-6 space-y-6 bg-white">
-                <div class="grid grid-cols-2 gap-4 text-xs font-semibold text-slate-500 border-b border-gray-50 pb-4">
-                    <div>
-                        <span class="block text-[10px] text-slate-400 uppercase font-bold tracking-wider">Kode Order:</span>
-                        <span class="text-slate-800 font-extrabold"><?= $data_order['kode']; ?></span>
+        <div id="modal_invoice_final" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+            <div class="bg-white rounded-[2rem] max-w-xl w-full overflow-hidden shadow-2xl border border-gray-100 flex flex-col justify-between">
+                <div class="bg-[#1e293b] p-6 text-white flex justify-between items-center">
+                    <div class="flex items-center gap-2.5">
+                        <img src="../logo warna.png" class="w-6 h-6 object-contain" alt="Logo">
+                        <h3 class="text-base font-black tracking-tight text-[#facc15]">INVOICE FINAL #HANBIT</h3>
                     </div>
-                    <div class="text-right">
-                        <span class="block text-[10px] text-slate-400 uppercase font-bold tracking-wider">Metode Pelunasan:</span>
-                        <span class="text-emerald-600 font-extrabold"><?= $inv['metode']; ?></span>
-                    </div>
+                    <button type="button" onclick="tutupModalInvoiceFinal()" class="text-slate-400 hover:text-white transition"><i class="fas fa-times text-lg"></i></button>
                 </div>
-                <div class="space-y-3">
-                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider"><i class="fas fa-clipboard-list text-amber-500 mr-1"></i> Detail Pembayaran Riil:</p>
-                    <div class="bg-slate-50/70 rounded-xl p-4 space-y-2.5 border border-gray-100 text-xs">
-                        <div class="flex justify-between items-center font-medium">
-                            <span class="text-slate-600"><?= $inv['komponen']; ?></span>
-                            <span class="text-slate-800 font-bold">Rp <?= number_format($inv['harga_komponen'], 0, ',', '.'); ?></span>
+                <div class="p-6 space-y-6 bg-white">
+                    <div class="grid grid-cols-2 gap-4 text-xs font-semibold text-slate-500 border-b border-gray-50 pb-4">
+                        <div>
+                            <span class="block text-[10px] text-slate-400 uppercase font-bold tracking-wider">Kode Order:</span>
+                            <span class="text-slate-800 font-extrabold"><?= $data_order['kode']; ?></span>
                         </div>
-                        <div class="flex justify-between items-center font-medium border-t border-gray-100/70 pt-2.5">
-                            <span class="text-slate-600">Jasa Teknisi & Pembersihan Mesin</span>
-                            <span class="text-slate-800 font-bold">Rp <?= number_format($inv['jasa_pasang'], 0, ',', '.'); ?></span>
+                        <div class="text-right">
+                            <span class="block text-[10px] text-slate-400 uppercase font-bold tracking-wider">Metode Pelunasan:</span>
+                            <span class="text-emerald-600 font-extrabold"><?= $inv['metode']; ?></span>
                         </div>
                     </div>
-                </div>
-                <div class="bg-yellow-400/10 border-2 border-dashed border-yellow-400 rounded-xl p-4 flex justify-between items-center">
-                    <div>
-                        <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Total Pembayaran</span>
-                        <span class="text-xs text-slate-400 font-medium font-semibold">(Lunas di Toko Hanbit)</span>
+                    <div class="space-y-3">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider"><i class="fas fa-clipboard-list text-amber-500 mr-1"></i> Detail Pembayaran Riil:</p>
+                        <div class="bg-slate-50/70 rounded-xl p-4 space-y-2.5 border border-gray-100 text-xs">
+                            <div class="flex justify-between items-center font-medium">
+                                <span class="text-slate-600"><?= $inv['komponen']; ?></span>
+                                <span class="text-slate-800 font-bold">Rp <?= number_format($inv['harga_komponen'], 0, ',', '.'); ?></span>
+                            </div>
+                            <div class="flex justify-between items-center font-medium border-t border-gray-100/70 pt-2.5">
+                                <span class="text-slate-600">Jasa Teknisi & Pembersihan Mesin</span>
+                                <span class="text-slate-800 font-bold">Rp <?= number_format($inv['jasa_pasang'], 0, ',', '.'); ?></span>
+                            </div>
+                        </div>
                     </div>
-                    <span class="text-xl font-black text-slate-950">Rp <?= number_format($inv['total_bayar'], 0, ',', '.'); ?></span>
+                    <div class="bg-yellow-400/10 border-2 border-dashed border-yellow-400 rounded-xl p-4 flex justify-between items-center">
+                        <div>
+                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Total Pembayaran</span>
+                            <span class="text-xs text-slate-400 font-medium font-semibold">(Lunas di Toko Hanbit)</span>
+                        </div>
+                        <span class="text-xl font-black text-slate-950">Rp <?= number_format($inv['total_bayar'], 0, ',', '.'); ?></span>
+                    </div>
                 </div>
-            </div>
-            <div class="bg-slate-50 px-6 py-4 flex justify-end">
-                <button type="button" onclick="window.print()" class="bg-slate-700 hover:bg-slate-800 text-white text-xs font-bold px-4 py-2.5 rounded-xl flex items-center gap-2 transition shadow-sm">
-                    <i class="fas fa-print"></i> Cetak PDF Invoice
-                </button>
+                <div class="bg-slate-50 px-6 py-4 flex justify-end">
+                    <button type="button" onclick="window.print()" class="bg-slate-700 hover:bg-slate-800 text-white text-xs font-bold px-4 py-2.5 rounded-xl flex items-center gap-2 transition shadow-sm">
+                        <i class="fas fa-print"></i> Cetak PDF Invoice
+                    </button>
+                </div>
             </div>
         </div>
-    </div>
     <?php endif; ?>
 
     <footer class="bg-[#1e293b] text-slate-300 pt-12 pb-6 border-t border-slate-800">
@@ -270,13 +273,14 @@ if (!empty($kode_cari)) {
     <script>
         function bukaModalInvoiceFinal() {
             const modal = document.getElementById('modal_invoice_final');
-            if(modal) modal.classList.remove('hidden');
+            if (modal) modal.classList.remove('hidden');
         }
 
         function tutupModalInvoiceFinal() {
             const modal = document.getElementById('modal_invoice_final');
-            if(modal) modal.classList.add('hidden');
+            if (modal) modal.classList.add('hidden');
         }
     </script>
 </body>
+
 </html>

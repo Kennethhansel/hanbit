@@ -37,10 +37,10 @@ while ($row = mysqli_fetch_assoc($result_series)) {
     // Hilangkan spasi gaib di akhir nama teks database (mengatasi masalah Vivobook )
     $nama_clean = trim($row['Nama_Series']);
     $nama_file_foto = strtolower(str_replace(' ', '_', $nama_clean)) . '.png';
-    
+
     // JALUR DINAMIS BARU: mengarah ke images/series/merek/nama_seri.png
     $jalur_foto_lengkap = 'images/series/' . $nama_folder_merek . '/' . $nama_file_foto;
-    
+
     $series_list[] = [
         'id' => $row['ID_Series'],
         'nama' => strtoupper($nama_clean),
@@ -59,7 +59,10 @@ while ($row = mysqli_fetch_assoc($result_series)) {
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
     </style>
 </head>
 
@@ -67,10 +70,10 @@ while ($row = mysqli_fetch_assoc($result_series)) {
 
     <nav class="bg-white border-b border-gray-100 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
-            <div class="flex items-center gap-3">
+            <a href="index.php" class="flex items-center gap-3 hover:opacity-90 transition select-none">
                 <img src="../logo warna.png" alt="Logo Hanbit" class="w-10 h-10 object-contain">
-                <span class="text-3xl font-extrabold tracking-tight">Hanbit</span>
-            </div>
+                <span class="text-3xl font-extrabold tracking-tight text-slate-900">Hanbit</span>
+            </a>
             <div class="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-600">
                 <a href="index.php" class="hover:text-yellow-600 transition">Home</a>
                 <a href="index.php#layanan" class="hover:text-slate-900 transition">Katalog</a>
@@ -84,7 +87,7 @@ while ($row = mysqli_fetch_assoc($result_series)) {
     </nav>
 
     <main class="max-w-5xl mx-auto w-full px-6 pt-10 pb-16 flex-1 flex flex-col justify-start gap-5">
-        
+
         <div class="text-center space-y-1">
             <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900">Pilih Series Laptop <?= htmlspecialchars($nama_brand_aktif); ?> Anda</h1>
             <p class="text-sm text-slate-400 font-medium">Silakan pilih series Laptop yang sesuai dengan Laptop anda.</p>
@@ -92,46 +95,43 @@ while ($row = mysqli_fetch_assoc($result_series)) {
 
         <div class="flex flex-row flex-nowrap items-center justify-center gap-x-3 md:gap-x-5 text-[11px] md:text-xs font-black uppercase overflow-x-auto whitespace-nowrap py-2">
             <div class="text-slate-400 flex items-center gap-2 shrink-0">
-                <span class="w-7 h-7 rounded-full bg-gray-200 text-slate-400 flex items-center justify-center font-black text-xs">1</span> 
+                <span class="w-7 h-7 rounded-full bg-gray-200 text-slate-400 flex items-center justify-center font-black text-xs">1</span>
                 <span>Pilih Merek</span>
             </div>
             <div class="h-[2px] w-6 md:w-10 bg-gray-200 shrink-0"></div>
-            
+
             <div class="text-slate-900 flex items-center gap-2 shrink-0">
-                <span class="w-7 h-7 rounded-full bg-[#facc15] text-slate-950 flex items-center justify-center font-black text-xs shadow-sm">2</span> 
+                <span class="w-7 h-7 rounded-full bg-[#facc15] text-slate-950 flex items-center justify-center font-black text-xs shadow-sm">2</span>
                 <span>Pilih Series</span>
             </div>
             <div class="h-[2px] w-6 md:w-10 bg-gray-200 shrink-0"></div>
-            
+
             <div class="text-slate-400 flex items-center gap-2 shrink-0">
-                <span class="w-7 h-7 rounded-full bg-gray-200 text-slate-400 flex items-center justify-center font-black text-xs">3</span> 
+                <span class="w-7 h-7 rounded-full bg-gray-200 text-slate-400 flex items-center justify-center font-black text-xs">3</span>
                 <span>Pilih Masalah</span>
             </div>
             <div class="h-[2px] w-6 md:w-10 bg-gray-200 shrink-0"></div>
-            
+
             <div class="text-slate-400 flex items-center gap-2 shrink-0">
-                <span class="w-7 h-7 rounded-full bg-gray-200 text-slate-400 flex items-center justify-center font-black text-xs">4</span> 
+                <span class="w-7 h-7 rounded-full bg-gray-200 text-slate-400 flex items-center justify-center font-black text-xs">4</span>
                 <span>Detail & Book</span>
             </div>
         </div>
 
-        <!-- Form dengan Tambahan onsubmit untuk Validasi -->
         <form action="cek_estimasi_masalah.php" method="GET" onsubmit="return validasiPilihan()" class="space-y-8 pt-4">
             <input type="hidden" name="brand_id" value="<?= htmlspecialchars($brand_id); ?>">
-            <!-- Hapus atribut required HTML bawaan karena kita ganti pakai JavaScript yang lebih pintar -->
             <input type="hidden" name="series_id" id="selected_series_id">
 
-            <!-- Tampilan Grid Box 8 Series per Merek -->
             <div class="flex flex-wrap justify-center gap-5">
-                <?php foreach($series_list as $series): ?>
-                    <div type="button" onclick="pilihSeries(this, '<?= htmlspecialchars($series['id']); ?>')" 
-                            class="series-card flex flex-col items-center justify-center pt-8 pb-6 px-4 bg-white border border-gray-100 rounded-[1.5rem] cursor-pointer hover:border-yellow-400 hover:bg-yellow-50/5 transition-all duration-200 group select-none shadow-sm shadow-slate-100 w-[calc(50%-1.25rem)] sm:w-[calc(25%-1.25rem)] min-w-[180px]">
-                        
+                <?php foreach ($series_list as $series): ?>
+                    <div type="button" onclick="pilihSeries(this, '<?= htmlspecialchars($series['id']); ?>')"
+                        class="series-card flex flex-col items-center justify-center pt-8 pb-6 px-4 bg-white border border-gray-100 rounded-[1.5rem] cursor-pointer hover:border-yellow-400 hover:bg-yellow-50/5 transition-all duration-200 group select-none shadow-sm shadow-slate-100 w-[calc(50%-1.25rem)] sm:w-[calc(25%-1.25rem)] min-w-[180px]">
+
                         <div class="w-full h-24 flex items-center justify-center mb-4 bg-white">
-                            <img src="<?= htmlspecialchars($series['foto']); ?>" alt="Foto <?= htmlspecialchars($series['nama']); ?>" 
-                                 class="max-w-full max-h-full object-contain transition-all duration-200">
+                            <img src="<?= htmlspecialchars($series['foto']); ?>" alt="Foto <?= htmlspecialchars($series['nama']); ?>"
+                                class="max-w-full max-h-full object-contain transition-all duration-200">
                         </div>
-                        
+
                         <span class="text-[11px] font-extrabold uppercase tracking-normal text-slate-700 text-center group-hover:text-slate-900 leading-tight">
                             <?= htmlspecialchars($series['nama']); ?>
                         </span>
@@ -139,7 +139,6 @@ while ($row = mysqli_fetch_assoc($result_series)) {
                 <?php endforeach; ?>
             </div>
 
-            <!-- Tombol Navigasi Bawah -->
             <div class="flex justify-between items-center pt-6 border-t border-gray-100">
                 <a href="cek_estimasi.php" class="bg-[#e2e8f0] hover:bg-[#cbd5e1] text-slate-600 font-bold text-xs uppercase px-7 py-3 rounded-lg flex items-center gap-2 transition">
                     <i class="fas fa-chevron-left text-[10px]"></i> Kembali
@@ -157,7 +156,23 @@ while ($row = mysqli_fetch_assoc($result_series)) {
         </div>
     </footer>
 
-    <!-- JavaScript dengan Fungsi Validasi Pengunci Halaman -->
+    <div id="modal_validasi_series" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center px-4">
+        <div class="bg-white rounded-[1.5rem] max-w-sm w-full p-6 shadow-xl space-y-4 border border-gray-100 text-center">
+            <div class="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center mx-auto text-amber-500">
+                <i class="fas fa-exclamation-circle text-xl"></i>
+            </div>
+            <div class="space-y-1">
+                <h3 class="text-base font-extrabold text-slate-900">Series Belum Dipilih</h3>
+                <p class="text-xs text-slate-400 font-medium leading-relaxed">Silakan pilih salah satu Varian Series laptop anda terlebih dahulu sebelum melanjutkan ke tahap analisis masalah!</p>
+            </div>
+            <div class="pt-2">
+                <button type="button" onclick="tutupModalValidasi()" class="w-full bg-[#ffd54f] hover:bg-[#ffca28] text-slate-900 text-xs font-black py-3 rounded-xl transition block text-center shadow-sm uppercase tracking-wider">
+                    Paham, Pilih Series
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         function pilihSeries(elemenTarget, idSeries) {
             const semuaCard = document.querySelectorAll('.series-card');
@@ -167,26 +182,27 @@ while ($row = mysqli_fetch_assoc($result_series)) {
             });
             elemenTarget.classList.remove('border-gray-100', 'bg-white');
             elemenTarget.classList.add('border-2', 'border-yellow-400', 'bg-yellow-50/10');
-            
+
             // Isi nilai ID Series ke input hidden
             document.getElementById('selected_series_id').value = idSeries;
         }
 
-        // FUNGSI PENGUNCI: Memastikan user sudah klik salah satu kartu sebelum pindah
+        // REVISI: FUNGSI PENGUNCI POP-UP MODAL CUSTOM DI TENGAH LAYAR
         function validasiPilihan() {
             const idSeriesTerpilih = document.getElementById('selected_series_id').value;
-            
+
             if (idSeriesTerpilih === "" || idSeriesTerpilih === null) {
-                // Munculkan notifikasi penolak
-                alert("Silakan pilih salah satu Series Laptop anda terlebih dahulu sebelum melanjutkan!");
-                
-                // Kembalikan false agar form membatalkan proses submit dan tetap di halaman ini
-                return false; 
+                // Bongkar boks modal tengah dengan melepas class hidden
+                document.getElementById('modal_validasi_series').classList.remove('hidden');
+                return false; // Mengunci / membatalkan perpindahan halaman
             }
-            
-            // Jika aman, izinkan lanjut ke halaman masalah
-            return true;
+            return true; // Lolos, diizinkan ke halaman masalah
+        }
+
+        function tutupModalValidasi() {
+            document.getElementById('modal_validasi_series').classList.add('hidden');
         }
     </script>
 </body>
+
 </html>

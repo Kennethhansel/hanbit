@@ -25,14 +25,16 @@ require_once '../koneksi.php';
     <!-- Navigation Bar -->
     <nav class="bg-white border-b border-gray-100 sticky top-0 z-50 shadow-sm">
         <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
-            <div class="flex items-center gap-3">
+            <a href="index.php" class="flex items-center gap-3 hover:opacity-90 transition select-none">
                 <img src="../logo warna.png" alt="Logo Hanbit" class="w-10 h-10 object-contain">
-                <span class="text-3xl font-extrabold text-slate-900 tracking-tight">Hanbit</span>
-            </div>
+                <span class="text-3xl font-extrabold tracking-tight text-slate-900">Hanbit</span>
+            </a>
+            <!-- REVISI: Pembaruan struktur menu navigasi atas agar menyertakan Portofolio -->
             <div class="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-600">
                 <a href="#home" class="text-yellow-600 hover:text-yellow-500 transition">Home</a>
-                <a href="#layanan" class="hover:text-slate-900 transition">Katalog</a>
+                <a href="katalog.php" class="hover:text-slate-900 transition">Katalog</a>
                 <a href="#layanan" class="hover:text-slate-900 transition">Layanan</a>
+                <a href="portofolio.php" class="hover:text-slate-900 transition">Portofolio</a>
                 <a href="#kontak" class="hover:text-slate-900 transition">Kontak</a>
             </div>
             <a href="https://wa.me/6285159794427" target="_blank" class="bg-[#00e676] hover:bg-[#00c853] text-white text-xs font-bold px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-md shadow-emerald-500/10 transition">
@@ -43,7 +45,7 @@ require_once '../koneksi.php';
 
     <!-- Hero Section -->
     <section id="home" class="relative bg-[#0b1329] text-white pt-20 pb-40 z-10">
-        <div class="absolute inset-0 opacity-15 bg-cover bg-center" style="background-image: url('images/utama.jpg');"></div>
+        <div class="absolute inset-0 opacity-15 bg-cover bg-center" style="background-image: url('images/utama.jpg?v=<?= time(); ?>');"></div>
 
         <div class="relative max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             <div class="lg:col-span-10 space-y-6">
@@ -53,13 +55,13 @@ require_once '../koneksi.php';
                     <span class="text-yellow-400 mt-1.5 block">Perawatan & Perbaikan</span>
                     <span class="text-white block mt-0.5">Laptop Anda</span>
                 </h1>
-                
+
                 <div class="flex flex-wrap items-center gap-6 text-sm font-medium text-slate-300 pt-2">
                     <span class="flex items-center gap-2"><i class="fas fa-check-circle text-yellow-400"></i> Cepat</span>
                     <span class="flex items-center gap-2"><i class="fas fa-check-circle text-yellow-400"></i> Transparansi</span>
                     <span class="flex items-center gap-2"><i class="fas fa-check-circle text-yellow-400"></i> Bergaransi</span>
                 </div>
-                
+
                 <div class="pt-4">
                     <a href="cek_estimasi.php" class="inline-block bg-yellow-400 hover:bg-yellow-500 text-slate-900 font-extrabold px-6 py-3.5 rounded-full text-sm transition shadow-lg shadow-yellow-400/20">
                         Cek Kerusakan & Estimasi Harga
@@ -68,17 +70,15 @@ require_once '../koneksi.php';
             </div>
         </div>
 
-        <!-- REVISI KOTAK FORM STATUS TRACKING INTERAKTIF -->
+        <!-- Kotak Tracking -->
         <div class="absolute left-6 right-6 bottom-0 transform translate-y-1/2 max-w-4xl mx-auto z-30">
             <div class="bg-white text-slate-900 p-6 md:p-8 rounded-[2rem] shadow-2xl border border-gray-100">
                 <div class="mb-4">
                     <h3 class="text-lg font-extrabold uppercase tracking-tight text-slate-900">Status Tracking</h3>
                     <p class="text-xs text-slate-400 font-medium">Lacak Progres Unit Service Anda</p>
                 </div>
-                
-                <!-- Diarahkan ke file status_tracking.php dengan metode pencarian GET -->
+
                 <form action="status_tracking.php" method="GET" class="flex flex-col sm:flex-row gap-3">
-                    <!-- Atribut name diubah menjadi kode_order agar dibaca oleh halaman penangkap -->
                     <input type="text" name="kode_order" placeholder="Masukkan Kode Order Anda (Contoh: #HB2026-0042)" required
                         class="flex-1 px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl text-sm font-bold focus:bg-white focus:ring-2 focus:ring-yellow-400 outline-none transition">
                     <button type="submit" class="bg-black hover:bg-slate-900 text-white font-bold text-xs uppercase px-8 py-4 rounded-2xl transition tracking-wider shrink-0">
@@ -130,7 +130,7 @@ require_once '../koneksi.php';
                 </div>
                 <div>
                     <h3 class="font-extrabold text-slate-900 text-base mb-1">Maintenance</h3>
-                    <p class="text-xs text-slate-500 leading-relaxed font-medium">Cleaning menyeluruh dan perawatan rutin laptop.</p>
+                    <p class="text-xs text-slate-500 leading-relaxed font-medium">Cleaning menyeluruh and perawatan rutin laptop.</p>
                 </div>
             </div>
         </div>
@@ -148,7 +148,7 @@ require_once '../koneksi.php';
             <div class="bg-white border border-gray-200 rounded-[2rem] shadow-xl overflow-hidden flex flex-col justify-between">
                 <div>
                     <div class="h-32 w-full overflow-hidden bg-slate-100">
-                        <img src="images/paket-basic.jpg" alt="Paket Basic" class="w-full h-full object-cover">
+                        <img src="images/paket-basic.jpg?v=<?= time(); ?>" alt="Paket Basic" class="w-full h-full object-cover">
                     </div>
                     <div class="p-6 text-center bg-[#1e293b] text-white">
                         <h3 class="text-base font-extrabold">Paket Basic</h3>
@@ -167,7 +167,7 @@ require_once '../koneksi.php';
                 </div>
                 <div class="p-6 pt-0 text-center">
                     <p class="text-[10px] font-bold text-slate-400 mb-4">Laptop Gaming: <span class="font-extrabold text-slate-800">100K</span></p>
-                    <a href="buat_reservasi.php?paket=basic" class="block w-full bg-black hover:bg-slate-900 text-white font-bold text-xs uppercase py-3.5 rounded-xl tracking-wider transition">Pilih Paket</a>
+                    <a href="buat_reservasi_paket.php?paket=basic" class="block w-full bg-black hover:bg-slate-900 text-white font-bold text-xs uppercase py-3.5 rounded-xl tracking-wider transition">Pilih Paket</a>
                 </div>
             </div>
 
@@ -176,7 +176,7 @@ require_once '../koneksi.php';
                 <span class="absolute top-3 right-3 bg-yellow-400 text-black text-[9px] font-black uppercase px-2.5 py-1 rounded-full tracking-wider z-10">POPULER</span>
                 <div>
                     <div class="h-32 w-full overflow-hidden bg-slate-100">
-                        <img src="images/paket-standard.jpg" alt="Paket Standard" class="w-full h-full object-cover">
+                        <img src="images/paket-standard.jpg?v=<?= time(); ?>" alt="Paket Standard" class="w-full h-full object-cover">
                     </div>
                     <div class="p-6 text-center bg-yellow-500 text-slate-950">
                         <h3 class="text-base font-black">Paket Standard</h3>
@@ -196,7 +196,7 @@ require_once '../koneksi.php';
                 </div>
                 <div class="p-6 pt-0 text-center">
                     <p class="text-[10px] font-bold text-slate-400 mb-4">Laptop Gaming: <span class="font-extrabold text-slate-800">200K</span></p>
-                    <a href="buat_reservasi.php?paket=standard" class="block w-full bg-yellow-400 hover:bg-yellow-500 text-slate-950 font-black text-xs uppercase py-3.5 rounded-xl tracking-wider transition">Pilih Paket</a>
+                    <a href="buat_reservasi_paket.php?paket=standard" class="block w-full bg-yellow-400 hover:bg-yellow-500 text-slate-950 font-black text-xs uppercase py-3.5 rounded-xl tracking-wider transition">Pilih Paket</a>
                 </div>
             </div>
 
@@ -204,7 +204,7 @@ require_once '../koneksi.php';
             <div class="bg-white border border-gray-200 rounded-[2rem] shadow-xl overflow-hidden flex flex-col justify-between">
                 <div>
                     <div class="h-32 w-full overflow-hidden bg-slate-100">
-                        <img src="images/paket-premium.jpg" alt="Paket Premium" class="w-full h-full object-cover">
+                        <img src="images/paket-premium.jpg?v=<?= time(); ?>" alt="Paket Premium" class="w-full h-full object-cover">
                     </div>
                     <div class="p-6 text-center bg-[#1e293b] text-white">
                         <h3 class="text-base font-extrabold">Paket Premium</h3>
@@ -224,18 +224,18 @@ require_once '../koneksi.php';
                 </div>
                 <div class="p-6 pt-0 text-center">
                     <p class="text-[10px] font-bold text-slate-400 mb-4">Laptop Gaming: <span class="font-extrabold text-slate-800">250K</span></p>
-                    <a href="buat_reservasi.php?paket=premium" class="block w-full bg-black hover:bg-slate-900 text-white font-bold text-xs uppercase py-3.5 rounded-xl tracking-wider transition">Pilih Paket</a>
+                    <a href="buat_reservasi_paket.php?paket=premium" class="block w-full bg-black hover:bg-slate-900 text-white font-bold text-xs uppercase py-3.5 rounded-xl tracking-wider transition">Pilih Paket</a>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Footer Footer Section -->
+    <!-- Footer Section -->
     <footer id="kontak" class="bg-[#1e293b] text-slate-300 pt-16 pb-8 border-t border-slate-800">
         <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-12 gap-10 mb-12">
             <div class="md:col-span-5 space-y-4">
                 <div class="flex items-center gap-3">
-                    <img src="../logo warna.png" alt="Logo Hanbit" class="w-8 h-8 object-contain">
+                    <img src="../logo warna.png?v=<?= time(); ?>" alt="Logo Hanbit" class="w-8 h-8 object-contain">
                     <span class="text-lg font-black text-white tracking-tight">Hanbit</span>
                 </div>
                 <p class="text-xs text-slate-400 leading-relaxed font-medium max-w-sm">
@@ -247,7 +247,13 @@ require_once '../koneksi.php';
                 <ul class="space-y-2.5 text-xs font-semibold text-slate-400">
                     <li class="flex items-center gap-3"><i class="fas fa-phone-alt text-yellow-400"></i> +62 851-5979-4427</li>
                     <li class="flex items-center gap-3"><i class="fas fa-envelope text-yellow-400"></i> hanbit0925@gmail.com</li>
-                    <li class="flex items-start gap-3"><i class="fas fa-map-marker-alt text-yellow-400 mt-0.5"></i> <span>Jl. Cihanjuang No.3 Kp. Centeng</span></li>
+                    <li class="flex items-start gap-3 border-b border-slate-800/60 pb-2.5"><i class="fas fa-map-marker-alt text-yellow-400 mt-0.5"></i> <span>Jl. Cihanjuang No.3 Kp. Centeng</span></li>
+                    <li class="flex items-center gap-3 pt-1">
+                        <i class="fab fa-instagram text-xl text-pink-500"></i>
+                        <a href="https://instagram.com/hanbit.labs" target="_blank" class="text-slate-300 hover:text-yellow-400 font-bold transition">
+                            @hanbit.labs
+                        </a>
+                    </li>
                 </ul>
             </div>
             <div class="md:col-span-3 space-y-3.5">
