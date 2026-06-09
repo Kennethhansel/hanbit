@@ -7,10 +7,10 @@ proteksi_halaman();
 // A. LOGIKA PROSES TAMBAH PORTOFOLIO (CREATE)
 // ==========================================
 if (isset($_POST['tambah_porto'])) {
-    $judul       = mysqli_real_escape_string($koneksi, $_POST['judul']);
+    $judul       = mysqli_real_escape_string($koneksi, trim($_POST['judul']));
     $kategori    = mysqli_real_escape_string($koneksi, $_POST['kategori']);
     $tipe_media  = mysqli_real_escape_string($koneksi, $_POST['tipe_media']);
-    $deskripsi   = mysqli_real_escape_string($koneksi, $_POST['deskripsi']);
+    $deskripsi   = mysqli_real_escape_string($koneksi, trim($_POST['deskripsi']));
     
     if ($tipe_media == 'gambar') {
         $nama_gambar = $_FILES['gambar_file']['name'];
@@ -23,7 +23,7 @@ if (isset($_POST['tambah_porto'])) {
         }
         move_uploaded_file($tmp_name, $jalur_simpan);
     } else {
-        $media_final = mysqli_real_escape_string($koneksi, $_POST['video_url']);
+        $media_final = mysqli_real_escape_string($koneksi, trim($_POST['video_url']));
     }
 
     $query_insert = "INSERT INTO tb_portofolio (judul, kategori, tipe_media, deskripsi, sumber_media) 
@@ -38,10 +38,13 @@ if (isset($_POST['tambah_porto'])) {
 // ==========================================
 if (isset($_POST['edit_porto'])) {
     $id_porto    = intval($_POST['id_porto']);
-    $judul       = mysqli_real_escape_string($koneksi, $_POST['judul']);
+    $judul       = mysqli_real_escape_string($koneksi, trim($_POST['judul']));
     $kategori    = mysqli_real_escape_string($koneksi, $_POST['kategori']);
     $tipe_media  = mysqli_real_escape_string($koneksi, $_POST['tipe_media']);
-    $deskripsi   = mysqli_real_escape_string($koneksi, $_POST['deskripsi']);
+    $deskripsi   = mysqli_real_escape_string($koneksi, trim($_POST['deskripsi']));
+
+    $cek_lama = mysqli_query($koneksi, "SELECT tipe_media, sumber_media FROM tb_portofolio WHERE id_porto = $id_porto");
+    $data_lama = mysqli_fetch_assoc($cek_lama);
 
     if ($tipe_media == 'gambar') {
         if (!empty($_FILES['gambar_file']['name'])) {
@@ -51,8 +54,6 @@ if (isset($_POST['edit_porto'])) {
             $jalur_simpan = '../customer/images/portofolio/' . $media_final;
 
             if (move_uploaded_file($tmp_name, $jalur_simpan)) {
-                $cek_lama = mysqli_query($koneksi, "SELECT tipe_media, sumber_media FROM tb_portofolio WHERE id_porto = $id_porto");
-                $data_lama = mysqli_fetch_assoc($cek_lama);
                 if ($data_lama && $data_lama['tipe_media'] == 'gambar') {
                     $path_hapus = '../customer/images/portofolio/' . $data_lama['sumber_media'];
                     if (file_exists($path_hapus)) { unlink($path_hapus); }
@@ -63,9 +64,7 @@ if (isset($_POST['edit_porto'])) {
             $query_update = "UPDATE tb_portofolio SET judul='$judul', kategori='$kategori', tipe_media='$tipe_media', deskripsi='$deskripsi' WHERE id_porto=$id_porto";
         }
     } else {
-        $media_final = mysqli_real_escape_string($koneksi, $_POST['video_url']);
-        $cek_lama = mysqli_query($koneksi, "SELECT tipe_media, sumber_media FROM tb_portofolio WHERE id_porto = $id_porto");
-        $data_lama = mysqli_fetch_assoc($cek_lama);
+        $media_final = mysqli_real_escape_string($koneksi, trim($_POST['video_url']));
         if ($data_lama && $data_lama['tipe_media'] == 'gambar') {
             $path_hapus = '../customer/images/portofolio/' . $data_lama['sumber_media'];
             if (file_exists($path_hapus)) { unlink($path_hapus); }
@@ -174,12 +173,12 @@ $ambil_porto = mysqli_query($koneksi, "SELECT * FROM tb_portofolio ORDER BY id_p
                     </div>
 
                     <div class="md:col-span-12 space-y-1">
-                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Ringkasan Analisis Teknis Kasus Pengerjaan (Bisa Enter Baris Baru)</label>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Ringkasan Analisis Teknis Kasus Pengerjaan</label>
                         <textarea name="deskripsi" rows="3" placeholder="Contoh:&#10;1. Suhu drop dari 95°C ke 78°C&#10;2. Menggunakan thermal paste premium GC-Extreme.&#10;3. Kipas dibersihkan total." required class="w-full px-4 py-2.5 bg-slate-50 border border-gray-200 rounded-xl font-medium focus:outline-none focus:border-yellow-400 focus:bg-white transition text-slate-700 resize-none leading-relaxed"></textarea>
                     </div>
 
                     <div class="md:col-span-12 space-y-1" id="wrap_gambar_add">
-                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Unggah Foto Dokumentasi Kerusakan</label>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Unggah Foto Dokumentasi Perbaikan</label>
                         <input type="file" name="gambar_file" id="file_gambar_input_add" accept="image/*" required class="w-full px-2 py-1.5 bg-slate-50 border border-gray-200 rounded-xl focus:outline-none focus:border-yellow-400 transition">
                     </div>
 
@@ -190,7 +189,7 @@ $ambil_porto = mysqli_query($koneksi, "SELECT * FROM tb_portofolio ORDER BY id_p
 
                     <div class="md:col-span-12 pt-2 flex justify-end">
                         <button type="submit" name="tambah_porto" class="bg-black hover:bg-slate-900 text-white font-bold text-xs uppercase px-6 py-2.5 rounded-xl tracking-wider transition">
-                            Publikasikan Karya
+                            Publikasikan
                         </button>
                     </div>
                 </form>
@@ -212,7 +211,7 @@ $ambil_porto = mysqli_query($koneksi, "SELECT * FROM tb_portofolio ORDER BY id_p
                                     <th class="p-4">Detail Pengerjaan Portofolio</th>
                                     <th class="p-4 w-44">Kategori Klasifikasi</th>
                                     <th class="p-4 w-32 text-center">Tipe Media</th>
-                                    <th class="p-4 w-16 text-center">Edit</th>
+                                    <th class="p-4 w-16 text-center">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100 font-medium text-slate-700">
@@ -249,7 +248,14 @@ $ambil_porto = mysqli_query($koneksi, "SELECT * FROM tb_portofolio ORDER BY id_p
                                                 <?php endif; ?>
                                             </td>
                                             <td class="p-4 text-center">
-                                                <button type="button" onclick="bukaModalEditPorto('<?= $row['id_porto']; ?>', '<?= htmlspecialchars($row['judul'], ENT_QUOTES); ?>', '<?= $row['kategori']; ?>', '<?= $row['tipe_media']; ?>', '<?= htmlspecialchars(json_encode($row['deskripsi']), ENT_QUOTES); ?>', '<?= htmlspecialchars($row['sumber_media'], ENT_QUOTES); ?>')" class="text-blue-500 hover:text-blue-700 text-sm p-1.5 transition inline-block">
+                                                <button type="button" 
+                                                        class="btn-pemicu-edit text-blue-500 hover:text-blue-700 text-sm p-1.5 transition inline-block"
+                                                        data-id="<?= $row['id_porto']; ?>" 
+                                                        data-judul="<?= htmlspecialchars($row['judul'], ENT_QUOTES); ?>" 
+                                                        data-kategori="<?= $row['kategori']; ?>" 
+                                                        data-tipe="<?= $row['tipe_media']; ?>" 
+                                                        data-sumber="<?= htmlspecialchars($row['sumber_media'], ENT_QUOTES); ?>"
+                                                        data-deskripsi="<?= htmlspecialchars($row['deskripsi'], ENT_QUOTES); ?>">
                                                     <i class="fas fa-edit"></i>
                                                 </button>
                                             </td>
@@ -338,6 +344,40 @@ $ambil_porto = mysqli_query($koneksi, "SELECT * FROM tb_portofolio ORDER BY id_p
     </div>
 
     <script>
+        // 🔥 EVENT LISTENER UTAMA: Menangani klik tombol edit secara dinamis dan aman dari crash enter/multiline
+        document.addEventListener('DOMContentLoaded', function() {
+            const tombolEdit = document.querySelectorAll('.btn-pemicu-edit');
+            tombolEdit.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const id        = this.getAttribute('data-id');
+                    const judul     = this.getAttribute('data-judul');
+                    const kategori  = this.getAttribute('data-kategori');
+                    const tipe      = this.getAttribute('data-tipe');
+                    const sumber    = this.getAttribute('data-sumber');
+                    const deskripsi = this.getAttribute('data-deskripsi');
+
+                    document.getElementById('edit_id_porto').value = id;
+                    document.getElementById('edit_judul').value = judul;
+                    document.getElementById('edit_kategori').value = kategori;
+                    document.getElementById('edit_tipe_media').value = tipe;
+                    document.getElementById('edit_deskripsi').value = deskripsi;
+
+                    aturInputMedia(tipe, 'edit');
+
+                    if (tipe === 'video') {
+                        document.getElementById('url_video_input_edit').value = sumber;
+                    } else {
+                        if(document.getElementById('url_video_input_edit')) {
+                            document.getElementById('url_video_input_edit').value = "";
+                        }
+                    }
+
+                    const m = document.getElementById('modal_edit_porto');
+                    m.classList.remove('hidden'); m.classList.add('flex');
+                });
+            });
+        });
+
         function toggleSemuaPorto(master) {
             const checkboxes = document.querySelectorAll('.check_porto_child');
             checkboxes.forEach(cb => cb.checked = master.checked);
@@ -393,30 +433,6 @@ $ambil_porto = mysqli_query($koneksi, "SELECT * FROM tb_portofolio ORDER BY id_p
                 if(fileInput) fileInput.removeAttribute('required');
                 if (context === 'add' && videoInput) videoInput.setAttribute('required', 'required');
             }
-        }
-
-        function bukaModalEditPorto(id, judul, kategori, tipe, deskripsiJson, sumber) {
-            document.getElementById('edit_id_porto').value = id;
-            document.getElementById('edit_judul').value = judul;
-            document.getElementById('edit_kategori').value = kategori;
-            document.getElementById('edit_tipe_media').value = tipe;
-            
-            // 🔥 DECODE JSON SAFE: Mengembalikan enter baris baru secara utuh ke textarea
-            let deskripsiAsli = JSON.parse(deskripsiJson);
-            document.getElementById('edit_deskripsi').value = deskripsiAsli;
-
-            aturInputMedia(tipe, 'edit');
-
-            if (tipe === 'video') {
-                document.getElementById('url_video_input_edit').value = sumber;
-            } else {
-                if(document.getElementById('url_video_input_edit')) {
-                    document.getElementById('url_video_input_edit').value = "";
-                }
-            }
-
-            const m = document.getElementById('modal_edit_porto');
-            m.classList.remove('hidden'); m.classList.add('flex');
         }
 
         function tutupModalEditPorto() {

@@ -91,9 +91,9 @@ $persentase_omzet = ($target_omzet_db > 0) ? min(round(($total_pendapatan / $tar
                     <div class="sm:col-span-3">
                         <label class="text-[10px] text-slate-400 uppercase tracking-wider block mb-1">Pilih Mode Analisis</label>
                         <select name="mode" id="filter_mode" onchange="gantiFormInput(this.value)" class="w-full px-3 py-2.5 bg-slate-50 border border-gray-200 rounded-xl focus:outline-none focus:bg-white cursor-pointer transition">
-                            <option value="hari" <?= $mode_filter == 'hari' ? 'selected' : ''; ?>>📅 Per Hari (Tanggal Eksak)</option>
-                            <option value="bulan" <?= $mode_filter == 'bulan' ? 'selected' : ''; ?>>📆 Per Bulan Spesifik</option>
-                            <option value="tahun" <?= $mode_filter == 'tahun' ? 'selected' : ''; ?>>🏢 Per Tahun Spesifik</option>
+                            <option value="hari" <?= $mode_filter == 'hari' ? 'selected' : ''; ?>>📅 Per Hari</option>
+                            <option value="bulan" <?= $mode_filter == 'bulan' ? 'selected' : ''; ?>>📆 Per Bulan</option>
+                            <option value="tahun" <?= $mode_filter == 'tahun' ? 'selected' : ''; ?>>🏢 Per Tahun</option>
                         </select>
                     </div>
 
@@ -174,10 +174,10 @@ $persentase_omzet = ($target_omzet_db > 0) ? min(round(($total_pendapatan / $tar
 
                 <div class="bg-white border border-gray-200/80 p-5 rounded-2xl shadow-sm flex items-center justify-between transition-all duration-200 hover:shadow-md">
                     <div class="space-y-1">
-                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Servis Rampung Terfilter</span>
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Servis Selesai</span>
                         <h3 class="text-2xl font-black text-slate-900"><?= $total_selesai_hari_ini; ?> <span class="text-xs font-bold text-slate-400 font-sans">Unit</span></h3>
                         <span class="text-[9px] font-bold text-purple-600 inline-flex items-center gap-1 bg-purple-50 px-2 py-0.5 rounded border border-purple-100 uppercase tracking-wide">
-                            <i class="fas fa-clipboard-check"></i> Lolos QC
+                            <i class="fas fa-clipboard-check"></i> Telah Selesai
                         </span>
                     </div>
                     <div class="w-11 h-11 bg-purple-50 rounded-xl flex items-center justify-center text-purple-500 text-base border border-purple-100/50">
@@ -190,7 +190,7 @@ $persentase_omzet = ($target_omzet_db > 0) ? min(round(($total_pendapatan / $tar
             <div class="bg-white border border-gray-200/80 p-6 rounded-2xl shadow-sm space-y-4">
                 <div class="flex justify-between items-center border-b pb-2">
                     <h3 class="text-xs font-extrabold uppercase text-slate-900 tracking-wider">
-                        <i class="fas fa-chart-pie text-slate-700 mr-1"></i> Perbandingan Jenis Booking Terfilter
+                        <i class="fas fa-chart-pie text-slate-700 mr-1"></i> Perbandingan Jenis Booking
                     </h3>
                     <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Perawatan Paket vs Masalah Khusus</span>
                 </div>

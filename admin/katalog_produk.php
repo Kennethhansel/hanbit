@@ -158,7 +158,7 @@ $ambil_katalog = mysqli_query($koneksi, "SELECT * FROM tb_katalog ORDER BY id_pr
                         </select>
                     </div>
                     <div class="md:col-span-3 space-y-1"> 
-                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Harga Pas (Fix)</label> 
+                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Harga</label> 
                         <input type="number" name="harga" placeholder="Contoh: 450000" required class="w-full px-4 py-2.5 bg-slate-50 border border-gray-200 rounded-xl focus:outline-none focus:border-yellow-400 focus:bg-white transition text-slate-800 font-bold"> 
                     </div>
                     <div class="md:col-span-6 space-y-1"> 
@@ -166,7 +166,7 @@ $ambil_katalog = mysqli_query($koneksi, "SELECT * FROM tb_katalog ORDER BY id_pr
                         <input type="text" name="deskripsi" placeholder="Contoh: Speed up to 3200MHz, original garansi lifetime." required class="w-full px-4 py-2.5 bg-slate-50 border border-gray-200 rounded-xl font-medium focus:outline-none focus:border-yellow-400 focus:bg-white transition text-slate-700"> 
                     </div>
                     <div class="md:col-span-6 space-y-1"> 
-                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Link E-Commerce (Shopee/Tokopedia)</label> 
+                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Link E-Commerce</label> 
                         <input type="url" name="link_ecommerce" placeholder="Contoh: https://shopee.co.id/..." required class="w-full px-4 py-2.5 bg-slate-50 border border-gray-200 rounded-xl font-medium focus:outline-none focus:border-yellow-400 focus:bg-white transition text-blue-600 font-sans"> 
                     </div>
                     <div class="md:col-span-12 space-y-1"> 

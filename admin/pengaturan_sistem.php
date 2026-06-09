@@ -74,7 +74,7 @@ $pesan_tutup_skrg= $data_skrg['pesan_penutupan'] ?? '';
 
             <div class="bg-white border border-gray-200/80 p-6 rounded-2xl shadow-sm space-y-4">
                 <h3 class="text-xs font-extrabold uppercase text-slate-900 tracking-wider">
-                    ⚡ Sakelar Instan Status Toko (Gate Controller)
+                    ⚡ Status Toko
                 </h3>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 select-none">
                     <div onclick="submitStatusToko('buka')" class="border rounded-2xl p-4 flex items-center justify-between cursor-pointer transition-all duration-200 <?= $status_skrg == 'buka' ? 'border-emerald-500 bg-emerald-50/30' : 'border-gray-200 bg-slate-50/50 hover:bg-slate-50' ?>">

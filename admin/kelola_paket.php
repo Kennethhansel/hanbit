@@ -105,7 +105,7 @@ $ambil_paket = mysqli_query($koneksi, "SELECT * FROM master_packages ORDER BY id
                             </div>
 
                             <div class="md:col-span-8 space-y-1">
-                                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Layanan Keuntungan Paket (*Pisahkan Setiap Baris Benefit Baru)</label>
+                                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Layanan Keuntungan Paket</label>
                                 <textarea name="benefits" rows="3" required class="w-full px-4 py-2.5 bg-slate-50 border border-gray-200 rounded-xl font-medium focus:outline-none focus:border-yellow-400 focus:bg-white transition resize-none text-slate-600 leading-relaxed font-sans"><?= htmlspecialchars($pkg['benefits']); ?></textarea>
                             </div>
 
