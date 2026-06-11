@@ -32,10 +32,7 @@ if ($result) {
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700;800&display=swap');
-
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-        }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
     </style>
 </head>
 
@@ -64,28 +61,22 @@ if ($result) {
 
         <div class="text-center space-y-2 max-w-xl mx-auto">
             <span class="bg-blue-100 text-blue-700 text-[10px] font-black uppercase px-3 py-1 rounded-full tracking-wider">Our Work Log</span>
-            <h1 class="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight text-slate-900">
-                Portofolio Hanbit Labs
-            </h1>
-            <p class="text-sm text-slate-400 font-medium leading-relaxed">Dokumentasi kerja nyata penanganan unit konsumen kami secara transparan dan profesional.</p>
+            <h1 class="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight text-slate-900">Portofolio Hanbit Labs</h1>
+            <p class="text-sm text-slate-400 font-medium leading-relaxed">Dokumentasi penanganan unit konsumen kami secara transparan dan profesional.</p>
         </div>
 
         <div class="flex flex-wrap justify-center items-center gap-2 md:gap-3 border-b border-gray-100 pb-2">
             <button type="button" onclick="saringPorto('semua', this)" class="btn-filter bg-[#1e293b] text-white font-extrabold text-xs uppercase px-5 py-2.5 rounded-xl shadow-sm transition duration-200">
                 Semua Kasus
             </button>
-            <button type="button" onclick="saringPorto('maintenance', this)" class="btn-filter bg-white hover:bg-slate-50 border border-gray-200 text-slate-600 font-bold text-xs uppercase px-5 py-2.5 rounded-xl transition duration-200">
-                Maintenance & Repaste
-            </button>
-            <button type="button" onclick="saringPorto('layar', this)" class="btn-filter bg-white hover:bg-slate-50 border border-gray-200 text-slate-600 font-bold text-xs uppercase px-5 py-2.5 rounded-xl transition duration-200">
-                Ganti Layar LCD
-            </button>
-            <button type="button" onclick="saringPorto('keyboard', this)" class="btn-filter bg-white hover:bg-slate-50 border border-gray-200 text-slate-600 font-bold text-xs uppercase px-5 py-2.5 rounded-xl transition duration-200">
-                Perbaikan Keyboard
-            </button>
-            <button type="button" onclick="saringPorto('matot', this)" class="btn-filter bg-white hover:bg-slate-50 border border-gray-200 text-slate-600 font-bold text-xs uppercase px-5 py-2.5 rounded-xl transition duration-200">
-                Mati Total (Mobo Short)
-            </button>
+            <?php
+            $q_btn_kat = mysqli_query($koneksi, "SELECT * FROM tb_kategori_porto ORDER BY nama_kategori ASC");
+            while($bk = mysqli_fetch_assoc($q_btn_kat)):
+            ?>
+                <button type="button" onclick="saringPorto('<?= $bk['slug_kategori']; ?>', this)" class="btn-filter bg-white hover:bg-slate-50 border border-gray-200 text-slate-600 font-bold text-xs uppercase px-5 py-2.5 rounded-xl transition duration-200">
+                    <?= htmlspecialchars($bk['nama_kategori']); ?>
+                </button>
+            <?php endwhile; ?>
         </div>
 
         <div id="grid_portofolio" class="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -98,7 +89,6 @@ if ($result) {
                             <iframe class="w-full h-full" src="<?= $porto['sumber_media']; ?>" title="Hanbit Video Player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                         <?php else: ?>
                             <?php 
-                                // REVISI JALUR GAMBAR: Mendeteksi data bawaan lama (ada kata 'images/') vs upload admin baru (hanya nama file)
                                 $src_media = (strpos($porto['sumber_media'], 'images/') !== false) ? $porto['sumber_media'] : 'images/portofolio/' . $porto['sumber_media'];
                             ?>
                             <img src="<?= $src_media; ?>?v=<?= time(); ?>" alt="<?= htmlspecialchars($porto['judul']); ?>" class="w-full h-full object-cover">
@@ -109,14 +99,15 @@ if ($result) {
                         <div class="flex items-center gap-2">
                             <span class="bg-amber-100 text-amber-800 text-[9px] font-extrabold uppercase px-2.5 py-0.5 rounded-md tracking-wider">
                                 <?php
-                                $labels = ['maintenance' => 'Maintenance', 'layar' => 'Ganti Layar', 'keyboard' => 'Keyboard', 'matot' => 'Mati Total'];
-                                echo $labels[$porto['kategori']] ?? $porto['kategori'];
+                                $slug_check = $porto['kategori'];
+                                $q_label_db = mysqli_query($koneksi, "SELECT nama_kategori FROM tb_kategori_porto WHERE slug_kategori = '$slug_check' LIMIT 1");
+                                $d_label_db = mysqli_fetch_assoc($q_label_db);
+                                echo htmlspecialchars($d_label_db['nama_kategori'] ?? $porto['kategori']);
                                 ?>
                             </span>
                             <span class="text-[10px] font-bold text-slate-400 uppercase"><i class="fas <?= $porto['tipe_media'] == 'video' ? 'fa-video' : 'fa-image'; ?> mr-1"></i><?= $porto['tipe_media']; ?> log</span>
                         </div>
                         <h3 class="text-base font-black text-slate-900 leading-snug"><?= htmlspecialchars($porto['judul']); ?></h3>
-                        
                         <p class="text-xs text-slate-500 font-medium leading-relaxed whitespace-pre-line mt-1"><?= nl2br(htmlspecialchars($porto['deskripsi'])); ?></p>
                     </div>
                 </div>
@@ -154,5 +145,4 @@ if ($result) {
         }
     </script>
 </body>
-
 </html>

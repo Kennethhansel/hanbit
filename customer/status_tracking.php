@@ -12,73 +12,97 @@ if (!empty($invoice_id)) {
     $query = "SELECT * FROM reservations WHERE no_invoice = '$invoice_id' LIMIT 1";
     $result = mysqli_query($koneksi, $query);
     $data_pesanan = mysqli_fetch_assoc($result);
-    
+
     if (!$data_pesanan) {
         $error_msg = "Nomor Invoice tidak terdaftar! Periksa kembali kode unik Anda (Contoh: INV-20260605-XXXX).";
     }
 }
 
 // Inisialisasi awal variabel stepper progres bar
-$status_num = 1; 
+$status_num = 1;
 $status_teks = "PENDING";
 $catatan_teknisi_tampil = "";
-$lebar_aktif = "w-0"; // Menetapkan default lebar progress bar awal agar aman dari crash program
+$lebar_aktif = "w-0";
+$akses_invoice_terbuka = false; // Default awal terkunci demi keamanan
 
 if ($data_pesanan) {
-    // SINKRONISASI LOGIKA REFRESH ADMIN: Jika di DB bernilai 'PENDING_ADMIN', kita standarkan teksnya kembali menjadi 'PENDING' untuk konsumsi customer
     $status_db_raw = strtoupper(trim($data_pesanan['status_order']));
     $status_teks = ($status_db_raw === 'PENDING_ADMIN') ? 'PENDING' : $status_db_raw;
-    
-    $is_paket_maintenance = ($data_pesanan['paket_tipe'] !== 'custom_estimasi');
-    
+
+    $is_custom_estimasi = ($data_pesanan['paket_tipe'] === 'custom_estimasi');
+
     // Format Tanggal Cantik Indonesia untuk Teks Realtime
-    function formatTglIndo($dateStr) {
-        if(empty($dateStr)) return '-';
+    function formatTglIndo($dateStr)
+    {
+        if (empty($dateStr) || $dateStr === '0000-00-00') return '-';
         $bulan_list = ["01" => "Januari", "02" => "Februari", "03" => "Maret", "04" => "April", "05" => "Mei", "06" => "Juni", "07" => "Juli", "08" => "Agustus", "09" => "September", "10" => "Oktober", "11" => "November", "12" => "Desember"];
         $t = strtotime($dateStr);
         return date('j', $t) . " " . $bulan_list[date('m', $t)] . " " . date('Y', $t);
     }
-    
-    $tgl_booking_cpt = formatTglIndo($data_pesanan['tanggal_booking']);
+
+    $tgl_booking_cpt = formatTglIndo($data_pesanan['created_at']);
     $tgl_kerja_cpt   = formatTglIndo($data_pesanan['tanggal_dikerjakan'] ?? '');
     $tgl_selesai_cpt = formatTglIndo($data_pesanan['tanggal_selesai'] ?? '');
 
-    // 1. LOGIKA STATUS STEPPER & DESKRIPSI CATATAN TEKNISI
+    // Logika Catatan Teknisi Dinamis Lintas Status
+    if (!empty($data_pesanan['catatan_teknisi'])) {
+        $catatan_teknisi_tampil = $data_pesanan['catatan_teknisi'];
+    } else {
+        if ($status_teks == 'PENDING') {
+            $catatan_teknisi_tampil = "Data pendaftaran berhasil divalidasi. Silakan serahkan unit laptop ke workshop Hanbit Labs sesuai jadwal kedatangan pilihan Anda.";
+        } elseif ($status_teks == 'PENGECEKAN' || $status_teks == 'SEDANG DIKERJAKAN') {
+            $catatan_teknisi_tampil = "Unit fisik laptop telah diterima oleh teknisi pada " . $tgl_kerja_cpt . ". Saat ini sedang dilakukan pembongkaran sasis untuk pengecekan fisik menyeluruh.";
+        } elseif ($status_teks == 'PERBAIKAN') {
+            $catatan_teknisi_tampil = "Unit telah lulus uji diagnosa awal dan kini masuk tahap proses eksekusi perbaikan intensif oleh tim teknisi Hanbit.";
+        } elseif ($status_teks == 'SELESAI') {
+            $catatan_teknisi_tampil = "Seluruh rangkaian pengerjaan laptop selesai total pada " . $tgl_selesai_cpt . ". Unit telah lulus uji QC stabilitas dan siap diambil kembali.";
+        }
+    }
+
+    // Mengatur nomor step visual tracking bar
     if ($status_teks == 'PENDING') {
         $status_num = 1;
         $lebar_aktif = "w-0";
-        $catatan_teknisi_tampil = "Data reservasi awal berhasil divalidasi. Silakan segera serahkan unit laptop ke toko Hanbit Labs pada tanggal " . $tgl_booking_cpt . " agar masuk antrean pembongkaran.";
     } elseif ($status_teks == 'PENGECEKAN' || $status_teks == 'SEDANG DIKERJAKAN') {
         $status_num = 2;
         $lebar_aktif = "w-1/3";
-        $catatan_teknisi_tampil = $is_paket_maintenance 
-            ? "Unit fisik laptop telah diterima teknisi Hanbit Labs. Saat ini sedang dilakukan pembongkaran dan pemeriksaan jalur komponen internal serta pembersihan debu sasis." 
-            : "Unit fisik laptop telah diterima teknisi Hanbit Labs. Saat ini unit sedang dibongkar untuk proses pengecekan fisik dan diagnosa jalur kerusakan komponen internal.";
     } elseif ($status_teks == 'PERBAIKAN') {
         $status_num = 3;
         $lebar_aktif = "w-2/3";
-        $catatan_teknisi_tampil = $is_paket_maintenance
-            ? "Proses pembersihan selesai. Teknisi sedang melakukan tindakan penggantian thermal paste premium dan optimasi penuh performa sistem laptop Anda sejak " . $tgl_kerja_cpt . "."
-            : (!empty($data_pesanan['catatan_teknisi']) ? $data_pesanan['catatan_teknisi'] : "Unit kini masuk tahap perbaikan intensif oleh teknisi sejak tanggal " . $tgl_kerja_cpt . ". Menunggu pemasangan komponen baru.");
     } elseif ($status_teks == 'SELESAI') {
         $status_num = 4;
         $lebar_aktif = "w-full";
-        $catatan_teknisi_tampil = $is_paket_maintenance
-            ? "Seluruh rangkaian perawatan berkala selesai pada " . $tgl_selesai_cpt . ". Unit sudah lulus QC suhu dingin dan siap diambil kembali di toko."
-            : (!empty($data_pesanan['catatan_teknisi']) ? $data_pesanan['catatan_teknisi'] : "Seluruh perbaikan komponen selesai pada " . $tgl_selesai_cpt . ". Laptop berfungsi 100% normal dan siap diambil.");
     }
 
-    // 2. ATURAN LOGIKA KUNCI INVOICE BARU SESUAI PERMINTAAN ADMIN
-    // Jika Maintenance -> Selalu Terbuka. Jika Kustom -> Terbuka HANYA jika status sudah PERBAIKAN atau SELESAI
-    if ($is_paket_maintenance) {
+    // Invoice dibuka di status Perbaikan/Selesai untuk Kustom Estimasi
+    if (!$is_custom_estimasi) {
         $akses_invoice_terbuka = true;
     } else {
-        $akses_invoice_terbuka = ($status_teks === 'PERBAIKAN' || $status_teks === 'SELESAI');
+        if ($status_teks === 'PERBAIKAN' || $status_teks === 'SELESAI') {
+            $akses_invoice_terbuka = true;
+        } else {
+            $akses_invoice_terbuka = false;
+        }
+    }
+
+    // SINKRONISASI TOTAL HARGA LIVE DARI DATABASE UTAMA
+    $harga_tampilan = 0;
+    if ($is_custom_estimasi && $status_num < 3) {
+        $invoice_clean = mysqli_real_escape_string($koneksi, $data_pesanan['no_invoice']);
+        $q_sum_estimasi = mysqli_query($koneksi, "SELECT SUM(mm.harga_estimasi) as total_est 
+             FROM invoice_details id 
+             JOIN master_masalah mm ON id.nama_item = mm.nama_masalah 
+             WHERE id.no_invoice = '$invoice_clean'");
+        $res_sum_estimasi = mysqli_fetch_assoc($q_sum_estimasi);
+        $harga_tampilan = ($res_sum_estimasi['total_est'] > 0) ? $res_sum_estimasi['total_est'] : $data_pesanan['total_harga'];
+    } else {
+        $harga_tampilan = $data_pesanan['total_harga'];
     }
 }
 ?>
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -88,23 +112,31 @@ if ($data_pesanan) {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
     </style>
 </head>
+
 <body class="bg-[#f8fafc] text-slate-900 antialiased min-h-screen flex flex-col justify-between">
 
-    <nav class="bg-white border-b border-gray-100 sticky top-0 z-40 shadow-sm">
+    <nav class="bg-white border-b border-gray-100 sticky top-0 z-50 shadow-sm">
         <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
             <a href="index.php" class="flex items-center gap-3 hover:opacity-90 transition select-none">
                 <img src="../admin/images/logo warna.png" alt="Logo Hanbit" class="w-10 h-10 object-contain">
                 <span class="text-3xl font-extrabold tracking-tight text-slate-900">Hanbit</span>
             </a>
             <div class="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-600">
-                <a href="index.php" class="hover:text-yellow-600 transition">Home</a>
+                <a href="#home" class="text-yellow-600 hover:text-yellow-500 transition">Home</a>
                 <a href="katalog.php" class="hover:text-slate-900 transition">Katalog</a>
-                <a href="index.php#layanan" class="hover:text-slate-900 transition">Layanan</a>
-                <a href="index.php#kontak" class="hover:text-slate-900 transition">Kontak</a>
+                <a href="#layanan" class="hover:text-slate-900 transition">Layanan</a>
+                <a href="portofolio.php" class="hover:text-slate-900 transition">Portofolio</a>
+                <a href="#kontak" class="hover:text-slate-900 transition">Kontak</a>
             </div>
+            <a href="https://wa.me/6285159794427" target="_blank" class="bg-[#00e676] hover:bg-[#00c853] text-white text-xs font-bold px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-md shadow-emerald-500/10 transition">
+                <i class="fab fa-whatsapp text-sm"></i> Chat Via WA
+            </a>
         </div>
     </nav>
 
@@ -122,7 +154,7 @@ if ($data_pesanan) {
 
         <?php if ($data_pesanan): ?>
             <div class="bg-white border border-gray-200 rounded-[2rem] shadow-2xl overflow-hidden max-w-3xl w-full mx-auto flex flex-col justify-between">
-                
+
                 <div class="bg-slate-900 py-6 px-6 md:px-8 flex flex-row justify-between items-center gap-4">
                     <div class="space-y-0.5">
                         <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">NOMOR INVOICE</p>
@@ -185,24 +217,26 @@ if ($data_pesanan) {
 
                 <div class="bg-[#f8fafc] border-t border-gray-100 p-6 flex flex-col sm:flex-row justify-between items-center gap-4">
                     <div>
-                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">TOTAL ESTIMASI BIAYA SERVIS</p>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                            <?= ($is_custom_estimasi && $status_num < 3) ? 'TOTAL ESTIMASI BIAYA SERVIS' : 'TOTAL TAGIHAN BIAYA SERVIS'; ?>
+                        </p>
                         <h2 class="text-2xl font-black text-slate-900 mt-0.5">
-                            <?= ($data_pesanan['total_harga'] == 0) ? 'Menunggu Cek Fisik' : 'Rp ' . number_format($data_pesanan['total_harga'], 0, ',', '.'); ?>
+                            <?= ($harga_tampilan == 0) ? 'Menunggu Cek Fisik' : 'Rp ' . number_format($harga_tampilan, 0, ',', '.'); ?>
                         </h2>
                     </div>
 
                     <div class="flex gap-3 shrink-0 w-full sm:w-auto">
-                        <a href="https://wa.me/6285159794427" target="_blank" class="flex-1 sm:flex-none bg-[#00e676] hover:bg-[#00c853] text-white font-black text-xs uppercase px-5 py-3.5 rounded-xl flex items-center justify-center gap-2 tracking-wider shadow-sm transition select-none">
+                        <a href="https://wa.me/6285159794427" target="_blank" class="bg-[#00e676] hover:bg-[#00c853] text-white font-black text-xs uppercase px-5 py-3.5 rounded-xl flex items-center justify-center gap-2 tracking-wider shadow-sm transition select-none w-full sm:w-auto">
                             <i class="fab fa-whatsapp text-sm"></i> Chat Admin
                         </a>
 
                         <?php if ($akses_invoice_terbuka): ?>
-                            <button type="button" onclick="bukaLembarInvoicePopup()" class="flex-1 sm:flex-none bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs uppercase px-5 py-3.5 rounded-xl flex items-center justify-center gap-2 tracking-wider shadow-sm transition select-none">
+                            <button type="button" onclick="bukaLembarInvoicePopup()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs uppercase px-5 py-3.5 rounded-xl flex items-center justify-center gap-2 tracking-wider shadow-sm transition select-none w-full sm:w-auto">
                                 Lihat Invoice <i class="fas fa-file-invoice text-sm"></i>
                             </button>
                         <?php else: ?>
-                            <button type="button" disabled class="flex-1 sm:flex-none bg-gray-100 text-gray-400 border border-gray-200 font-black text-xs uppercase px-5 py-3.5 rounded-xl flex items-center justify-center gap-2 cursor-not-allowed select-none opacity-60" title="Untuk perbaikan kustom, rincian invoice terkunci sebelum status masuk Perbaikan">
-                                Invoice Terkunci <i class="fas fa-lock text-[10px]"></i>
+                            <button type="button" disabled class="bg-slate-200 text-slate-400 border border-slate-300 font-black text-xs uppercase px-5 py-3.5 rounded-xl flex items-center justify-center gap-2 tracking-wider cursor-not-allowed w-full sm:w-auto" title="Rincian nota invoice terkunci sementara selama proses analisa fisik.">
+                                Invoice Terkunci <i class="fas fa-lock text-[11px]"></i>
                             </button>
                         <?php endif; ?>
                     </div>
@@ -222,57 +256,69 @@ if ($data_pesanan) {
                         </div>
                         <button type="button" onclick="tutupLembarInvoicePopup()" class="text-slate-400 hover:text-white"><i class="fas fa-times text-base"></i></button>
                     </div>
-                    
+
                     <div class="p-6 space-y-5 bg-white text-xs font-semibold text-slate-600">
-                        <div class="border-b pb-3 text-slate-900">
-                            <span class="text-[9px] text-slate-400 font-bold block uppercase tracking-wider">Invoice No:</span>
-                            <span class="text-lg font-black tracking-tight"><?= $data_pesanan['no_invoice']; ?></span>
+                        <div class="border-b pb-3 text-slate-900 flex justify-between items-end">
+                            <div>
+                                <span class="text-[9px] text-slate-400 font-bold block uppercase tracking-wider">Invoice No:</span>
+                                <span class="text-base font-black tracking-tight"><?= $data_pesanan['no_invoice']; ?></span>
+                            </div>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase">Unit: <?= htmlspecialchars($data_pesanan['laptop_detail']); ?></span>
                         </div>
 
-                        <table class="w-full table-fixed border-collapse">
-                            <tbody>
-                                <tr class="align-middle">
-                                    <td class="w-1/2 text-left py-2"><span class="text-slate-400 font-bold uppercase text-[9px] tracking-wider">Nama Pelanggan</span></td>
-                                    <td class="w-1/2 text-right py-2"><span class="text-slate-900 font-extrabold uppercase text-xs"><?= htmlspecialchars($data_pesanan['nama_pelanggan']); ?></span></td>
-                                </tr>
-                                <tr><td colspan="2" class="border-t border-gray-100 py-0"></td></tr>
-                                <tr class="align-middle">
-                                    <td class="w-1/2 text-left py-2"><span class="text-slate-400 font-bold uppercase text-[9px] tracking-wider">Unit Device Laptop</span></td>
-                                    <td class="w-1/2 text-right py-2"><span class="text-slate-900 font-black uppercase italic text-xs"><?= htmlspecialchars($data_pesanan['laptop_detail']); ?></span></td>
-                                </tr>
-                                <tr><td colspan="2" class="border-t border-gray-100 py-0"></td></tr>
-                                <tr class="align-middle">
-                                    <td class="w-1/2 text-left py-2"><span class="text-slate-400 font-bold uppercase text-[9px] tracking-wider">Tanggal Dikerjakan</span></td>
-                                    <td class="w-1/2 text-right py-2"><span class="text-slate-800 font-bold text-xs"><?= !empty($data_pesanan['tanggal_dikerjakan']) ? date('d M Y', strtotime($data_pesanan['tanggal_dikerjakan'])) : '-'; ?></span></td>
-                                </tr>
-                                <tr><td colspan="2" class="border-t border-gray-100 py-0"></td></tr>
-                                <tr class="align-middle">
-                                    <td class="w-1/2 text-left py-2"><span class="text-slate-400 font-bold uppercase text-[9px] tracking-wider">Tanggal Selesai</span></td>
-                                    <td class="w-1/2 text-right py-2"><span class="text-slate-800 font-bold text-xs"><?= !empty($data_pesanan['tanggal_selesai']) ? date('d M Y', strtotime($data_pesanan['tanggal_selesai'])) : '-'; ?></span></td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <div class="grid grid-cols-3 gap-2 bg-slate-50 p-3 rounded-xl border border-gray-100 text-[10px] font-bold text-center text-slate-700 select-none">
+                            <div>
+                                <span class="text-slate-400 block uppercase text-[8px] tracking-wider">1. Tgl Masuk</span>
+                                <span class="text-slate-800 font-mono"><?= date('d/m/Y', strtotime($data_pesanan['created_at'])); ?></span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 block uppercase text-[8px] tracking-wider">2. Tgl Mulai</span>
+                                <span class="text-slate-800 font-mono"><?= (!empty($data_pesanan['tanggal_dikerjakan']) && $data_pesanan['tanggal_dikerjakan'] !== '0000-00-00') ? date('d/m/Y', strtotime($data_pesanan['tanggal_dikerjakan'])) : '-'; ?></span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 block uppercase text-[8px] tracking-wider">3. Tgl Selesai</span>
+                                <span class="text-slate-800 font-mono"><?= (!empty($data_pesanan['tanggal_selesai']) && $data_pesanan['tanggal_selesai'] !== '0000-00-00') ? date('d/m/Y', strtotime($data_pesanan['tanggal_selesai'])) : '-'; ?></span>
+                            </div>
+                        </div>
 
-                        <div class="border-t pt-4 space-y-2">
-                            <span class="text-[9px] text-slate-400 font-bold block uppercase tracking-wider mb-1">Rincian Komponen & Jasa Perbaikan:</span>
-                            <table class="w-full table-fixed border-collapse bg-slate-50 rounded-xl p-2">
-                                <tbody>
+                        <div class="space-y-2">
+                            <span class="text-[9px] text-slate-400 font-bold block uppercase tracking-wider mb-1">Rincian Item & Jasa:</span>
+                            <table class="w-full table-fixed border-collapse bg-slate-50 rounded-xl">
+                                <thead>
+                                    <tr class="text-[9px] text-slate-400 uppercase tracking-wider border-b border-white">
+                                        <th class="p-2.5 text-left pl-3">Item Tindakan / Deskripsi</th>
+                                        <th class="p-2.5 text-right pr-3 w-28">Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-white text-slate-600">
                                     <?php
-                                    $q_det = mysqli_query($koneksi, "SELECT * FROM invoice_details WHERE no_invoice = '".$data_pesanan['no_invoice']."' ORDER BY id_detail ASC");
+                                    $q_det = mysqli_query($koneksi, "SELECT * FROM invoice_details WHERE no_invoice = '" . $data_pesanan['no_invoice'] . "' ORDER BY id_detail ASC");
                                     if (mysqli_num_rows($q_det) > 0):
-                                        while($det = mysqli_fetch_assoc($q_det)):
+                                        while ($det = mysqli_fetch_assoc($q_det)):
+                                            $item_price = $det['harga_item'];
+                                            if ($is_custom_estimasi && $status_num < 3) {
+                                                $nama_item_clean = mysqli_real_escape_string($koneksi, $det['nama_item']);
+                                                $q_harga_live = mysqli_query($koneksi, "SELECT harga_estimasi FROM master_masalah WHERE nama_masalah = '$nama_item_clean' LIMIT 1");
+                                                $data_harga_live = mysqli_fetch_assoc($q_harga_live);
+                                                if ($data_harga_live) {
+                                                    $item_price = $data_harga_live['harga_estimasi'];
+                                                }
+                                            }
                                     ?>
-                                        <tr class="align-middle border-b border-white last:border-none">
-                                            <td class="w-8/12 text-left p-3 text-[11px] font-bold text-slate-700 uppercase"><?= htmlspecialchars($det['nama_item']); ?></td>
-                                            <td class="w-4/12 text-right p-3 text-[11px] font-black text-slate-900">Rp <?= number_format($det['harga_item'], 0, ',', '.'); ?></td>
-                                        </tr>
-                                    <?php 
+                                            <tr class="align-middle">
+                                                <td class="p-3 text-[11px] font-bold text-slate-800 uppercase">
+                                                    <div><?= htmlspecialchars($det['nama_item']); ?></div>
+                                                    <div class="text-[9px] text-slate-400 lowercase font-medium mt-0.5 italic normal-case"><?= htmlspecialchars($det['deskripsi_tambahan'] ?? ''); ?></div>
+                                                </td>
+                                                <td class="p-3 text-right text-[11px] font-black text-slate-900 pr-3">Rp <?= number_format($item_price, 0, ',', '.'); ?></td>
+                                            </tr>
+                                        <?php
                                         endwhile;
                                     else:
-                                    ?>
+                                        ?>
                                         <tr class="align-middle">
-                                            <td class="w-8/12 text-left p-3 text-[11px] font-bold text-slate-400 italic">Biaya Jasa Cek Jalur & Diagnosa Utama</td>
-                                            <td class="w-4/12 text-right p-3 text-[11px] font-black text-slate-900">Rp 0</td>
+                                            <td class="p-3 text-[11px] font-bold text-slate-400 italic pl-3">Biaya Jasa Cek Jalur & Diagnosa Utama</td>
+                                            <td class="p-3 text-right text-[11px] font-black text-slate-900 pr-3">Rp 0</td>
                                         </tr>
                                     <?php endif; ?>
                                 </tbody>
@@ -281,11 +327,13 @@ if ($data_pesanan) {
 
                         <div class="bg-yellow-400/10 border-2 border-dashed border-yellow-400 rounded-xl p-4 flex justify-between items-center text-slate-800">
                             <div>
-                                <span class="text-[9px] font-black uppercase tracking-wider block text-slate-500">Total Tagihan Finansial</span>
-                                <span class="text-[10px] text-slate-400 font-medium">(Pelunasan Langsung di Meja Kasir Offline)</span>
+                                <span class="text-[9px] font-black uppercase tracking-wider block text-slate-500">
+                                    <?= ($is_custom_estimasi && $status_num < 3) ? 'TOTAL ESTIMASI BIAYA' : 'TOTAL TAGIHAN AKHIR'; ?>
+                                </span>
+                                <span class="text-[10px] text-slate-400 font-medium">(Pelunasan di Kasir Toko Hanbit)</span>
                             </div>
                             <span class="text-xl font-black text-slate-950">
-                                <?= ($data_pesanan['total_harga'] == 0) ? 'Cek Fisik Toko' : 'Rp ' . number_format($data_pesanan['total_harga'], 0, ',', '.'); ?>
+                                Rp <?= number_format($harga_tampilan, 0, ',', '.'); ?>
                             </span>
                         </div>
                     </div>
@@ -298,7 +346,7 @@ if ($data_pesanan) {
         </div>
     <?php endif; ?>
 
-    <footer class="bg-[#1e293b] text-slate-300 pt-12 pb-6 border-t border-slate-800">
+    <footer class="bg-[#1e293b] text-slate-300 pt-12 pb-6 border-t border-slate-800 mt-auto">
         <div class="max-w-7xl mx-auto px-6 text-center text-[11px] font-medium text-slate-500">
             &copy; 2026 Hanbit. All rights reserved.
         </div>
@@ -307,19 +355,30 @@ if ($data_pesanan) {
     <script>
         function bukaLembarInvoicePopup() {
             const modal = document.getElementById('modal_invoice_live');
-            if (modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); }
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
         }
+
+        // 🔥 PERBAIKAN SINTAKS MUTLAK: Bebas typo petik dan garis miring luar halaman
         function tutupLembarInvoicePopup() {
             const modal = document.getElementById('modal_invoice_live');
-            if (modal) { modal.classList.remove('flex'); modal.classList.add('hidden'); }
+            if (modal) {
+                modal.classList.remove('flex');
+                modal.classList.add('hidden');
+            }
         }
+
         function cetakNotaGambar() {
-            html2canvas(document.getElementById('invoice_print_card'), { 
-                scale: 3, 
+            html2canvas(document.getElementById('invoice_print_card'), {
+                scale: 3,
                 useCORS: true,
                 onclone: (clonedDoc) => {
                     const tombolSembunyi = clonedDoc.querySelector('.bg-slate-50.p-4.flex.justify-end');
-                    if (tombolSembunyi) { tombolSembunyi.style.display = 'none'; }
+                    if (tombolSembunyi) {
+                        tombolSembunyi.style.display = 'none';
+                    }
                 }
             }).then(canvas => {
                 const link = document.createElement('a');
@@ -331,4 +390,5 @@ if ($data_pesanan) {
         }
     </script>
 </body>
+
 </html>

@@ -24,9 +24,9 @@ $query_str = "SELECT c.*,
               (SELECT COUNT(*) FROM reservations r WHERE r.id_customer = c.id_customer) as total_transaksi 
               FROM customers c WHERE 1=1";
 
-// Kondisi Filter Input Pencarian
+// Kondisi Filter Input Pencarian (Mencari berdasarkan nama, hp, email, atau alamat)
 if (!empty($search)) {
-    $query_str .= " AND (c.nama_customer LIKE '%$search%' OR c.no_hp LIKE '%$search%' OR c.email LIKE '%$search%')";
+    $query_str .= " AND (c.nama_customer LIKE '%$search%' OR c.no_hp LIKE '%$search%' OR c.email LIKE '%$search%' OR c.alamat LIKE '%$search%')";
 }
 
 // Kondisi Sorting Berdasarkan Jumlah Transaksi Terbanyak (Loyalitas Customer)
@@ -56,7 +56,7 @@ $result = mysqli_query($koneksi, $query_str);
     <?php include 'sidebar.php'; ?>
 
     <main class="flex-1 p-8 overflow-y-auto">
-        <div class="max-w-7xl mx-auto space-y-6">
+        <div class="max-w-full mx-auto space-y-6">
             
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 min-h-[56px]">
                 <div>
@@ -108,10 +108,11 @@ $result = mysqli_query($koneksi, $query_str);
                                     <th class="p-4 w-12 text-center">
                                         <input type="checkbox" id="check_all_customer" onclick="toggleSemuaCustomer(this)" class="w-4 h-4 rounded text-blue-600 border-gray-300 focus:ring-blue-500 cursor-pointer">
                                     </th>
-                                    <th class="p-4 w-32">ID Pelanggan</th>
-                                    <th class="p-4">Nama Lengkap</th>
-                                    <th class="p-4">Kontak WhatsApp</th>
-                                    <th class="p-4">Alamat Email</th>
+                                    <th class="p-4 w-25">ID Pelanggan</th>
+                                    <th class="p-4 w-53">Nama Lengkap</th>
+                                    <th class="p-4 w-35">Kontak WhatsApp</th>
+                                    <th class="p-4 w-52">Alamat Email</th>
+                                    <th class="p-4">Alamat Rumah</th>
                                     <th class="p-4 w-36 text-center">Jumlah Transaksi</th>
                                 </tr>
                             </thead>
@@ -136,14 +137,16 @@ $result = mysqli_query($koneksi, $query_str);
                                                     <i class="fab fa-whatsapp text-sm"></i> <?= htmlspecialchars($row['no_hp']); ?>
                                                 </a>
                                             </td>
-                                            <td class="p-4 text-slate-500 font-semibold text-[11px]">
+                                            <td class="p-4 text-slate-500 font-semibold text-[11px] break-all">
                                                 <?= !empty($row['email']) ? htmlspecialchars($row['email']) : '<span class="text-slate-300 italic text-[10px]">Tidak ada email</span>'; ?>
+                                            </td>
+                                            <td class="p-4 text-slate-700 font-medium text-[11px] leading-relaxed uppercase">
+                                                <?= !empty($row['alamat']) ? htmlspecialchars($row['alamat']) : '<span class="text-slate-300 italic text-[10px] normal-case">Belum mengisi alamat</span>'; ?>
                                             </td>
                                             <td class="p-4 text-center">
                                                 <?php 
                                                 $total_tx = intval($row['total_transaksi']);
                                                 if ($total_tx >= 3) {
-                                                    // Badge Emas Khusus Loyalitas Tinggi (Repeat Order >= 3 Kali)
                                                     $badge_class = "bg-amber-100 text-amber-800 border-amber-200";
                                                 } elseif ($total_tx > 0) {
                                                     $badge_class = "bg-slate-100 text-slate-800 border-slate-200";
@@ -159,7 +162,7 @@ $result = mysqli_query($koneksi, $query_str);
                                     <?php endwhile; ?>
                                 <?php else: ?>
                                     <tr>
-                                        <td colspan="6" class="p-8 text-center text-slate-400 font-bold italic">Tidak ada data pelanggan yang cocok dengan pencarian.</td>
+                                        <td colspan="7" class="p-8 text-center text-slate-400 font-bold italic">Tidak ada data pelanggan yang cocok dengan pencarian.</td>
                                     </tr>
                                 <?php endif; ?>
                             </tbody>

@@ -12,7 +12,18 @@ $segmen_laptop       = 'kantoran';
 $total_harga_final   = 0;
 $no_whatsapp         = '';
 $alamat_pelanggan    = '';
-$email_pelanggan     = ''; // Inisialisasi awal variabel email penampung data CRM
+$email_pelanggan     = ''; 
+$id_masalah_raw      = '';
+
+// 🌟 REVISI MUTLAK: AMBIL DATA DARI DATABASE SECARA DINAMIS (TIDAK HARDCODE LAGI)
+$master_masalah_db = [];
+$q_master_m = mysqli_query($koneksi, "SELECT id_masalah, nama_masalah, harga_estimasi FROM master_masalah");
+while ($row_m = mysqli_fetch_assoc($q_master_m)) {
+    $master_masalah_db[$row_m['id_masalah']] = [
+        'nama'  => $row_m['nama_masalah'],
+        'harga' => $row_m['harga_estimasi']
+    ];
+}
 
 // Generate Invoice Unik Hanbit Labs Formal (Contoh: INV-20260605-ABCD)
 $nomor_invoice = "INV-" . date('Ymd') . "-" . strtoupper(substr(md5(time()), 0, 4));
@@ -24,62 +35,55 @@ if (isset($_POST['proses_simpan_paket'])) {
     $total_harga_final = intval($_POST['total_harga_final']);
     $nama_pelanggan    = mysqli_real_escape_string($koneksi, trim($_POST['nama_pelanggan']));
     $no_whatsapp       = mysqli_real_escape_string($koneksi, trim($_POST['whatsapp']));
-    $email_pelanggan   = mysqli_real_escape_string($koneksi, trim($_POST['email'])); // Menangkap data email form paket
+    $email_pelanggan   = mysqli_real_escape_string($koneksi, trim($_POST['email'])); 
     $unit_laptop       = mysqli_real_escape_string($koneksi, trim($_POST['laptop_detail']));
     $alamat_pelanggan  = mysqli_real_escape_string($koneksi, trim($_POST['alamat_lengkap']));
     $tanggal_booking   = mysqli_real_escape_string($koneksi, trim($_POST['tanggal_booking']));
 } 
-// B. KONDISI 2: JIKA DATANG DARI CEK_ESTIMASI_DETAIL.PHP
+// B. KONDISI 2: JIKA DATANG DARI BUAT ESTIMASI CUSTOM
 elseif (isset($_POST['proses_simpan_estimasi'])) {
     $brand_id            = $_POST['brand_id'];
     $series_id           = $_POST['series_id'];
+    $id_masalah_raw      = $_POST['id_masalah']; 
     $masalah_custom      = mysqli_real_escape_string($koneksi, trim($_POST['masalah_custom']));
     $total_harga_final   = intval($_POST['total_harga_final']);
     $nama_pelanggan      = mysqli_real_escape_string($koneksi, trim($_POST['nama_lengkap']));
     $no_whatsapp         = mysqli_real_escape_string($koneksi, trim($_POST['whatsapp']));
-    $email_pelanggan     = mysqli_real_escape_string($koneksi, trim($_POST['email'])); // Menangkap data email form kustom estimasi
+    $email_pelanggan     = mysqli_real_escape_string($koneksi, trim($_POST['email'])); 
     $alamat_pelanggan    = mysqli_real_escape_string($koneksi, trim($_POST['alamat_lengkap']));
     $tanggal_booking     = mysqli_real_escape_string($koneksi, trim($_POST['tanggal_menyerahkan']));
     $paket_tipe          = 'custom_estimasi';
-    $segmen_laptop       = $masalah_custom; // Simpan deskripsi keluhan kustom di kolom ini
+    $segmen_laptop       = $masalah_custom; 
 
     // Tarik nama brand & series dari DB riil agar teks invoice rapi bagus
     $q_b = mysqli_query($koneksi, "SELECT nama_brand FROM laptop_brands WHERE id_brand = '$brand_id' LIMIT 1");
-    $d_b = mysqli_fetch_assoc($q_b); $merek = ucwords(strtolower($d_b['nama_brand'] ?? 'Laptop'));
+    $data_brand = mysqli_fetch_assoc($q_b); $merek = ucwords(strtolower($data_brand['nama_brand'] ?? 'Laptop'));
     
     $q_s = mysqli_query($koneksi, "SELECT nama_series FROM laptop_series WHERE id_series = '$series_id' LIMIT 1");
-    $d_s = mysqli_fetch_assoc($q_s); $seri = ucwords(strtolower($d_s['nama_series'] ?? 'Series'));
+    $data_series = mysqli_fetch_assoc($q_s); $seri = ucwords(strtolower($data_series['nama_series'] ?? 'Series'));
     $unit_laptop = $merek . " " . $seri;
 } else {
-    // Paksa tendang balik ke home jika tidak ada data terkirim resmi
     header("Location: index.php");
     exit();
 }
 
 // -------------------------------------------------------------------------
-// 🔥 SISTEM OTOMATISASI DATA PELANGGAN (CRM ENGINE ANTI-DUPLIKASI)
+// SISTEM OTOMATISASI DATA PELANGGAN (CRM ENGINE ANTI-DUPLIKASI)
 // -------------------------------------------------------------------------
-// Bersihkan format nomor HP agar seragam memakai kode negara 62
 $whatsapp_clean = preg_replace('/[^0-9]/', '', $no_whatsapp);
 if (strpos($whatsapp_clean, '0') === 0) {
     $whatsapp_clean = '62' . substr($whatsapp_clean, 1);
 }
 
-// Cek apakah pelanggan dengan nomor WA ini sudah pernah terdaftar di database
 $cek_member = mysqli_query($koneksi, "SELECT id_customer FROM customers WHERE no_hp = '$whatsapp_clean' LIMIT 1");
 $data_member = mysqli_fetch_assoc($cek_member);
 
 if ($data_member) {
-    // Jika sudah ada (Pelanggan Lama), pakai id_customer yang sudah ada agar tidak ganda
     $id_customer_final = $data_member['id_customer'];
-    // Update data email terbaru jika pelanggan melakukan update atau repeat order dengan email baru
-    mysqli_query($koneksi, "UPDATE customers SET email = '$email_pelanggan' WHERE id_customer = $id_customer_final");
+    mysqli_query($koneksi, "UPDATE customers SET email = '$email_pelanggan', alamat = '$alamat_pelanggan' WHERE id_customer = $id_customer_final");
 } else {
-    // Jika belum ada (Pelanggan Baru), OTOMATIS daftarkan identITAS baru ke tabel customers beserta emailnya
-    $query_register = "INSERT INTO customers (nama_customer, no_hp, email) VALUES ('$nama_pelanggan', '$whatsapp_clean', '$email_pelanggan')";
+    $query_register = "INSERT INTO customers (nama_customer, no_hp, email, alamat) VALUES ('$nama_pelanggan', '$whatsapp_clean', '$email_pelanggan', '$alamat_pelanggan')";
     mysqli_query($koneksi, $query_register);
-    
-    // Tangkap ID baru yang otomatis dibuat oleh MySQL
     $id_customer_final = mysqli_insert_id($koneksi);
 }
 
@@ -98,7 +102,27 @@ if (!mysqli_query($koneksi, $query_insert)) {
     die("Gagal menyimpan reservasi Hanbit Labs: " . mysqli_error($koneksi));
 }
 
-// Format Penanggalan Bahasa Indonesia
+// =========================================================================
+// 🔥 BREAKDOWN POIN KERUSAKAN SECARA DINAMIS KE DATABASE INVOICE DETAILS
+// =========================================================================
+if ($paket_tipe === 'custom_estimasi' && !empty($id_masalah_raw)) {
+    $array_id_masalah = explode(',', $id_masalah_raw);
+    foreach ($array_id_masalah as $id_m) {
+        if ($id_m == '8') {
+            $nama_item_cust = !empty($segmen_laptop) ? "Keluhan Khusus: " . $segmen_laptop : "Masalah Kustom Lainnya";
+            mysqli_query($koneksi, "INSERT INTO invoice_details (no_invoice, nama_item, harga_item, deskripsi_tambahan) VALUES ('$nomor_invoice', '$nama_item_cust', 0, 'Menunggu analisa fisik lapangan oleh teknisi')");
+        } elseif (isset($master_masalah_db[$id_m])) {
+            $n_item = $master_masalah_db[$id_m]['nama'];
+            $h_item = $master_masalah_db[$id_m]['harga'];
+            mysqli_query($koneksi, "INSERT INTO invoice_details (no_invoice, nama_item, harga_item, deskripsi_tambahan) VALUES ('$nomor_invoice', '$n_item', $h_item, 'Estimasi awal pilihan customer')");
+        }
+    }
+} elseif ($paket_tipe !== 'custom_estimasi') {
+    $nama_paket_log = "Layanan Paket " . ucwords($paket_tipe) . " Maintenance Package";
+    mysqli_query($koneksi, "INSERT INTO invoice_details (no_invoice, nama_item, harga_item, deskripsi_tambahan) VALUES ('$nomor_invoice', '$nama_paket_log', $total_harga_final, 'Harga flat paket perawatan berkala')");
+}
+
+// Format Penanggalan Bahasa Indonesia Struk
 $hari_list = ["Sunday" => "Minggu", "Monday" => "Senin", "Tuesday" => "Selasa", "Wednesday" => "Rabu", "Thursday" => "Kamis", "Friday" => "Jumat", "Saturday" => "Sabtu"];
 $bulan_list = ["01" => "Januari", "02" => "Februari", "03" => "Maret", "04" => "April", "05" => "Mei", "06" => "Juni", "07" => "Juli", "08" => "Agustus", "09" => "September", "10" => "Oktober", "11" => "November", "12" => "Desember"];
 $timestamp = strtotime($tanggal_booking);
@@ -128,7 +152,7 @@ $tanggal_tampilan = $hari_list[date('l', $timestamp)] . ", " . date('j', $timest
         <p class="text-xs text-slate-400 font-semibold leading-relaxed">Selamat data Anda sudah berhasil diregistrasi. Simpan struk invoice awal ini sebagai tanda bukti penyerahan unit.</p>
     </div>
 
-    <div id="invoice_card" class="bg-white rounded-[2rem] shadow-xl border border-gray-100 max-w-xl w-full overflow-hidden flex flex-col justify-between">
+    <div id="invoice_card" class="bg-white rounded-[2rem] shadow-xl border border-gray-100 max-w-2xl w-full overflow-hidden flex flex-col justify-between">
         
         <div class="bg-[#ffd54f] py-7 px-6 text-center space-y-0.5">
             <p class="text-[9px] font-black text-slate-700 uppercase tracking-widest">NOMOR INVOICE OPERASIONAL</p>
@@ -202,10 +226,12 @@ $tanggal_tampilan = $hari_list[date('l', $timestamp)] . ", " . date('j', $timest
 
     <div id="modal_peringatan" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden items-center justify-center px-4">
         <div class="bg-white rounded-[1.5rem] max-w-sm w-full p-6 shadow-xl space-y-4 border text-center">
-            <div class="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center mx-auto text-amber-500"><i class="fas fa-exclamation-triangle text-xl"></i></div>
+            <div class="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center text-xl mx-auto border border-amber-100">
+                <i class="fas fa-exclamation-triangle text-xl"></i>
+            </div>
             <div class="space-y-1">
                 <h3 class="text-base font-extrabold text-slate-900">Nota Belum Disimpan!</h3>
-                <p class="text-xs text-slate-400 font-medium leading-relaxed">Struk invoice bukti registrasi ini hanya tampil sekali saja. Pastikan Anda mengklik tombol **Simpan Gambar** terlebih dahulu agar kode aman terunduh.</p>
+                <p class="text-xs text-slate-400 font-medium leading-relaxed">Struk invoice bukti registrasi ini hanya tampil sekali saja. Pastikan Anda mengklik tombol Simpan Gambar terlebih dahulu agar kode aman terunduh.</p>
             </div>
             <div class="flex gap-3 pt-2">
                 <button type="button" onclick="tutupPeringatan()" class="w-1/2 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold py-3 rounded-xl transition">Amankan</button>

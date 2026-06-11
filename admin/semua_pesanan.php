@@ -10,13 +10,26 @@ if (isset($_POST['update_status_instan'])) {
     $invoice_input = mysqli_real_escape_string($koneksi, trim($_POST['invoice']));
     $status_baru   = mysqli_real_escape_string($koneksi, trim($_POST['status_baru']));
 
-    // 🔥 JIKA ADMIN MEMILIH PENDING MANUALLY: kita tandai dengan teks 'PENDING_ADMIN'
-    // Ini trik cerdas agar saat di-refresh, sistem tahu status ini diubah oleh admin, bukan bawaan pabrik customer
     if ($status_baru === 'PENDING') {
         $status_baru = 'PENDING_ADMIN';
     }
 
-    $query_update = "UPDATE reservations SET status_order = '$status_baru' WHERE no_invoice = '$invoice_input'";
+    // Ambil data tanggal lama terlebih dahulu dari database untuk proteksi data log
+    $q_tgl_lama = mysqli_query($koneksi, "SELECT tanggal_dikerjakan, tanggal_selesai FROM reservations WHERE no_invoice = '$invoice_input' LIMIT 1");
+    $d_tgl_lama = mysqli_fetch_assoc($q_tgl_lama);
+    
+    $tgl_kerja   = $d_tgl_lama['tanggal_dikerjakan'] ? "'".$d_tgl_lama['tanggal_dikerjakan']."'" : "NULL";
+    $tgl_selesai = $d_tgl_lama['tanggal_selesai'] ? "'".$d_tgl_lama['tanggal_selesai']."'" : "NULL";
+
+    // 🔥 AUTOMATION LOGGER: Dropdown depan halaman utama sekarang resmi memicu pencatatan tanggal otomatis
+    if (($status_baru === 'PENGECEKAN' || $status_baru === 'SEDANG DIKERJAKAN') && empty($d_tgl_lama['tanggal_dikerjakan'])) {
+        $tgl_kerja = "'" . date('Y-m-d') . "'";
+    }
+    if ($status_baru === 'SELESAI' && empty($d_tgl_lama['tanggal_selesai'])) {
+        $tgl_selesai = "'" . date('Y-m-d') . "'";
+    }
+
+    $query_update = "UPDATE reservations SET status_order = '$status_baru', tanggal_dikerjakan = $tgl_kerja, tanggal_selesai = $tgl_selesai WHERE no_invoice = '$invoice_input'";
     if (mysqli_query($koneksi, $query_update)) {
         echo "sukses";
     } else {
@@ -28,10 +41,10 @@ if (isset($_POST['update_status_instan'])) {
 // LOGIKA ENGINE: Proses Hapus Massal Berbasis Checkbox Array POST
 if (isset($_POST['eksekusi_hapus_massal'])) {
     if (!empty($_POST['ids_hapus'])) {
-        $ids = array_map(function($id) use ($koneksi) {
+        $ids = array_map(function ($id) use ($koneksi) {
             return "'" . mysqli_real_escape_string($koneksi, $id) . "'";
         }, $_POST['ids_hapus']);
-        
+
         $set_ids = implode(',', $ids);
         $query_del = "DELETE FROM reservations WHERE no_invoice IN ($set_ids)";
         mysqli_query($koneksi, $query_del);
@@ -42,16 +55,18 @@ if (isset($_POST['eksekusi_hapus_massal'])) {
 }
 
 // Catch parameter filter pencarian, tab view, jenis paket, dan sorting tanggal
-$search     = isset($_GET['search']) ? mysqli_real_escape_string($koneksi, trim($_GET['search'])) : '';
-$view_tab   = isset($_GET['view']) ? trim($_GET['view']) : 'aktif'; 
+$search      = isset($_GET['search']) ? mysqli_real_escape_string($koneksi, trim($_GET['search'])) : '';
+$view_tab    = isset($_GET['view']) ? trim($_GET['view']) : 'aktif';
 $filter_tipe = isset($_GET['filter_tipe']) ? trim($_GET['filter_tipe']) : 'semua';
-$sort_tgl   = isset($_GET['sort_tgl']) ? trim($_GET['sort_tgl']) : 'terbaru_booking';
+$sort_tgl    = isset($_GET['sort_tgl']) ? trim($_GET['sort_tgl']) : 'terbaru_booking';
 
 // Fondasi Query Dasar
-$query_str = "SELECT no_invoice, nama_pelanggan, no_whatsapp, laptop_detail, tanggal_booking, status_order, paket_tipe FROM reservations WHERE 1=1";
+$query_str = "SELECT no_invoice, nama_pelanggan, no_whatsapp, laptop_detail, tanggal_booking, status_order, paket_tipe, created_at FROM reservations WHERE 1=1";
 
 // 1. Kondisi Filter Tab View
 if ($view_tab == 'hari_ini') {
+    $query_str .= " AND DATE(created_at) = CURDATE()";
+} elseif ($view_tab == 'datang_hari_ini') {
     $query_str .= " AND tanggal_booking = CURDATE()";
 } else {
     $query_str .= " AND status_order != 'SELESAI'";
@@ -71,15 +86,16 @@ if ($filter_tipe == 'maintenance') {
 
 // 4. Kondisi Sorting Tanggal
 if ($sort_tgl == 'menyerahkan_laptop') {
-    $query_str .= " ORDER BY tanggal_booking ASC, no_invoice ASC";
+    $query_str .= " ORDER BY tanggal_booking ASC, created_at DESC";
 } else {
-    $query_str .= " ORDER BY tanggal_booking DESC, no_invoice DESC";
+    $query_str .= " ORDER BY created_at DESC, no_invoice DESC";
 }
 
 $result = mysqli_query($koneksi, $query_str);
 ?>
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -91,38 +107,42 @@ $result = mysqli_query($koneksi, $query_str);
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
     </style>
 </head>
+
 <body class="bg-[#f8fafc] text-slate-800 antialiased flex min-h-screen">
 
     <?php include 'sidebar.php'; ?>
 
     <main class="flex-1 p-8 overflow-y-auto">
-        <div class="max-w-7xl mx-auto space-y-6">
-            
+        <div class="max-w-full mx-auto space-y-6">
+
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 min-h-[56px]">
                 <div>
                     <h1 class="text-2xl font-black tracking-tight text-slate-900">Manajemen Antrean Pesanan</h1>
                     <p class="text-xs text-slate-400 font-medium">Pantau progres pengerjaan fisik unit laptop dan kirim pembaruan status via WhatsApp CRM konsumen.</p>
                 </div>
-                
-                <button type="button" id="btn_hapus_massal" onclick="bukaModalHapusMassal()" 
-                        class="hidden bg-red-500 hover:bg-red-600 text-white font-black px-6 py-2.5 rounded-xl text-xs uppercase tracking-wider transition-all duration-300 shadow-md flex items-center gap-2 shrink-0 transform scale-95 opacity-0">
+
+                <button type="button" id="btn_hapus_massal" onclick="bukaModalHapusMassal()"
+                    class="hidden bg-red-500 hover:bg-red-600 text-white font-black px-6 py-2.5 rounded-xl text-xs uppercase tracking-wider transition-all duration-300 shadow-md flex items-center gap-2 shrink-0 transform scale-95 opacity-0">
                     <i class="fas fa-trash-alt text-xs"></i> Hapus Terpilih (<span id="count_terpilih">0</span>)
                 </button>
             </div>
 
             <div class="bg-white border border-gray-200/80 p-4 rounded-2xl shadow-sm flex flex-col xl:flex-row justify-between items-center gap-4 text-xs font-bold">
-                <div class="flex gap-1.5 w-full xl:w-auto">
-                    <a href="semua_pesanan.php?view=aktif&filter_tipe=<?= $filter_tipe; ?>&sort_tgl=<?= $sort_tgl; ?>&search=<?= urlencode($search); ?>" class="px-5 py-2.5 rounded-xl transition <?= $view_tab == 'aktif' ? 'bg-slate-900 text-white shadow-sm' : 'bg-slate-50 text-slate-500 hover:bg-slate-100' ?>">
+                <div class="flex flex-wrap gap-1.5 w-full xl:w-auto">
+                    <a href="semua_pesanan.php?view=aktif&filter_tipe=<?= $filter_tipe; ?>&sort_tgl=<?= $sort_tgl; ?>&search=<?= urlencode($search); ?>" class="px-4 py-2.5 rounded-xl transition <?= $view_tab == 'aktif' ? 'bg-slate-900 text-white shadow-sm' : 'bg-slate-50 text-slate-500 hover:bg-slate-100' ?>">
                         🔄 Antrean Berjalan
                     </a>
-                    <a href="semua_pesanan.php?view=hari_ini&filter_tipe=<?= $filter_tipe; ?>&sort_tgl=<?= $sort_tgl; ?>&search=<?= urlencode($search); ?>" class="px-5 py-2.5 rounded-xl transition <?= $view_tab == 'hari_ini' ? 'bg-slate-900 text-white shadow-sm' : 'bg-slate-50 text-slate-500 hover:bg-slate-100' ?>">
-                        📅 Jadwal Hari Ini
+                    <a href="semua_pesanan.php?view=hari_ini&filter_tipe=<?= $filter_tipe; ?>&sort_tgl=<?= $sort_tgl; ?>&search=<?= urlencode($search); ?>" class="px-4 py-2.5 rounded-xl transition <?= $view_tab == 'hari_ini' ? 'bg-slate-900 text-white shadow-sm' : 'bg-slate-50 text-slate-500 hover:bg-slate-100' ?>">
+                        📩 Booking Masuk Hari Ini
+                    </a>
+                    <a href="semua_pesanan.php?view=datang_hari_ini&filter_tipe=<?= $filter_tipe; ?>&sort_tgl=<?= $sort_tgl; ?>&search=<?= urlencode($search); ?>" class="px-4 py-2.5 rounded-xl transition <?= $view_tab == 'datang_hari_ini' ? 'bg-amber-500 text-slate-950 shadow-sm border border-amber-500' : 'bg-slate-50 text-slate-500 hover:bg-slate-100' ?>">
+                        📦 Rencana Datang Hari Ini
                     </a>
                 </div>
 
                 <form id="form_filter_sistem" action="" method="GET" class="flex flex-col md:flex-row items-center gap-3 w-full xl:w-auto justify-end">
                     <input type="hidden" name="view" value="<?= $view_tab; ?>">
-                    
+
                     <div class="w-full md:w-56">
                         <select name="filter_tipe" onchange="document.getElementById('form_filter_sistem').submit()" class="w-full px-3 py-2 bg-slate-50 border border-gray-200 rounded-xl font-bold text-slate-600 focus:outline-none focus:bg-white cursor-pointer transition">
                             <option value="semua" <?= $filter_tipe == 'semua' ? 'selected' : ''; ?>>📦 Semua Jenis Layanan</option>
@@ -134,7 +154,7 @@ $result = mysqli_query($koneksi, $query_str);
                     <div class="w-full md:w-52">
                         <select name="sort_tgl" onchange="document.getElementById('form_filter_sistem').submit()" class="w-full px-3 py-2 bg-slate-50 border border-gray-200 rounded-xl font-bold text-slate-600 focus:outline-none focus:bg-white cursor-pointer transition">
                             <option value="terbaru_booking" <?= $sort_tgl == 'terbaru_booking' ? 'selected' : ''; ?>>📅 Urut Booking Terbaru</option>
-                            <option value="menyerahkan_laptop" <?= $sort_tgl == 'menyerahkan_laptop' ? 'selected' : ''; ?>>📅 Urut Tgl Menyerahkan</option>
+                            <option value="menyerahkan_laptop" <?= $sort_tgl == 'menyerahkan_laptop' ? 'selected' : ''; ?>>📅 Urut Jadwal Kedatangan</option>
                         </select>
                     </div>
 
@@ -142,7 +162,7 @@ $result = mysqli_query($koneksi, $query_str);
                         <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
                         <input type="text" id="search_input" name="search" value="<?= htmlspecialchars($search); ?>" placeholder="Cari Kode Invoice / Nama..." class="w-full pl-9 pr-3 py-2 bg-slate-50 border border-gray-200 rounded-xl font-medium focus:outline-none focus:border-blue-400 focus:bg-white transition text-slate-700">
                     </div>
-                    
+
                     <button type="button" onclick="jalankanCari()" class="w-full md:w-auto bg-blue-500 hover:bg-blue-600 text-white px-5 py-2 rounded-xl transition">Cari</button>
                 </form>
             </div>
@@ -153,13 +173,17 @@ $result = mysqli_query($koneksi, $query_str);
                 <div class="bg-white border border-gray-200/80 rounded-2xl shadow-sm overflow-hidden">
                     <div class="p-4 border-b border-gray-100 bg-slate-50/50 flex justify-between items-center">
                         <h3 class="text-xs font-extrabold uppercase text-slate-900 tracking-wider">
-                            <?= $view_tab == 'hari_ini' ? '📋 Jadwal Kedatangan Hari Ini' : '📋 Antrean Servis Aktif'; ?>
+                            <?php
+                            if ($view_tab == 'hari_ini') echo '📋 Daftar Booking Masuk Hari Ini';
+                            elseif ($view_tab == 'datang_hari_ini') echo '📋 Daftar Rencana Serah Unit Hari Ini';
+                            else echo '📋 Antrean Servis Aktif';
+                            ?>
                         </h3>
                         <span class="bg-slate-900 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase">
                             Total: <?= mysqli_num_rows($result); ?> Unit
                         </span>
                     </div>
-                    
+
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse text-xs">
                             <thead>
@@ -167,10 +191,11 @@ $result = mysqli_query($koneksi, $query_str);
                                     <th class="p-4 w-12 text-center">
                                         <input type="checkbox" id="check_all_master" onclick="toggleSemuaCheckbox(this)" class="w-4 h-4 rounded text-blue-600 border-gray-300 focus:ring-blue-500 cursor-pointer">
                                     </th>
-                                    <th class="p-4 w-28">No. Invoice</th>
+                                    <th class="p-4 w-30">No. Invoice</th>
                                     <th class="p-4">Identitas Pelanggan</th>
                                     <th class="p-4">Merek & Series Unit</th>
-                                    <th class="p-4 w-36 text-center">Tanggal Penyerahan</th>
+                                    <th class="p-4 w-32 text-center">Tanggal Booking</th>
+                                    <th class="p-4 w-36 text-center">Jadwal Kedatangan</th>
                                     <th class="p-4 w-44 text-center">Ubah Status</th>
                                     <th class="p-4 w-16 text-center">Aksi</th>
                                 </tr>
@@ -195,30 +220,42 @@ $result = mysqli_query($koneksi, $query_str);
                                                     <?= ($row['paket_tipe'] == 'custom_estimasi') ? '🛠️ Kustom Kasus' : '✨ Perawatan Paket'; ?>
                                                 </div>
                                             </td>
-                                            <td class="p-4 text-center text-slate-500 font-semibold">
+                                            <td class="p-4 text-center text-slate-500 font-medium">
+                                                <?= !empty($row['created_at']) ? date('d M Y', strtotime($row['created_at'])) : '-'; ?>
+                                            </td>
+                                            <td class="p-4 text-center text-slate-500 font-semibold bg-slate-50/50">
                                                 <?= date('d M Y', strtotime($row['tanggal_booking'])); ?>
                                             </td>
                                             <td class="p-4 text-center">
-                                                <?php 
-                                                $curr_status = strtoupper(trim($row['status_order'])); 
-                                                
-                                                // Logika CSS Dinamis Mengikuti Status Terkini di DB
-                                                $color_class = 'border-slate-200 text-slate-400 bg-white'; 
-                                                if ($curr_status === 'PENDING' || $curr_status === 'PENDING_ADMIN') { $color_class = 'border-blue-200 text-blue-600 bg-blue-50/20'; }
-                                                elseif ($curr_status === 'PENGECEKAN' || $curr_status === 'SEDANG DIKERJAKAN') { $color_class = 'border-amber-200 text-amber-600 bg-amber-50/20'; }
-                                                elseif ($curr_status === 'PERBAIKAN') { $color_class = 'border-orange-200 text-orange-600 bg-orange-50/20'; }
-                                                elseif ($curr_status === 'SELESAI') { $color_class = 'border-emerald-200 text-emerald-600 bg-emerald-50/20'; }
+                                                <?php
+                                                $curr_status = strtoupper(trim($row['status_order']));
+
+                                                // Jika status masih bawaan pendaftaran customer (PENDING atau kosong), kotak select box berwarna abu-abu (Muted)
+                                                if ($curr_status === 'PENDING' || $curr_status == '' || empty($curr_status)) {
+                                                    $color_class = 'border-slate-200 text-slate-400 bg-slate-50/50 font-medium';
+                                                }
+                                                // Jika diubah oleh admin, warna disesuaikan seperti biasa
+                                                elseif ($curr_status === 'PENDING_ADMIN') {
+                                                    $color_class = 'border-blue-200 text-blue-600 bg-blue-50/20 font-extrabold';
+                                                }
+                                                elseif ($curr_status === 'PENGECEKAN' || $curr_status === 'SEDANG DIKERJAKAN') {
+                                                    $color_class = 'border-amber-200 text-amber-600 bg-amber-50/20 font-extrabold';
+                                                }
+                                                elseif ($curr_status === 'PERBAIKAN') {
+                                                    $color_class = 'border-orange-200 text-orange-600 bg-orange-50/20 font-extrabold';
+                                                }
+                                                elseif ($curr_status === 'SELESAI') {
+                                                    $color_class = 'border-emerald-200 text-emerald-600 bg-emerald-50/20 font-extrabold';
+                                                }
                                                 ?>
-                                                <select onchange="pemicuPerubahanStatus('<?= htmlspecialchars($row['no_invoice']); ?>', '<?= htmlspecialchars($row['no_whatsapp']); ?>', '<?= htmlspecialchars($row['nama_pelanggan'], ENT_QUOTES); ?>', '<?= htmlspecialchars($row['paket_tipe']); ?>', '<?= htmlspecialchars($row['laptop_detail'], ENT_QUOTES); ?>', this)" 
-                                                        data-status-asal="<?= $curr_status; ?>"
-                                                        class="px-2.5 py-1.5 rounded-lg border text-[10px] font-extrabold uppercase focus:outline-none transition cursor-pointer <?= $color_class; ?>">
-                                                    
-                                                    <option value="" <?= ($curr_status === 'PENDING' || $curr_status == '' || empty($curr_status)) ? 'selected' : ''; ?> class="text-slate-400 font-bold">-- Pilih Progres --</option>
-                                                    
-                                                    <option value="PENDING" <?= ($curr_status === 'PENDING_ADMIN') ? 'selected' : ''; ?> class="text-blue-600 font-bold">Pending (Antrean)</option>
-                                                    <option value="PENGECEKAN" <?= ($curr_status === 'PENGECEKAN' || $curr_status === 'SEDANG DIKERJAKAN') ? 'selected' : ''; ?> class="text-amber-600 font-bold">Pengecekan Fisik</option>
-                                                    <option value="PERBAIKAN" <?= $curr_status === 'PERBAIKAN' ? 'selected' : ''; ?> class="text-orange-600 font-bold">Proses Perbaikan</option>
-                                                    <option value="SELESAI" <?= $curr_status === 'SELESAI' ? 'selected' : ''; ?> class="text-emerald-600 font-bold">Selesai QC (Siap Ambil)</option>
+                                                <select onchange="pemicuPerubahanStatus('<?= htmlspecialchars($row['no_invoice']); ?>', '<?= htmlspecialchars($row['no_whatsapp']); ?>', '<?= htmlspecialchars($row['nama_pelanggan'], ENT_QUOTES); ?>', '<?= htmlspecialchars($row['paket_tipe']); ?>', '<?= htmlspecialchars($row['laptop_detail'], ENT_QUOTES); ?>', this)"
+                                                    data-status-asal="<?= $curr_status; ?>"
+                                                    class="px-2.5 py-1.5 rounded-lg border text-[10px] font-extrabold uppercase focus:outline-none transition cursor-pointer <?= $color_class; ?>">
+                                                    <option value="" <?= ($curr_status === 'PENDING' || $curr_status == '' || empty($curr_status)) ? 'selected' : ''; ?> class="text-slate-400 font-medium bg-white">-- Pilih Progres --</option>
+                                                    <option value="PENDING" <?= ($curr_status === 'PENDING_ADMIN') ? 'selected' : ''; ?> class="text-blue-600 font-bold bg-white">Pending (Antrean)</option>
+                                                    <option value="PENGECEKAN" <?= ($curr_status === 'PENGECEKAN' || $curr_status === 'SEDANG DIKERJAKAN') ? 'selected' : ''; ?> class="text-amber-600 font-bold bg-white">Pengecekan Fisik</option>
+                                                    <option value="PERBAIKAN" <?= $curr_status === 'PERBAIKAN' ? 'selected' : ''; ?> class="text-orange-600 font-bold bg-white">Proses Perbaikan</option>
+                                                    <option value="SELESAI" <?= $curr_status === 'SELESAI' ? 'selected' : ''; ?> class="text-emerald-600 font-bold bg-white">Selesai QC (Siap Ambil)</option>
                                                 </select>
                                             </td>
                                             <td class="p-4 text-center">
@@ -230,7 +267,7 @@ $result = mysqli_query($koneksi, $query_str);
                                     <?php endwhile; ?>
                                 <?php else: ?>
                                     <tr>
-                                        <td colspan="7" class="p-8 text-center text-slate-400 font-bold">Tidak ada data antrean yang cocok dengan filter.</td>
+                                        <td colspan="8" class="p-8 text-center text-slate-400 font-bold">Tidak ada data antrean yang cocok dengan filter.</td>
                                     </tr>
                                 <?php endif; ?>
                             </tbody>
@@ -262,7 +299,7 @@ $result = mysqli_query($koneksi, $query_str);
             <div class="flex justify-between items-center border-b pb-3">
                 <div class="flex items-center gap-2 text-emerald-600">
                     <i class="fab fa-whatsapp text-xl"></i>
-                    <h3 class="text-sm font-black uppercase tracking-wider text-slate-900">Review Template Pesan CRM</h3>
+                    <h3 class="text-sm font-black uppercase tracking-wider text-slate-900">Review Template Pesan WA</h3>
                 </div>
                 <button type="button" onclick="batalPerubahanStatus()" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times text-base"></i></button>
             </div>
@@ -286,46 +323,65 @@ $result = mysqli_query($koneksi, $query_str);
     </div>
 
     <script>
+        let activeInvoice, activeWhatsApp, activeStatusBaru, elemenSelectAktif;
+
         function toggleSemuaCheckbox(master) {
             const checkboxes = document.querySelectorAll('.check_item_child');
             checkboxes.forEach(cb => cb.checked = master.checked);
             hitungCheckboxTerpilih();
         }
+
         function hitungCheckboxTerpilih() {
             const checkboxes = document.querySelectorAll('.check_item_child');
             let totalTerpilih = 0;
-            checkboxes.forEach(cb => { if(cb.checked) totalTerpilih++; });
+            checkboxes.forEach(cb => {
+                if (cb.checked) totalTerpilih++;
+            });
             const btnHapus = document.getElementById('btn_hapus_massal');
             document.getElementById('count_terpilih').innerText = totalTerpilih;
-            if(totalTerpilih > 0) {
+            if (totalTerpilih > 0) {
                 btnHapus.classList.remove('hidden');
-                setTimeout(() => { btnHapus.classList.remove('scale-95', 'opacity-0'); btnHapus.classList.add('scale-100', 'opacity-100'); }, 10);
+                setTimeout(() => {
+                    btnHapus.classList.remove('scale-95', 'opacity-0');
+                    btnHapus.classList.add('scale-100', 'opacity-100');
+                }, 10);
             } else {
-                btnHapus.classList.remove('scale-100', 'opacity-100'); btnHapus.classList.add('scale-95', 'opacity-0');
-                setTimeout(() => { btnHapus.classList.add('hidden'); }, 300);
+                btnHapus.classList.remove('scale-100', 'opacity-100');
+                btnHapus.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => {
+                    btnHapus.classList.add('hidden');
+                }, 300);
                 document.getElementById('check_all_master').checked = false;
             }
         }
+
         function bukaModalHapusMassal() {
             const total = document.getElementById('count_terpilih').innerText;
             document.getElementById('text_total_terpilih').innerText = total;
             document.getElementById('modal_hapus_massal').classList.remove('hidden');
             document.getElementById('modal_hapus_massal').classList.add('flex');
         }
+
         function tutupModalHapusMassal() {
             document.getElementById('modal_hapus_massal').classList.remove('flex');
             document.getElementById('modal_hapus_massal').classList.add('hidden');
         }
+
         function jalankanCari() {
             const s = document.getElementById('search_input').value;
             window.location.href = `semua_pesanan.php?view=<?= $view_tab; ?>&filter_tipe=<?= $filter_tipe; ?>&sort_tgl=<?= $sort_tgl; ?>&search=${encodeURIComponent(s)}`;
         }
+
         function pemicuPerubahanStatus(invoice, whatsapp, nama, paketTipe, laptop, selectElement) {
-            activeInvoice = invoice; activeWhatsApp = whatsapp; activeStatusBaru = selectElement.value; elemenSelectAktif = selectElement;
+            activeInvoice = invoice;
+            activeWhatsApp = whatsapp;
+            activeStatusBaru = selectElement.value;
+            elemenSelectAktif = selectElement;
             document.getElementById('view_nama_pelanggan').innerText = nama;
             document.getElementById('view_status_baru').innerText = `${invoice} ➔ ${activeStatusBaru === "" ? "Dikosongkan" : activeStatusBaru}`;
-            const isCustom = (paketTipe === 'custom_estimasi'); let templateChat = "";
-            
+            const isCustom = (paketTipe === 'custom_estimasi');
+            let templateChat = "";
+
             if (activeStatusBaru === 'PENDING') {
                 templateChat = `Halo ${nama},\n\nTerima kasih telah melakukan booking di Hanbit Labs. Unit Anda terdaftar dengan nomor Invoice: ${invoice}.\n\nSilakan segera serahkan unit laptop *${laptop}* Anda ke toko kami untuk pemeriksaan fisik langsung. Terima kasih!`;
             } else if (activeStatusBaru === 'PENGECEKAN') {
@@ -341,52 +397,39 @@ $result = mysqli_query($koneksi, $query_str);
             document.getElementById('modal_wa_editor').classList.remove('hidden');
             document.getElementById('modal_wa_editor').classList.add('flex');
         }
+
         function batalPerubahanStatus() {
-            if (elemenSelectAktif) { elemenSelectAktif.value = elemenSelectAktif.getAttribute('data-status-asal'); }
+            if (elemenSelectAktif) {
+                elemenSelectAktif.value = elemenSelectAktif.getAttribute('data-status-asal');
+            }
             document.getElementById('modal_wa_editor').classList.remove('flex');
             document.getElementById('modal_wa_editor').classList.add('hidden');
         }
+
         function eksekusiSimpanDanKirimWA() {
             const pesanFinal = document.getElementById('edit_isi_pesan').value;
-            
             let nomorBersih = activeWhatsApp.replace(/[^0-9]/g, '');
-            if (nomorBersih.startsWith('0')) { nomorBersih = '62' + nomorBersih.slice(1); }
-            
+            if (nomorBersih.startsWith('0')) {
+                nomorBersih = '62' + nomorBersih.slice(1);
+            }
+
             const formData = new FormData();
             formData.append('update_status_instan', '1');
             formData.append('invoice', activeInvoice);
             formData.append('status_baru', activeStatusBaru);
-            
-            fetch('semua_pesanan.php', { method: 'POST', body: formData })
-            .then(response => response.text())
-            .then(result => {
-                const waUrl = "https://api.whatsapp.com/send?phone=" + nomorBersih + "&text=" + encodeURIComponent(pesanFinal);
-                window.open(waUrl, '_blank');
-                
-                elemenSelectAktif.setAttribute('data-status-asal', activeStatusBaru === 'PENDING' ? 'PENDING_ADMIN' : activeStatusBaru);
-                
-                // Reset style warna select box secara real-time mengikuti status baru hasil modifikasi manual admin
-                elemenSelectAktif.className = "px-2.5 py-1.5 rounded-lg border text-[10px] font-extrabold uppercase focus:outline-none transition cursor-pointer bg-white ";
-                if (activeStatusBaru === 'PENDING') { elemenSelectAktif.classList.add('border-blue-200', 'text-blue-600', 'bg-blue-50/20'); } 
-                else if (activeStatusBaru === 'PENGECEKAN') { elemenSelectAktif.classList.add('border-amber-200', 'text-amber-600', 'bg-amber-50/20'); } 
-                else if (activeStatusBaru === 'PERBAIKAN') { elemenSelectAktif.classList.add('border-orange-200', 'text-orange-600', 'bg-orange-50/20'); } 
-                else if (activeStatusBaru === 'SELESAI') {
-                    elemenSelectAktif.classList.add('border-emerald-200', 'text-emerald-600', 'bg-emerald-50/20');
-                    <?php if ($view_tab == 'aktif'): ?>
-                        const barisTabel = document.getElementById(`row_${activeInvoice}`);
-                        if (barisTabel) {
-                            barisTabel.style.transition = 'all 0.4s ease'; barisTabel.style.opacity = '0';
-                            setTimeout(() => { barisTabel.remove(); hitungCheckboxTerpilih(); }, 400);
-                        }
-                    <?php endif; ?>
-                }
-                document.getElementById('modal_wa_editor').classList.remove('flex');
-                document.getElementById('modal_wa_editor').classList.add('hidden');
-                
-                // Refresh halaman secara halus agar status baris terkunci sempurna pasca reload data baru
-                window.location.reload();
-            });
+
+            fetch('semua_pesanan.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.text())
+                .then(result => {
+                    const waUrl = "https://api.whatsapp.com/send?phone=" + nomorBersih + "&text=" + encodeURIComponent(pesanFinal);
+                    window.open(waUrl, '_blank');
+                    window.location.reload();
+                });
         }
     </script>
 </body>
+
 </html>

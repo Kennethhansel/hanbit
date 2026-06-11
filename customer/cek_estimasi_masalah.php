@@ -19,16 +19,19 @@ $res_brand = mysqli_query($koneksi, $query_brand);
 $data_brand = mysqli_fetch_assoc($res_brand);
 $nama_brand_aktif = strtoupper($data_brand['nama_brand'] ?? 'LAPTOP');
 
-// 3. DAFTAR MASALAH
-$masalah_list = [
-    ['id' => '1', 'nama' => 'Mati Total', 'deskripsi' => 'Laptop tidak menyala sama sekali atau No Power.', 'icon' => 'fa-power-off text-amber-500'],
-    ['id' => '2', 'nama' => 'Layar Bermasalah', 'deskripsi' => 'Layar pecah, bergaris, atau tidak tampil gambar.', 'icon' => 'fa-desktop text-amber-500'],
-    ['id' => '3', 'nama' => 'Keyboard/Touchpad', 'deskripsi' => 'Tombol macet, mengetik sendiri, atau tidak responsif.', 'icon' => 'fa-keyboard text-amber-500'],
-    ['id' => '4', 'nama' => 'Laptop Lemot', 'deskripsi' => 'Pembersihan debu, ganti thermal paste, atau optimasi OS.', 'icon' => 'fa-trash-alt text-amber-500'],
-    ['id' => '5', 'nama' => 'Upgrade Hardware', 'deskripsi' => 'Tambah kapasitas RAM atau ganti SSD agar lebih cepat.', 'icon' => 'fa-rocket text-amber-500'],
-    ['id' => '6', 'nama' => 'Tidak Bisa Charge', 'deskripsi' => 'Baterai tidak mengisi atau lubang charger longgar.', 'icon' => 'fa-bolt text-amber-500'],
-    ['id' => '7', 'nama' => 'Masalah Wifi', 'deskripsi' => 'Sinyal lemah, tidak terdeteksi, atau sering putus.', 'icon' => 'fa-wifi text-amber-500'],
+$query_masalah = "SELECT * FROM master_masalah ORDER BY id_masalah ASC";
+$res_masalah = mysqli_query($koneksi, $query_masalah);
+
+$icon_pilihan = [
+    1 => 'fa-power-off text-amber-500',
+    2 => 'fa-desktop text-amber-500',
+    3 => 'fa-keyboard text-amber-500',
+    4 => 'fa-trash-alt text-amber-500',
+    5 => 'fa-rocket text-amber-500',
+    6 => 'fa-bolt text-amber-500',
+    7 => 'fa-wifi text-amber-500'
 ];
+
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -41,26 +44,29 @@ $masalah_list = [
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
     </style>
 </head>
 
 <body class="bg-[#f8fafc] text-slate-900 antialiased min-h-screen flex flex-col justify-between">
 
-    <nav class="bg-white border-b border-gray-100 sticky top-0 z-50">
+    <nav class="bg-white border-b border-gray-100 sticky top-0 z-50 shadow-sm">
         <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
             <a href="index.php" class="flex items-center gap-3 hover:opacity-90 transition select-none">
-                <!-- REVISI: Mengarahkan logo ke folder admin -->
                 <img src="../admin/images/logo warna.png" alt="Logo Hanbit" class="w-10 h-10 object-contain">
                 <span class="text-3xl font-extrabold tracking-tight text-slate-900">Hanbit</span>
             </a>
             <div class="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-600">
-                <a href="index.php" class="hover:text-yellow-600 transition">Home</a>
+                <a href="#home" class="text-yellow-600 hover:text-yellow-500 transition">Home</a>
                 <a href="katalog.php" class="hover:text-slate-900 transition">Katalog</a>
-                <a href="index.php#layanan" class="hover:text-slate-900 transition">Layanan</a>
-                <a href="index.php#kontak" class="hover:text-slate-900 transition">Kontak</a>
+                <a href="#layanan" class="hover:text-slate-900 transition">Layanan</a>
+                <a href="portofolio.php" class="hover:text-slate-900 transition">Portofolio</a>
+                <a href="#kontak" class="hover:text-slate-900 transition">Kontak</a>
             </div>
-            <a href="https://wa.me/6285159794427" target="_blank" class="bg-[#00e676] hover:bg-[#00c853] text-white text-xs font-bold px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-sm transition">
+            <a href="https://wa.me/6285159794427" target="_blank" class="bg-[#00e676] hover:bg-[#00c853] text-white text-xs font-bold px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-md shadow-emerald-500/10 transition">
                 <i class="fab fa-whatsapp text-sm"></i> Chat Via WA
             </a>
         </div>
@@ -105,18 +111,21 @@ $masalah_list = [
             <input type="hidden" name="masalah_custom" id="masalah_custom_input">
 
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5 justify-center">
-                <?php foreach ($masalah_list as $m): ?>
-                    <div type="button" data-id="<?= $m['id']; ?>" onclick="toggleMasalah(this, '<?= $m['id']; ?>')"
+                <?php while ($m = mysqli_fetch_assoc($res_masalah)):
+                    // Mengatur icon agar tetap muncul berwarna sesuai ID masalah lama (1-7)
+                    $icon_aktif = isset($icon_pilihan[$m['id_masalah']]) ? $icon_pilihan[$m['id_masalah']] : 'fa-tools text-amber-500';
+                ?>
+                    <div type="button" data-id="<?= $m['id_masalah']; ?>" onclick="toggleMasalah(this, '<?= $m['id_masalah']; ?>')"
                         class="masalah-card flex flex-col items-center justify-start pt-8 pb-6 px-5 bg-white border border-gray-100 rounded-[1.5rem] cursor-pointer hover:border-yellow-400 hover:bg-yellow-50/5 transition-all duration-200 group select-none shadow-sm shadow-slate-100 min-h-[200px]">
 
                         <div class="w-12 h-12 flex items-center justify-center mb-4 bg-yellow-50/60 group-hover:bg-yellow-100 rounded-xl transition-colors">
-                            <i class="fas <?= $m['icon']; ?> text-xl"></i>
+                            <i class="fas <?= $icon_aktif; ?> text-xl"></i>
                         </div>
 
-                        <h3 class="text-sm font-extrabold text-slate-800 text-center mb-1 group-hover:text-slate-900"><?= $m['nama']; ?></h3>
-                        <p class="text-[11px] text-slate-400 font-medium text-center leading-normal"><?= $m['deskripsi']; ?></p>
+                        <h3 class="text-sm font-extrabold text-slate-800 text-center mb-1 group-hover:text-slate-900"><?= htmlspecialchars($m['nama_masalah']); ?></h3>
+                        <p class="text-[11px] text-slate-400 font-medium text-center leading-normal"><?= htmlspecialchars($m['deskripsi_masalah']); ?></p>
                     </div>
-                <?php endforeach; ?>
+                <?php endwhile; ?>
 
                 <div id="card_masalah_lainnya" data-id="8" type="button" onclick="bukaModalMasalahLainnya()"
                     class="masalah-card flex flex-col items-center justify-start pt-8 pb-6 px-5 bg-white border border-gray-100 rounded-[1.5rem] cursor-pointer hover:border-yellow-400 hover:bg-yellow-50/5 transition-all duration-200 group select-none shadow-sm shadow-slate-100 min-h-[200px]">
@@ -239,9 +248,9 @@ $masalah_list = [
             const nilaiInput = document.getElementById('selected_masalah_id').value;
             if (nilaiInput === "" || nilaiInput === null || kumpulanMasalahTerpilih.length === 0) {
                 document.getElementById('modal_validasi_masalah').classList.remove('hidden');
-                return false; 
+                return false;
             }
-            return true; 
+            return true;
         }
 
         function tutupModalValidasi() {
@@ -249,4 +258,5 @@ $masalah_list = [
         }
     </script>
 </body>
+
 </html>

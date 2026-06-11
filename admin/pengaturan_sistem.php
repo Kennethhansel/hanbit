@@ -126,7 +126,7 @@ $pesan_tutup_skrg= $data_skrg['pesan_penutupan'] ?? '';
                         </div>
 
                         <div class="md:col-span-6 space-y-1">
-                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Target Omzet Bulanan (IDR)</label>
+                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Target Omzet Bulanan (RP)</label>
                             <input type="number" name="target_omzet" value="<?= $target_skrg; ?>" required class="w-full px-4 py-2.5 bg-slate-50 border border-gray-200 rounded-xl focus:outline-none focus:border-blue-400 focus:bg-white transition font-bold text-slate-800">
                         </div>
 

@@ -86,7 +86,7 @@ while ($row_p = mysqli_fetch_assoc($query_paket)) {
 
         <div class="absolute left-6 right-6 bottom-0 transform translate-y-1/2 max-w-4xl mx-auto z-30">
             <div class="bg-white text-slate-900 p-6 md:p-8 rounded-[2rem] shadow-2xl border border-gray-100">
-                
+
                 <?php if ($is_tutup): ?>
                     <div class="bg-rose-50 border border-rose-200 text-rose-700 p-4 rounded-2xl mb-4 text-center text-xs font-black uppercase tracking-wide animate-pulse">
                         <i class="fas fa-store-slash mr-1.5"></i> <?= htmlspecialchars($pesan_tutup); ?>
@@ -99,10 +99,11 @@ while ($row_p = mysqli_fetch_assoc($query_paket)) {
                 </div>
 
                 <form action="status_tracking.php" method="GET" class="flex flex-col sm:flex-row gap-3">
-                    <input type="text" name="kode_order" placeholder="Masukkan Kode Order Anda (Contoh: #HB2026-0042)" required
+
+                    <input type="text" name="invoice" placeholder="Masukkan Nomor Invoice Anda (Contoh: INV-20260608-XXXX)" required
                         <?= $is_tutup ? 'disabled' : ''; ?>
                         class="flex-1 px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl text-sm font-bold focus:bg-white focus:ring-2 focus:ring-yellow-400 outline-none transition <?= $is_tutup ? 'cursor-not-allowed opacity-50' : ''; ?>">
-                    
+
                     <button type="submit" <?= $is_tutup ? 'disabled' : ''; ?>
                         class="text-white font-bold text-xs uppercase px-8 py-4 rounded-2xl transition tracking-wider shrink-0 <?= $is_tutup ? 'bg-gray-400 cursor-not-allowed shadow-none' : 'bg-black hover:bg-slate-900'; ?>">
                         <?= $is_tutup ? 'Toko Tutup' : 'Lacak Status'; ?>
@@ -165,7 +166,7 @@ while ($row_p = mysqli_fetch_assoc($query_paket)) {
         </div>
 
         <div class="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-8">
-            
+
             <?php $p_basic = $list_paket['basic'] ?? ['nama_paket' => 'Paket Basic', 'harga_kantoran' => 75000, 'harga_gaming' => 100000, 'garansi' => 'Garansi 7 Hari', 'benefits' => '']; ?>
             <div class="bg-white border border-gray-200 rounded-[2rem] shadow-xl overflow-hidden flex flex-col justify-between">
                 <div>
@@ -181,10 +182,10 @@ while ($row_p = mysqli_fetch_assoc($query_paket)) {
                         <p class="text-[10px] text-slate-400 font-bold mt-1">Laptop Kantoran</p>
                     </div>
                     <ul class="p-6 space-y-3.5 text-xs font-semibold text-slate-600">
-                        <?php 
+                        <?php
                         $b_basic = explode("\n", str_replace("\r", "", $p_basic['benefits']));
-                        foreach($b_basic as $b) {
-                            if(!empty(trim($b))) echo '<li class="flex items-start gap-2.5"><i class="fas fa-check-circle text-emerald-500 mt-0.5 shrink-0"></i> <span>'.htmlspecialchars($b).'</span></li>';
+                        foreach ($b_basic as $b) {
+                            if (!empty(trim($b))) echo '<li class="flex items-start gap-2.5"><i class="fas fa-check-circle text-emerald-500 mt-0.5 shrink-0"></i> <span>' . htmlspecialchars($b) . '</span></li>';
                         }
                         ?>
                         <li class="flex items-center gap-2.5 text-slate-400 italic"><i class="fas fa-shield-alt text-amber-500"></i> Proteksi <?= htmlspecialchars($p_basic['garansi']); ?></li>
@@ -212,10 +213,10 @@ while ($row_p = mysqli_fetch_assoc($query_paket)) {
                         <p class="text-[10px] text-slate-400 font-bold mt-1">Laptop Kantoran</p>
                     </div>
                     <ul class="p-6 space-y-3.5 text-xs font-semibold text-slate-700">
-                        <?php 
+                        <?php
                         $b_std = explode("\n", str_replace("\r", "", $p_std['benefits']));
-                        foreach($b_std as $b) {
-                            if(!empty(trim($b))) echo '<li class="flex items-start gap-2.5"><i class="fas fa-check-circle text-emerald-500 mt-0.5 shrink-0"></i> <span>'.htmlspecialchars($b).'</span></li>';
+                        foreach ($b_std as $b) {
+                            if (!empty(trim($b))) echo '<li class="flex items-start gap-2.5"><i class="fas fa-check-circle text-emerald-500 mt-0.5 shrink-0"></i> <span>' . htmlspecialchars($b) . '</span></li>';
                         }
                         ?>
                         <li class="flex items-center gap-2.5 text-slate-500 font-bold italic"><i class="fas fa-shield-alt text-yellow-600"></i> Proteksi <?= htmlspecialchars($p_std['garansi']); ?></li>
@@ -242,10 +243,10 @@ while ($row_p = mysqli_fetch_assoc($query_paket)) {
                         <p class="text-[10px] text-slate-400 font-bold mt-1">Laptop Kantoran</p>
                     </div>
                     <ul class="p-6 space-y-3.5 text-xs font-semibold text-slate-600">
-                        <?php 
+                        <?php
                         $b_prem = explode("\n", str_replace("\r", "", $p_prem['benefits']));
-                        foreach($b_prem as $b) {
-                            if(!empty(trim($b))) echo '<li class="flex items-start gap-2.5"><i class="fas fa-check-circle text-emerald-500 mt-0.5 shrink-0"></i> <span>'.htmlspecialchars($b).'</span></li>';
+                        foreach ($b_prem as $b) {
+                            if (!empty(trim($b))) echo '<li class="flex items-start gap-2.5"><i class="fas fa-check-circle text-emerald-500 mt-0.5 shrink-0"></i> <span>' . htmlspecialchars($b) . '</span></li>';
                         }
                         ?>
                         <li class="flex items-center gap-2.5 text-slate-400 italic"><i class="fas fa-shield-alt text-amber-500"></i> Proteksi <?= htmlspecialchars($p_prem['garansi']); ?></li>
