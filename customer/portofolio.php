@@ -20,6 +20,7 @@ if ($result) {
         $portofolio_list[] = $row;
     }
 }
+$halaman_aktif = basename($_SERVER['SCRIPT_NAME']);
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -32,28 +33,57 @@ if ($result) {
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
     </style>
 </head>
 
 <body class="bg-[#f8fafc] text-slate-900 antialiased min-h-screen flex flex-col justify-between">
 
-    <nav class="bg-white border-b border-gray-100 sticky top-0 z-50 shadow-sm">
-        <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
-            <a href="index.php" class="flex items-center gap-3 hover:opacity-90 transition select-none">
+    <nav class="bg-white border-b border-gray-100 sticky top-0 z-50 shadow-sm px-6">
+        <div class="max-w-7xl mx-auto h-20 flex justify-between items-center relative">
+
+            <a href="index.php" class="flex items-center gap-3 hover:opacity-90 transition select-none shrink-0">
                 <img src="../admin/images/logo warna.png" alt="Logo Hanbit" class="w-10 h-10 object-contain">
-                <span class="text-3xl font-extrabold tracking-tight">Hanbit</span>
+                <span class="text-3xl font-extrabold tracking-tight text-slate-900">Hanbit</span>
             </a>
-            <div class="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-600">
-                <a href="index.php#home" class="hover:text-yellow-600 transition">Home</a>
-                <a href="katalog.php" class="hover:text-slate-900 transition">Katalog</a>
-                <a href="index.php#layanan" class="hover:text-slate-900 transition">Layanan</a>
-                <a href="portofolio.php" class="hover:text-slate-900 transition">Portofolio</a>
-                <a href="index.php#kontak" class="hover:text-slate-900 transition">Contact</a>
+
+            <div class="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center gap-8 text-sm font-semibold">
+
+                <a href="index.php"
+                    class="transition <?= ($halaman_aktif == 'index.php') ? 'text-yellow-500 font-black' : 'text-slate-400 hover:text-yellow-500'; ?>">
+                    Home
+                </a>
+
+                <a href="katalog.php"
+                    class="transition <?= ($halaman_aktif == 'katalog.php') ? 'text-yellow-500 font-black' : 'text-slate-400 hover:text-yellow-500'; ?>">
+                    Katalog
+                </a>
+
+                <a href="index.php#layanan"
+                    class="transition <?= ($halaman_aktif == 'index.php') ? 'text-slate-400 hover:text-yellow-500' : 'text-slate-400 hover:text-yellow-500'; ?>">
+                    Layanan
+                </a>
+
+                <a href="portofolio.php"
+                    class="transition <?= ($halaman_aktif == 'portofolio.php' || $halaman_aktif == 'status_tracking.php') ? 'text-yellow-500 font-black' : 'text-slate-400 hover:text-yellow-500'; ?>">
+                    Portofolio
+                </a>
+
+                <a href="index.php#kontak"
+                    class="transition <?= ($halaman_aktif == 'index.php') ? 'text-slate-400 hover:text-yellow-500' : 'text-slate-400 hover:text-yellow-500'; ?>">
+                    Kontak
+                </a>
             </div>
-            <a href="https://wa.me/6285159794427" target="_blank" class="bg-[#00e676] hover:bg-[#00c853] text-white text-xs font-bold px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-sm transition">
-                <i class="fab fa-whatsapp text-sm"></i> Chat Via WA
-            </a>
+
+            <div class="shrink-0">
+                <a href="https://wa.me/6285159794427" target="_blank" class="bg-[#00e676] hover:bg-[#00c853] text-white text-xs font-bold px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-sm transition">
+                    <i class="fab fa-whatsapp text-sm"></i> Chat Via WA
+                </a>
+            </div>
+
         </div>
     </nav>
 
@@ -71,7 +101,7 @@ if ($result) {
             </button>
             <?php
             $q_btn_kat = mysqli_query($koneksi, "SELECT * FROM tb_kategori_porto ORDER BY nama_kategori ASC");
-            while($bk = mysqli_fetch_assoc($q_btn_kat)):
+            while ($bk = mysqli_fetch_assoc($q_btn_kat)):
             ?>
                 <button type="button" onclick="saringPorto('<?= $bk['slug_kategori']; ?>', this)" class="btn-filter bg-white hover:bg-slate-50 border border-gray-200 text-slate-600 font-bold text-xs uppercase px-5 py-2.5 rounded-xl transition duration-200">
                     <?= htmlspecialchars($bk['nama_kategori']); ?>
@@ -88,8 +118,8 @@ if ($result) {
                         <?php if ($porto['tipe_media'] == 'video'): ?>
                             <iframe class="w-full h-full" src="<?= $porto['sumber_media']; ?>" title="Hanbit Video Player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                         <?php else: ?>
-                            <?php 
-                                $src_media = (strpos($porto['sumber_media'], 'images/') !== false) ? $porto['sumber_media'] : 'images/portofolio/' . $porto['sumber_media'];
+                            <?php
+                            $src_media = (strpos($porto['sumber_media'], 'images/') !== false) ? $porto['sumber_media'] : 'images/portofolio/' . $porto['sumber_media'];
                             ?>
                             <img src="<?= $src_media; ?>?v=<?= time(); ?>" alt="<?= htmlspecialchars($porto['judul']); ?>" class="w-full h-full object-cover">
                         <?php endif; ?>
@@ -145,4 +175,5 @@ if ($result) {
         }
     </script>
 </body>
+
 </html>

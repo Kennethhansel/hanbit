@@ -73,7 +73,7 @@ $is_pesanan_aktif = ($current_page == 'semua_pesanan.php' || $current_page == 'd
         </a>
 
         <a href="master_laptop.php" class="flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-200 text-xs font-bold <?= ($current_page == 'master_laptop.php') ? 'bg-[#facc15] text-black shadow-lg shadow-yellow-400/10' : 'text-slate-400 hover:text-white hover:bg-white/5' ?>">
-            <i class="fas fa-laptop w-4 text-center text-sm"></i> Master Merek & Seri
+            <i class="fas fa-laptop w-4 text-center text-sm"></i> Master Laptop
         </a>
 
         <a href="katalog_produk.php" class="flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-200 text-xs font-bold <?= ($current_page == 'katalog_produk.php') ? 'bg-[#facc15] text-black shadow-lg shadow-yellow-400/10' : 'text-slate-400 hover:text-white hover:bg-white/5' ?>">
