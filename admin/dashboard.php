@@ -85,7 +85,7 @@ while ($row_tb = mysqli_fetch_assoc($q_top_brand)) {
 
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 border-b pb-5 border-slate-200">
                 <div>
-                    <h1 class="text-2xl font-black tracking-tight text-slate-900">Dashboard Analitik</h1>
+                    <h1 class="text-2xl font-black tracking-tight text-slate-900">Dashboard Hanbit Labs</h1>
                     <p class="text-xs text-slate-400 font-medium">Pantau omzet makro, volume antrean laptop, dan konversi target performa berkala Hanbit Labs.</p>
                 </div>
 
