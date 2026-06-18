@@ -129,9 +129,9 @@ $result = mysqli_query($koneksi, $query);
                                     <th class="p-4">No. Invoice</th>
                                     <th class="p-4">Pelanggan</th>
                                     <th class="p-4">Laptop</th>
-                                    <th class="p-4 text-center">Tgl Booking</th>
-                                    <th class="p-4 text-center">Tgl Kedatangan</th>
-                                    <th class="p-4 text-center">Tgl Selesai</th>
+                                    <th class="p-4 text-center">Tanggal Booking</th>
+                                    <th class="p-4 text-center">Tanggal Kedatangan</th>
+                                    <th class="p-4 text-center">Tanggal Selesai</th>
                                     <th class="p-4 text-center">Aksi</th>
                                 </tr>
                             </thead>

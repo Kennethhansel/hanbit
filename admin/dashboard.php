@@ -242,10 +242,10 @@ while ($row_tb = mysqli_fetch_assoc($q_top_brand)) {
                         <table class="w-full text-left border-collapse text-xs">
                             <thead>
                                 <tr class="bg-slate-100/60 text-slate-400 font-bold uppercase border-b border-gray-100 select-none">
-                                    <th class="p-4 w-32">No. Invoice</th>
+                                    <th class="p-4 w-33">No. Invoice</th>
                                     <th class="p-4">Identitas Pelanggan</th>
                                     <th class="p-4">Merek & Tipe Unit</th>
-                                    <th class="p-4 w-36 text-center">Jadwal Kedatangan</th>
+                                    <th class="p-4 w-37 text-center">Jadwal Kedatangan</th>
                                     <th class="p-4 w-36 text-center">Status Progres</th>
                                 </tr>
                             </thead>

@@ -14,42 +14,41 @@ if (empty($invoice_id)) {
 // FUNGSI UTILITAS: Hitung Ulang Total Harga & Sinkronisasi ke Tabel Utama
 // -------------------------------------------------------------------------
 function sinkronkanTotalHargaReservasi($koneksi, $invoice) {
-    // Hitung akumulasi total dari semua rincian komponen/jasa kustom di tabel invoice_details
     $q_hitung = mysqli_query($koneksi, "SELECT SUM(harga_item) as total_riil FROM invoice_details WHERE no_invoice = '$invoice'");
     $res_hitung = mysqli_fetch_assoc($q_hitung);
     $total_baru = $res_hitung['total_riil'] ?? 0;
 
-    // Selalu perbarui total_harga di tabel reservations agar sinkron secara real-time
     mysqli_query($koneksi, "UPDATE reservations SET total_harga = '$total_baru' WHERE no_invoice = '$invoice'");
 }
 
 // -------------------------------------------------------------------------
-// PROSES A: LOGIKA UPDATE STATUS (TANGGAL AUTOMATICALLY LOGGED VIA WORKFLOW)
+// PROSES A: LOGIKA UPDATE STATUS (BERSIH TANPA LOG AKTIVITAS)
 // -------------------------------------------------------------------------
 if (isset($_POST['update_antrean'])) {
     $status_baru = mysqli_real_escape_string($koneksi, $_POST['status_order']);
     $catatan     = mysqli_real_escape_string($koneksi, $_POST['catatan_teknisi'] ?? '');
+    $estimasi    = mysqli_real_escape_string($koneksi, $_POST['estimasi_selesai'] ?? ''); // 🌟 AMBIL INPUT ESTIMASI
 
-    // Ambil data tanggal lama terlebih dahulu dari database untuk proteksi data log
     $q_tgl_lama = mysqli_query($koneksi, "SELECT tanggal_dikerjakan, tanggal_selesai FROM reservations WHERE no_invoice = '$invoice_id' LIMIT 1");
     $d_tgl_lama = mysqli_fetch_assoc($q_tgl_lama);
     
     $tgl_kerja   = $d_tgl_lama['tanggal_dikerjakan'] ? "'".$d_tgl_lama['tanggal_dikerjakan']."'" : "NULL";
     $tgl_selesai = $d_tgl_lama['tanggal_selesai'] ? "'".$d_tgl_lama['tanggal_selesai']."'" : "NULL";
 
-    // AUTOMATION ENGINE: Sinkronisasi waktu siklus hidup pengerjaan laptop
-    if (($status_baru === 'PENGECEKAN' || $status_baru === 'SEDANG DIKERJAKAN') && empty($d_tgl_lama['tanggal_dikerjakan'])) {
+    if (($status_baru === 'PENGECEKAN' || $status_baru === 'PERBAIKAN') && (empty($d_tgl_lama['tanggal_dikerjakan']) || $d_tgl_lama['tanggal_dikerjakan'] == '0000-00-00')) {
         $tgl_kerja = "'" . date('Y-m-d') . "'";
     }
-    if ($status_baru === 'SELESAI' && empty($d_tgl_lama['tanggal_selesai'])) {
+    if ($status_baru === 'SELESAI' && (empty($d_tgl_lama['tanggal_selesai']) || $d_tgl_lama['tanggal_selesai'] == '0000-00-00')) {
         $tgl_selesai = "'" . date('Y-m-d') . "'";
     }
 
+    // 🌟 SUNTIKKAN kolom estimasi_selesai ke dalam Query Update
     $q_up = "UPDATE reservations SET 
                 status_order = '$status_baru', 
                 tanggal_dikerjakan = $tgl_kerja, 
                 tanggal_selesai = $tgl_selesai, 
-                catatan_teknisi = '$catatan' 
+                catatan_teknisi = '$catatan',
+                estimasi_selesai = '$estimasi' 
              WHERE no_invoice = '$invoice_id'";
              
     if (mysqli_query($koneksi, $q_up)) {
@@ -60,7 +59,7 @@ if (isset($_POST['update_antrean'])) {
 }
 
 // -------------------------------------------------------------------------
-// PROSES B: LOGIKA TAMBAH ITEM DETAIL RINCIAN KOMPONEN / JASA BARU OLEH TEKNISI
+// PROSES B: LOGIKA TAMBAH ITEM DETAIL BARU (BERSIH TANPA LOG AKTIVITAS)
 // -------------------------------------------------------------------------
 if (isset($_POST['tambah_komponen_kustom'])) {
     $nama_item  = mysqli_real_escape_string($koneksi, trim($_POST['nama_item']));
@@ -78,7 +77,7 @@ if (isset($_POST['tambah_komponen_kustom'])) {
 }
 
 // -------------------------------------------------------------------------
-// 🔥 PROSES C: LOGIKA UTAMA EDIT / SESUAIKAN RINCIAN ITEM BREAKDOWN INVOICE
+// PROSES C: LOGIKA EDIT RINCIAN ITEM BREAKDOWN (BERSIH TANPA LOG AKTIVITAS)
 // -------------------------------------------------------------------------
 if (isset($_POST['proses_edit_item_invoice'])) {
     $id_detail_edit = intval($_POST['id_detail_item']);
@@ -95,7 +94,7 @@ if (isset($_POST['proses_edit_item_invoice'])) {
 }
 
 // -------------------------------------------------------------------------
-// PROSES D: LOGIKA HAPUS INDIVIDU ITEM DETAIL RINCIAN KOMPONEN / JASA
+// PROSES D: LOGIKA HAPUS INDIVIDU ITEM DETAIL (BERSIH TANPA LOG AKTIVITAS)
 // -------------------------------------------------------------------------
 if (isset($_GET['hapus_item_id'])) {
     $id_hapus = mysqli_real_escape_string($koneksi, $_GET['hapus_item_id']);
@@ -108,7 +107,6 @@ if (isset($_GET['hapus_item_id'])) {
     }
 }
 
-// Fetch Data Utama untuk Ditampilkan di Form Atas
 $query_detail = mysqli_query($koneksi, "SELECT * FROM reservations WHERE no_invoice = '$invoice_id' LIMIT 1");
 $data = mysqli_fetch_assoc($query_detail);
 
@@ -116,6 +114,8 @@ if (!$data) {
     header("Location: semua_pesanan.php");
     exit;
 }
+
+$tanggal_booking_raw = $data['tanggal_booking'] ?? date('Y-m-d', strtotime($data['created_at']));
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -184,32 +184,38 @@ if (!$data) {
 
                         <div class="space-y-1.5">
                             <label class="text-slate-500 block uppercase tracking-wide text-[10px]">Tahapan Status Antrean</label>
-                            <select name="status_order" required class="w-full px-3 py-2.5 bg-slate-50 border border-gray-200 rounded-xl focus:outline-none focus:bg-white focus:border-blue-400 cursor-pointer transition text-slate-700 font-extrabold uppercase text-[11px]">
-                                <option value="PENDING" <?= $data['status_order'] == 'PENDING_ADMIN' ? 'selected' : ''; ?>>🔵 Pending</option>
-                                <option value="PENGECEKAN" <?= $data['status_order'] == 'PENGECEKAN' ? 'selected' : ''; ?>>🟡 Pengecekan Fisik</option>
-                                <option value="PERBAIKAN" <?= $data['status_order'] == 'PERBAIKAN' ? 'selected' : ''; ?>>🔴 Proses Eksekusi Perbaikan</option>
-                                <option value="SELESAI" <?= $data['status_order'] == 'SELESAI' ? 'selected' : ''; ?>>🟢 Selesai</option>
+                            <select name="status_order" id="pilihan_status_order" onchange="pemicuAutoTemplateCatatan()" required class="w-full px-3 py-2.5 bg-slate-50 border border-gray-200 rounded-xl focus:outline-none focus:bg-white focus:border-blue-400 cursor-pointer transition text-slate-700 font-extrabold uppercase text-[11px]">
+                                <option value="PENDING" <?= $data['status_order'] == 'PENDING' ? 'selected' : ''; ?>>📋 Pending</option>
+                                <option value="PENGECEKAN" <?= $data['status_order'] == 'PENGECEKAN' ? 'selected' : ''; ?>>🔍 Pengecekan Fisik</option>
+                                <option value="PERBAIKAN" <?= $data['status_order'] == 'PERBAIKAN' ? 'selected' : ''; ?>>🛠️ Proses Eksekusi Perbaikan</option>
+                                <option value="SELESAI" <?= $data['status_order'] == 'SELESAI' ? 'selected' : ''; ?>>✅ Selesai</option>
                             </select>
                         </div>
 
                         <div class="grid grid-cols-3 gap-2 text-center bg-slate-50 p-3.5 rounded-xl border font-bold text-slate-700 text-[10px] select-none">
                             <div>
-                                <span class="text-slate-400 block uppercase tracking-wider text-[8px] mb-0.5">1. Tgl Booking</span>
+                                <span class="text-slate-400 block uppercase tracking-wider text-[8px] mb-0.5">1. Tanggal Booking</span>
                                 <code class="text-slate-900 font-mono text-[11px]"><?= date('d/m/Y', strtotime($data['created_at'])); ?></code>
                             </div>
                             <div>
-                                <span class="text-slate-400 block uppercase tracking-wider text-[8px] mb-0.5">2. Tgl Mulai Kerja</span>
+                                <span class="text-slate-400 block uppercase tracking-wider text-[8px] mb-0.5">2. Tanggal Mulai Kerja</span>
                                 <code class="text-blue-600 font-mono text-[11px]"><?= (!empty($data['tanggal_dikerjakan']) && $data['tanggal_dikerjakan'] !== '0000-00-00') ? date('d/m/Y', strtotime($data['tanggal_dikerjakan'])) : 'Belum Mulai'; ?></code>
                             </div>
                             <div>
-                                <span class="text-slate-400 block uppercase tracking-wider text-[8px] mb-0.5">3. Tgl Selesai QC</span>
+                                <span class="text-slate-400 block uppercase tracking-wider text-[8px] mb-0.5">3. Tanggal Selesai QC</span>
                                 <code class="text-emerald-600 font-mono text-[11px]"><?= (!empty($data['tanggal_selesai']) && $data['tanggal_selesai'] !== '0000-00-00') ? date('d/m/Y', strtotime($data['tanggal_selesai'])) : 'Dalam Proses'; ?></code>
                             </div>
                         </div>
 
+                        <!-- 🌟 MENU INJECT BARU: ESTIMASI WAKTU SELESAI -->
+                        <div class="space-y-1.5">
+                            <label class="text-slate-500 block uppercase tracking-wide text-[10px]">Estimasi Waktu Selesai Servis</label>
+                            <input type="text" name="estimasi_selesai" id="box_estimasi_selesai" required value="<?= htmlspecialchars($data['estimasi_selesai'] ?? ''); ?>" placeholder="Contoh: 1-2 Hari Kerja" class="w-full px-4 py-3 bg-slate-50 border border-gray-200 text-slate-700 font-bold rounded-xl focus:outline-none focus:bg-white focus:border-blue-400 transition text-[11px]">
+                        </div>
+
                         <div class="space-y-1.5">
                             <label class="text-slate-500 block uppercase tracking-wide text-[10px]">Catatan Internal Teknisi Laptop</label>
-                            <textarea name="catatan_teknisi" rows="4" placeholder="Tulis rincian keluhan nyata atau catatan komponen di sini..." class="w-full px-4 py-3 bg-slate-50 border border-gray-200 text-slate-700 font-medium rounded-xl focus:outline-none focus:bg-white focus:border-blue-400 transition leading-relaxed resize-none"><?= htmlspecialchars($data['catatan_teknisi'] ?? ''); ?></textarea>
+                            <textarea name="catatan_teknisi" id="box_catatan_teknisi" rows="4" placeholder="Tulis rincian keluhan nyata atau catatan komponen di sini..." class="w-full px-4 py-3 bg-slate-50 border border-gray-200 text-slate-700 font-medium rounded-xl focus:outline-none focus:bg-white focus:border-blue-400 transition leading-relaxed resize-none"><?= htmlspecialchars($data['catatan_teknisi'] ?? ''); ?></textarea>
                         </div>
 
                         <div class="flex gap-2 pt-2">
@@ -250,7 +256,7 @@ if (!$data) {
                             </div>
 
                             <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-xl transition uppercase tracking-wider text-[10px] font-black shadow-sm">
-                                ➕ Tambah Item ke Invoice
+                                + Tambah Item ke Invoice
                             </button>
                         </form>
                     </div>
@@ -270,7 +276,7 @@ if (!$data) {
                                 <thead>
                                     <tr class="bg-slate-50 text-slate-400 border-b border-gray-100 uppercase text-[9px] tracking-wider select-none">
                                         <th class="p-3">Rincian Komponen / Tindakan</th>
-                                        <th class="p-3 text-right w-24">Subtotal</th>
+                                        <th class="p-3 text-right w-25">Subtotal</th>
                                         <th class="p-3 text-center w-16">Aksi</th>
                                     </tr>
                                 </thead>
@@ -348,12 +354,73 @@ if (!$data) {
     </div>
 
     <script>
+        function formatTanggalIndonesia(tglString) {
+            if (!tglString || tglString === '0000-00-00') return '-';
+            const bulanIndo = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "December"];
+            const parts = tglString.split('-');
+            return `${parseInt(parts[2], 10)} ${bulanIndo[parseInt(parts[1], 10) - 1]} ${parts[0]}`;
+        }
+
+        function dapatkanTanggalHariIni() {
+            const bulanIndo = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+            const tgl = new Date();
+            return `${tgl.getDate()} ${bulanIndo[tgl.getMonth()]} ${tgl.getFullYear()}`;
+        }
+
+        function pemicuAutoTemplateCatatan() {
+            const statusTerpilih = document.getElementById('pilihan_status_order').value;
+            const boxCatatan = document.getElementById('box_catatan_teknisi');
+            const boxEstimasi = document.getElementById('box_estimasi_selesai');
+            
+            const namaPelanggan  = "<?= htmlspecialchars($data['nama_pelanggan'], ENT_QUOTES); ?>";
+            const detailLaptop   = "<?= htmlspecialchars($data['laptop_detail'], ENT_QUOTES); ?>";
+            const tglBookingRaw  = "<?= $tanggal_booking_raw; ?>";
+            const tipePaket      = "<?= $data['paket_tipe']; ?>";
+            
+            const tglBookingIndo = formatTanggalIndonesia(tglBookingRaw);
+            const tglHariIniIndo = dapatkanTanggalHariIni();
+
+            // 🌟 LOGIKA INJECT ESTIMASI OTOMATIS BERDASARKAN TIPE LAYANAN
+            if (boxEstimasi.value.trim() === "" || boxEstimasi.getAttribute('data-changed') !== 'true') {
+                if (tipePaket === 'custom_estimasi') {
+                    boxEstimasi.value = "7-14 Hari Kerja";
+                } else {
+                    boxEstimasi.value = "1-2 Hari Kerja";
+                }
+            }
+
+            let templateTeks = "";
+            if (statusTerpilih === "PENDING") {
+                templateTeks = `Data pendaftaran ${namaPelanggan} berhasil divalidasi. Silakan serahkan unit laptop ${detailLaptop} ke workshop Hanbit Labs sesuai dengan tanggal serah pilihan Anda pada tanggal ${tglBookingIndo}.`;
+            } else if (statusTerpilih === "PENGECEKAN") {
+                templateTeks = `Unit fisik laptop ${detailLaptop} telah diterima oleh teknisi pada tanggal ${tglHariIniIndo}. Saat ini sedang dilakukan pembongkaran sasis untuk pengecekan fisik menyeluruh, diagnosa tegangan short sirkuit, dan pengecekan komponen internal.`;
+            } else if (statusTerpilih === "PERBAIKAN") {
+                templateTeks = `Unit laptop ${detailLaptop} telah lulus uji diagnosa awal dan kini masuk tahap proses eksekusi perbaikan intensif oleh tim teknisi Hanbit. Lembar rincian komponen sparepart terupdate kini sudah bisa diakses langsung pada invoice.`;
+            } else if (statusTerpilih === "SELESAI") {
+                templateTeks = `Seluruh rangkaian pengerjaan laptop selesai total pada tanggal ${tglHariIniIndo}. Unit telah lulus uji QC stabilitas suhu panas dan siap diambil kembali oleh pelanggan di meja kasir Hanbit Labs.`;
+                boxEstimasi.value = "Selesai";
+            }
+            boxCatatan.value = templateTeks;
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const boxCatatan = document.getElementById('box_catatan_teknisi');
+            const boxEstimasi = document.getElementById('box_estimasi_selesai');
+            
+            boxEstimasi.addEventListener('input', function() {
+                boxEstimasi.setAttribute('data-changed', 'true');
+            });
+
+            if (boxCatatan.value.trim() === "") {
+                pemicuAutoTemplateCatatan();
+            }
+        });
+
         function bukaPopUpEditItem(id, nama, harga, desc) {
             document.getElementById('edit_modal_id_detail').value = id;
             document.getElementById('edit_modal_nama_item').value = nama;
             document.getElementById('edit_modal_harga_item').value = harga;
             document.getElementById('edit_modal_desc_item').value = desc;
-            
             const m = document.getElementById('modal_edit_item_breakdown');
             m.classList.remove('hidden'); m.classList.add('flex');
         }
@@ -366,7 +433,8 @@ if (!$data) {
         function kirimWaManual(no_hp, nama, status, invoice) {
             let nomorBersih = no_hp.replace(/[^0-9]/g, '');
             if (nomorBersih.startsWith('0')) { nomorBersih = '62' + nomorBersih.slice(1); }
-            let pesan = `Halo ${nama}, status pesanan Anda ${invoice} saat ini adalah: *${status}*. Terima kasih telah mempercayakan perbaikan laptop Anda di Hanbit Labs.`;
+            const est = document.getElementById('box_estimasi_selesai').value;
+            let pesan = `Halo ${nama}, status pesanan Anda ${invoice} saat ini adalah: *${status}*. Estimasi waktu penyelesaian: *${est}*. Terima kasih telah mempercayakan perbaikan laptop Anda di Hanbit Labs.`;
             let waUrl = "https://api.whatsapp.com/send?phone=" + nomorBersih + "&text=" + encodeURIComponent(pesan);
             window.open(waUrl, '_blank');
         }

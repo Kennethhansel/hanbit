@@ -17,9 +17,9 @@ if (isset($_POST['update_status_instan'])) {
     // Ambil data tanggal lama terlebih dahulu dari database untuk proteksi data log
     $q_tgl_lama = mysqli_query($koneksi, "SELECT tanggal_dikerjakan, tanggal_selesai FROM reservations WHERE no_invoice = '$invoice_input' LIMIT 1");
     $d_tgl_lama = mysqli_fetch_assoc($q_tgl_lama);
-    
-    $tgl_kerja   = $d_tgl_lama['tanggal_dikerjakan'] ? "'".$d_tgl_lama['tanggal_dikerjakan']."'" : "NULL";
-    $tgl_selesai = $d_tgl_lama['tanggal_selesai'] ? "'".$d_tgl_lama['tanggal_selesai']."'" : "NULL";
+
+    $tgl_kerja   = $d_tgl_lama['tanggal_dikerjakan'] ? "'" . $d_tgl_lama['tanggal_dikerjakan'] . "'" : "NULL";
+    $tgl_selesai = $d_tgl_lama['tanggal_selesai'] ? "'" . $d_tgl_lama['tanggal_selesai'] . "'" : "NULL";
 
     // 🔥 AUTOMATION LOGGER: Dropdown depan halaman utama sekarang resmi memicu pencatatan tanggal otomatis
     if (($status_baru === 'PENGECEKAN' || $status_baru === 'SEDANG DIKERJAKAN') && empty($d_tgl_lama['tanggal_dikerjakan'])) {
@@ -104,7 +104,10 @@ $result = mysqli_query($koneksi, $query_str);
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700;800;900&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
     </style>
 </head>
 
@@ -133,10 +136,10 @@ $result = mysqli_query($koneksi, $query_str);
                         🔄 Antrean Berjalan
                     </a>
                     <a href="semua_pesanan.php?view=hari_ini&filter_tipe=<?= $filter_tipe; ?>&sort_tgl=<?= $sort_tgl; ?>&search=<?= urlencode($search); ?>" class="px-4 py-2.5 rounded-xl transition <?= $view_tab == 'hari_ini' ? 'bg-slate-900 text-white shadow-sm' : 'bg-slate-50 text-slate-500 hover:bg-slate-100' ?>">
-                        📩 Booking Masuk Hari Ini
+                        📩 Booking Hari Ini
                     </a>
                     <a href="semua_pesanan.php?view=datang_hari_ini&filter_tipe=<?= $filter_tipe; ?>&sort_tgl=<?= $sort_tgl; ?>&search=<?= urlencode($search); ?>" class="px-4 py-2.5 rounded-xl transition <?= $view_tab == 'datang_hari_ini' ? 'bg-amber-500 text-slate-950 shadow-sm border border-amber-500' : 'bg-slate-50 text-slate-500 hover:bg-slate-100' ?>">
-                        📦 Rencana Datang Hari Ini
+                        📦 Rencana Menyerahkan Hari ini
                     </a>
                 </div>
 
@@ -194,8 +197,8 @@ $result = mysqli_query($koneksi, $query_str);
                                     <th class="p-4 w-30">No. Invoice</th>
                                     <th class="p-4">Identitas Pelanggan</th>
                                     <th class="p-4">Merek & Series Unit</th>
-                                    <th class="p-4 w-32 text-center">Tanggal Booking</th>
-                                    <th class="p-4 w-36 text-center">Jadwal Kedatangan</th>
+                                    <th class="p-4 w-33 text-center">Tanggal Booking</th>
+                                    <th class="p-4 w-37 text-center">Jadwal Kedatangan</th>
                                     <th class="p-4 w-44 text-center">Ubah Status</th>
                                     <th class="p-4 w-16 text-center">Aksi</th>
                                 </tr>
@@ -237,14 +240,11 @@ $result = mysqli_query($koneksi, $query_str);
                                                 // Jika diubah oleh admin, warna disesuaikan seperti biasa
                                                 elseif ($curr_status === 'PENDING_ADMIN') {
                                                     $color_class = 'border-blue-200 text-blue-600 bg-blue-50/20 font-extrabold';
-                                                }
-                                                elseif ($curr_status === 'PENGECEKAN' || $curr_status === 'SEDANG DIKERJAKAN') {
+                                                } elseif ($curr_status === 'PENGECEKAN' || $curr_status === 'SEDANG DIKERJAKAN') {
                                                     $color_class = 'border-amber-200 text-amber-600 bg-amber-50/20 font-extrabold';
-                                                }
-                                                elseif ($curr_status === 'PERBAIKAN') {
+                                                } elseif ($curr_status === 'PERBAIKAN') {
                                                     $color_class = 'border-orange-200 text-orange-600 bg-orange-50/20 font-extrabold';
-                                                }
-                                                elseif ($curr_status === 'SELESAI') {
+                                                } elseif ($curr_status === 'SELESAI') {
                                                     $color_class = 'border-emerald-200 text-emerald-600 bg-emerald-50/20 font-extrabold';
                                                 }
                                                 ?>
@@ -299,7 +299,7 @@ $result = mysqli_query($koneksi, $query_str);
             <div class="flex justify-between items-center border-b pb-3">
                 <div class="flex items-center gap-2 text-emerald-600">
                     <i class="fab fa-whatsapp text-xl"></i>
-                    <h3 class="text-sm font-black uppercase tracking-wider text-slate-900">Review Template Pesan WA</h3>
+                    <h3 class="text-sm font-black uppercase tracking-wider text-slate-900">Review Template Pesan WhatsApp</h3>
                 </div>
                 <button type="button" onclick="batalPerubahanStatus()" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times text-base"></i></button>
             </div>
@@ -372,27 +372,43 @@ $result = mysqli_query($koneksi, $query_str);
             window.location.href = `semua_pesanan.php?view=<?= $view_tab; ?>&filter_tipe=<?= $filter_tipe; ?>&sort_tgl=<?= $sort_tgl; ?>&search=${encodeURIComponent(s)}`;
         }
 
+        // 🌟 REVISI PENUH TEMPLATE CHAT WA CRM HANBIT LABS
+        // 🌟 REVISI SCRIPT JAVASCRIPT BAWAH FILE semua_pesanan.php (Ganti Fungsi pemicuPerubahanStatus)
         function pemicuPerubahanStatus(invoice, whatsapp, nama, paketTipe, laptop, selectElement) {
             activeInvoice = invoice;
             activeWhatsApp = whatsapp;
             activeStatusBaru = selectElement.value;
             elemenSelectAktif = selectElement;
+
             document.getElementById('view_nama_pelanggan').innerText = nama;
             document.getElementById('view_status_baru').innerText = `${invoice} ➔ ${activeStatusBaru === "" ? "Dikosongkan" : activeStatusBaru}`;
+
             const isCustom = (paketTipe === 'custom_estimasi');
+            const rowElemen = document.getElementById('row_' + invoice);
+
+            let tglDatangCustomer = "-";
+            if (rowElemen) {
+                tglDatangCustomer = rowElemen.cells[5].innerText.trim();
+            }
+
+            // Tentukan estimasi bawaan untuk disisipkan di pesan WhatsApp instan halaman depan
+            let estimasiDefault = isCustom ? "7-14 Hari Kerja" : "1-2 Hari Kerja";
+            if (activeStatusBaru === 'SELESAI') estimasiDefault = "Selesai";
+
             let templateChat = "";
 
             if (activeStatusBaru === 'PENDING') {
-                templateChat = `Halo ${nama},\n\nTerima kasih telah melakukan booking di Hanbit Labs. Unit Anda terdaftar dengan nomor Invoice: ${invoice}.\n\nSilakan segera serahkan unit laptop *${laptop}* Anda ke toko kami untuk pemeriksaan fisik langsung. Terima kasih!`;
+                templateChat = `Halo ${nama},\n\nTerima kasih telah melakukan booking di Hanbit Labs. Unit Anda terdaftar dengan nomor Invoice: ${invoice}.\n\nSilakan serahkan unit laptop *${laptop}* Anda ke toko kami untuk pemeriksaan fisik langsung, dengan batas jadwal maksimal kedatangan pada tanggal *${tglDatangCustomer}* sesuai pilihan Anda saat booking. Terima kasih!`;
             } else if (activeStatusBaru === 'PENGECEKAN') {
-                templateChat = isCustom ? `Halo ${nama},\n\nUnit laptop *${laptop}* dengan nomor Invoice: ${invoice} telah diterima oleh teknisi Hanbit Labs. Saat ini unit sedang dibongkar untuk proses pengecekan fisik dan diagnosa jalur kerusakan internal.` : `Halo ${nama},\n\nUnit laptop *${laptop}* dengan nomor Invoice: ${invoice} telah diterima oleh teknisi Hanbit Labs. Saat ini sedang dalam proses pembersihan komponen internal dan penggantian thermal paste berkala.`;
+                templateChat = isCustom ? `Halo ${nama},\n\nUnit laptop *${laptop}* dengan nomor Invoice: ${invoice} telah diterima oleh teknisi Hanbit Labs. Saat ini unit sedang dibongkar untuk proses pengecekan fisik menyeluruh dan diagnosa awal. Estimasi selesai pengerjaan: *${estimasiDefault}*.` : `Halo ${nama},\n\nUnit laptop *${laptop}* dengan nomor Invoice: ${invoice} telah diterima oleh teknisi Hanbit Labs. Saat ini sedang dalam proses pembersihan komponen internal dan penggantian thermal paste berkala. Estimasi selesai: *${estimasiDefault}*.`;
             } else if (activeStatusBaru === 'PERBAIKAN') {
-                templateChat = isCustom ? `Halo ${nama},\n\nProses diagnosa selesai. Unit Anda dengan nomor Invoice: ${invoice} kini telah masuk tahap *PROSES PERBAIKAN* intensif oleh teknisi kami. Lembar rincian komponen sparepart terupdate kini sudah bisa Anda akses langsung secara live di halaman tracking website Hanbit Labs.` : `Halo ${nama},\n\nProses maintenance unit laptop *${laptop}* Anda dengan nomor Invoice: ${invoice} telah memasuki tahap akhir optimasi sistem operasi dan quality control stabilitas suhu panas.`;
+                templateChat = isCustom ? `Halo ${nama},\n\nProses diagnosa selesai. Unit Anda dengan nomor Invoice: ${invoice} kini telah masuk tahap *PROSES PERBAIKAN* intensif oleh teknisi kami. Lembar rincian komponen sparepart terupdate kini sudah bisa Anda akses langsung secara live di halaman tracking website Hanbit Labs. Estimasi selesai pengerjaan: *${estimasiDefault}*.` : `Halo ${nama},\n\nProses maintenance unit laptop *${laptop}* Anda dengan nomor Invoice: ${invoice} telah memasuki tahap akhir optimasi sistem operasi dan quality control stabilitas suhu panas. Estimasi siap ambil: *${estimasiDefault}*.`;
             } else if (activeStatusBaru === 'SELESAI') {
                 templateChat = `Halo ${nama},\n\nKabar gembira! Proses perbaikan unit laptop *${laptop}* dengan nomor Invoice: ${invoice} telah *SELESAI* dikerjakan seluruhnya.\n\nUnit telah lulus uji kelayakan QC dan siap diambil kembali di toko Hanbit Labs. Silakan tunjukkan nota bukti pendaftaran awal saat pengambilan di meja kasir. Terima kasih!`;
             } else {
                 templateChat = `Halo ${nama}, status pembaruan unit laptop Anda dengan nomor Invoice: ${invoice} saat ini sedang ditinjau kembali oleh tim Hanbit Labs.`;
             }
+
             document.getElementById('edit_isi_pesan').value = templateChat;
             document.getElementById('modal_wa_editor').classList.remove('hidden');
             document.getElementById('modal_wa_editor').classList.add('flex');

@@ -113,7 +113,7 @@ $result = mysqli_query($koneksi, $query_str);
                                     <th class="p-4 w-35">Kontak WhatsApp</th>
                                     <th class="p-4 w-52">Alamat Email</th>
                                     <th class="p-4">Alamat Rumah</th>
-                                    <th class="p-4 w-36 text-center">Jumlah Transaksi</th>
+                                    <th class="p-4 w-37 text-center">Jumlah Transaksi</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100 font-medium text-slate-700">

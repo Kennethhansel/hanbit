@@ -3,9 +3,14 @@ require_once 'config.php';
 require_once 'koneksi.php';
 proteksi_halaman();
 
+// SINKRONISASI KOLOM: Menggunakan session id_user bawaan login lu
 $id_admin = $_SESSION['id_user'] ?? 1; 
 $pesan_sukses = '';
+$pesan_error = '';
 
+// -------------------------------------------------------------------------
+// PROSES A: SIMPAN PARAMETER OPERASIONAL (SINKRON id_admin)
+// -------------------------------------------------------------------------
 if (isset($_POST['simpan_pengaturan']) || isset($_POST['ajax_action'])) {
     $kuota_baru    = mysqli_real_escape_string($koneksi, $_POST['kuota_harian'] ?? 50);
     $target_baru   = mysqli_real_escape_string($koneksi, $_POST['target_omzet'] ?? 5000000); 
@@ -14,6 +19,7 @@ if (isset($_POST['simpan_pengaturan']) || isset($_POST['ajax_action'])) {
     $jam_tutup_baru= mysqli_real_escape_string($koneksi, $_POST['jam_tutup_store'] ?? '18:00');
     $pesan_baru    = mysqli_real_escape_string($koneksi, $_POST['pesan_penutupan'] ?? '');
     
+    // 🛠️ REVISI: Menggunakan id_admin sesuai struktur phpMyAdmin lu
     $update_query = "UPDATE admin_accounts SET 
                         max_kuota_harian = '$kuota_baru',
                         target_omzet = '$target_baru',
@@ -28,10 +34,64 @@ if (isset($_POST['simpan_pengaturan']) || isset($_POST['ajax_action'])) {
     }
 }
 
-// Ambil parameter data terkini termasuk target_omzet
-$ambil_data = mysqli_query($koneksi, "SELECT max_kuota_harian, target_omzet, status_toko, jam_buka_store, jam_tutup_store, pesan_penutupan FROM admin_accounts WHERE id_admin = '$id_admin'");
+// -------------------------------------------------------------------------
+// PROSES B: GANTI USERNAME & PASSWORD ADMIN AKTIF (SINKRON username & password)
+// -------------------------------------------------------------------------
+if (isset($_POST['proses_ganti_kredensial'])) {
+    $username_baru = mysqli_real_escape_string($koneksi, trim($_POST['username_baru']));
+    $password_lama = $_POST['password_lama'];
+    $password_baru = $_POST['password_baru'];
+
+    // 🛠️ REVISI: id_admin, username, password (huruf kecil sesuai DB)
+    $q_cek = mysqli_query($koneksi, "SELECT password FROM admin_accounts WHERE id_admin = '$id_admin' LIMIT 1");
+    $d_cek = mysqli_fetch_assoc($q_cek);
+
+    if ($d_cek && $password_lama === $d_cek['password']) {
+        if (!empty($password_baru)) {
+            $update_kredensial = "UPDATE admin_accounts SET username = '$username_baru', password = '$password_baru' WHERE id_admin = '$id_admin'";
+        } else {
+            $update_kredensial = "UPDATE admin_accounts SET username = '$username_baru' WHERE id_admin = '$id_admin'";
+        }
+
+        if (mysqli_query($koneksi, $update_kredensial)) {
+            $_SESSION['username'] = $username_baru; 
+            $pesan_sukses = 'Kredensial login Anda (Username/Password) berhasil diperbarui!';
+        } else {
+            $pesan_error = 'Gagal memperbarui kredensial ke database.';
+        }
+    } else {
+        $pesan_error = 'Konfirmasi Password Lama salah! Perubahan ditolak.';
+    }
+}
+
+// -------------------------------------------------------------------------
+// PROSES C: TAMBAH PENGGUNA ADMIN BARU (SINKRON nama_lengkap, username, password)
+// -------------------------------------------------------------------------
+if (isset($_POST['proses_tambah_admin'])) {
+    $nama_baru = mysqli_real_escape_string($koneksi, trim($_POST['nama_admin_baru']));
+    $user_baru = mysqli_real_escape_string($koneksi, trim($_POST['username_admin_baru']));
+    $pass_baru = mysqli_real_escape_string($koneksi, $_POST['password_admin_baru']);
+
+    // 🛠️ REVISI: Cek username di DB
+    $q_validasi = mysqli_query($koneksi, "SELECT username FROM admin_accounts WHERE username = '$user_baru' LIMIT 1");
+    if (mysqli_num_rows($q_validasi) > 0) {
+        $pesan_error = "Username '$user_baru' sudah terdaftar di sistem! Gunakan username lain.";
+    } else {
+        // 🛠️ REVISI: Menggunakan kolom nama_lengkap sesuai tabel asli lu
+        $q_add = "INSERT INTO admin_accounts (username, password, nama_lengkap) VALUES ('$user_baru', '$pass_baru', '$nama_baru')";
+        if (mysqli_query($koneksi, $q_add)) {
+            $pesan_sukses = "Akun Admin baru atas nama '$nama_baru' berhasil ditambahkan ke database Hanbit!";
+        } else {
+            $pesan_error = 'Gagal menambahkan data pengguna admin baru.';
+        }
+    }
+}
+
+// 🛠️ REVISI BARIS 89: Menggunakan id_admin (Menghilangkan Error Utama)
+$ambil_data = mysqli_query($koneksi, "SELECT username, max_kuota_harian, target_omzet, status_toko, jam_buka_store, jam_tutup_store, pesan_penutupan FROM admin_accounts WHERE id_admin = '$id_admin'");
 $data_skrg  = mysqli_fetch_assoc($ambil_data);
 
+$username_skrg   = $data_skrg['username'] ?? '';
 $kuota_skrg      = $data_skrg['max_kuota_harian'] ?? 50;
 $target_skrg     = $data_skrg['target_omzet'] ?? 5000000; 
 $status_skrg     = $data_skrg['status_toko'] ?? 'buka';
@@ -62,13 +122,18 @@ $pesan_tutup_skrg= $data_skrg['pesan_penutupan'] ?? '';
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 min-h-[56px]">
                 <div>
                     <h1 class="text-2xl font-black tracking-tight text-slate-900">Konfigurasi Pengaturan Sistem</h1>
-                    <p class="text-xs text-slate-400 font-medium">Kendalikan status operasional, kuota harian reservation website, dan jam pelayanan kasir toko.</p>
+                    <p class="text-xs text-slate-400 font-medium">Kendalikan status operasional, kuota harian reservation website, dan kelola kredensial akun administrator.</p>
                 </div>
             </div>
 
             <?php if (!empty($pesan_sukses)): ?>
-                <div class="bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold px-4 py-3 rounded-xl shadow-sm flex items-center gap-2 animate-fade-in">
+                <div class="bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold px-4 py-3 rounded-xl shadow-sm flex items-center gap-2">
                     <i class="fas fa-check-circle text-emerald-500"></i> <?= $pesan_sukses; ?>
+                </div>
+            <?php endif; ?>
+            <?php if (!empty($pesan_error)): ?>
+                <div class="bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold px-4 py-3 rounded-xl shadow-sm flex items-center gap-2">
+                    <i class="fas fa-exclamation-circle text-rose-500"></i> <?= $pesan_error; ?>
                 </div>
             <?php endif; ?>
 
@@ -142,7 +207,7 @@ $pesan_tutup_skrg= $data_skrg['pesan_penutupan'] ?? '';
 
                         <div class="md:col-span-12 space-y-1">
                             <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Pesan Keterangan Khusus Saat Toko Tutup / Libur</label>
-                            <input type="text" name="pesan_penutupan" value="<?= htmlspecialchars($pesan_tutup_skrg); ?>" placeholder="Contoh: Maaf, toko kami sedang dalam masa libur Idul Fitri. Buka kembali tanggal..." class="w-full px-4 py-2.5 bg-slate-50 border border-gray-200 rounded-xl font-medium focus:outline-none focus:border-blue-400 focus:bg-white transition text-slate-700">
+                            <input type="text" name="pesan_penutupan" value="<?= htmlspecialchars($pesan_tutup_skrg); ?>" placeholder="Contoh: Maaf, toko kami sedang dalam masa libur..." class="w-full px-4 py-2.5 bg-slate-50 border border-gray-200 rounded-xl font-medium focus:outline-none focus:border-blue-400 focus:bg-white transition text-slate-700">
                         </div>
                     </div>
 
@@ -152,6 +217,58 @@ $pesan_tutup_skrg= $data_skrg['pesan_penutupan'] ?? '';
                         </button>
                     </div>
                 </form>
+            </div>
+
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                <div class="bg-white border border-gray-200/80 p-6 rounded-2xl shadow-sm space-y-4">
+                    <h3 class="text-xs font-extrabold uppercase text-slate-900 tracking-wider border-b pb-2 flex items-center gap-1.5">
+                        <i class="fas fa-user-shield text-blue-500"></i> Akun Anda & Ganti Password
+                    </h3>
+                    <form action="" method="POST" class="space-y-4 text-xs font-semibold text-slate-600">
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Username Aktif</label>
+                            <input type="text" name="username_baru" value="<?= htmlspecialchars($username_skrg); ?>" required class="w-full px-4 py-2.5 bg-slate-50 border border-gray-200 rounded-xl focus:outline-none focus:border-blue-400 focus:bg-white transition font-bold text-slate-800">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Password Baru (Kosongkan jika tidak diganti)</label>
+                            <input type="password" name="password_baru" placeholder="Masukkan password baru jika mau ganti" class="w-full px-4 py-2.5 bg-slate-50 border border-gray-200 rounded-xl focus:outline-none focus:border-blue-400 focus:bg-white transition font-semibold text-slate-700">
+                        </div>
+                        <div class="space-y-1 pt-2 border-t border-dashed">
+                            <label class="text-[10px] font-bold text-rose-500 uppercase tracking-wider block">Konfirmasi Password Lama (Wajib Diisi)</label>
+                            <input type="password" name="password_lama" required placeholder="••••••••" class="w-full px-4 py-2.5 bg-rose-50/40 border border-rose-200 rounded-xl focus:outline-none focus:border-rose-400 focus:bg-white transition font-semibold text-slate-700">
+                        </div>
+                        <div class="pt-2 flex justify-end">
+                            <button type="submit" name="proses_ganti_kredensial" class="bg-blue-500 hover:bg-blue-600 text-white font-bold text-xs uppercase px-5 py-2.5 rounded-xl tracking-wider transition shadow-sm flex items-center gap-1.5">
+                                🔒 Perbarui Akun Saya
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="bg-white border border-gray-200/80 p-6 rounded-2xl shadow-sm space-y-4">
+                    <h3 class="text-xs font-extrabold uppercase text-slate-900 tracking-wider border-b pb-2 flex items-center gap-1.5">
+                        <i class="fas fa-user-plus text-emerald-500"></i> Daftarkan Anggota Admin Baru
+                    </h3>
+                    <form action="" method="POST" class="space-y-4 text-xs font-semibold text-slate-600">
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Nama Lengkap Admin / Teknisi</label>
+                            <input type="text" name="nama_admin_baru" required placeholder="Contoh: Kevin Labs" class="w-full px-4 py-2.5 bg-slate-50 border border-gray-200 rounded-xl focus:outline-none focus:border-blue-400 focus:bg-white transition text-slate-700 font-medium">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Username Akun Baru</label>
+                            <input type="text" name="username_admin_baru" required placeholder="Contoh: kevinhanbit" class="w-full px-4 py-2.5 bg-slate-50 border border-gray-200 rounded-xl focus:outline-none focus:border-blue-400 focus:bg-white transition text-slate-700 font-bold lowercase tracking-wide">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Password Kunci Masuk</label>
+                            <input type="password" name="password_admin_baru" required placeholder="Masukkan kata sandi baru" class="w-full px-4 py-2.5 bg-slate-50 border border-gray-200 rounded-xl focus:outline-none focus:border-blue-400 focus:bg-white transition text-slate-700 font-semibold">
+                        </div>
+                        <div class="pt-2 flex justify-end">
+                            <button type="submit" name="proses_tambah_admin" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs uppercase px-5 py-2.5 rounded-xl tracking-wider transition shadow-sm flex items-center gap-1.5">
+                                ➕ Daftarkan Admin Baru
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
 
         </div>
