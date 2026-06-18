@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Waktu pembuatan: 14 Jun 2026 pada 09.12
--- Versi server: 10.4.32-MariaDB
--- Versi PHP: 8.2.12
+-- Generation Time: Jun 18, 2026 at 09:03 PM
+-- Server version: 10.4.32-MariaDB
+-- PHP Version: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -24,7 +24,7 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Struktur dari tabel `admin_accounts`
+-- Table structure for table `admin_accounts`
 --
 
 CREATE TABLE `admin_accounts` (
@@ -41,16 +41,18 @@ CREATE TABLE `admin_accounts` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data untuk tabel `admin_accounts`
+-- Dumping data for table `admin_accounts`
 --
 
 INSERT INTO `admin_accounts` (`id_admin`, `username`, `password`, `nama_lengkap`, `max_kuota_harian`, `target_omzet`, `status_toko`, `jam_tutup_store`, `pesan_penutupan`, `jam_buka_store`) VALUES
-(1, 'admin', 'admin123', 'Kenneth Hansel', 2, 5000000, 'buka', '18:00:00', 'Maaf, Hanbit sedang tidak menerima antrean perbaikan untuk sementara waktu.', '10:00:00');
+(1, 'adminkenneth', 'labs123', 'Kenneth', 10, 5000000, 'buka', '18:00:00', 'Maaf, Hanbit sedang tidak menerima antrean perbaikan untuk sementara waktu.', '10:00:00'),
+(2, 'adminalicia', 'Labs123', 'Alicia', 50, 5000000, 'buka', '18:00:00', NULL, '09:00:00'),
+(3, 'adminalbertus', 'Labs123', 'Albertus', 50, 5000000, 'buka', '18:00:00', NULL, '09:00:00');
 
 -- --------------------------------------------------------
 
 --
--- Struktur dari tabel `customers`
+-- Table structure for table `customers`
 --
 
 CREATE TABLE `customers` (
@@ -62,19 +64,19 @@ CREATE TABLE `customers` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data untuk tabel `customers`
+-- Dumping data for table `customers`
 --
 
 INSERT INTO `customers` (`id_customer`, `nama_customer`, `no_hp`, `email`, `alamat`) VALUES
-(13, 'Kenneth Hansel', '628991839055', 'hanselkenneth30@gmail.com', 'd'),
-(14, 'Hansel', '6285159794427', 'kenethhansel06@gmail.com', NULL),
+(13, 'Kenneth Hansel', '628991839055', 'hanselkenneth30@gmail.com', 'erfe'),
+(14, 'Hansel', '6285159794427', 'hanselkenneth30@gmail.com', 'tes'),
 (15, 'Hansel', '5476547', 'dgfss@gmail.com', NULL),
 (16, 'Trstgrsfg', '54645646', 'sdfgsf@gmail.com', 'dfdsgdfsg');
 
 -- --------------------------------------------------------
 
 --
--- Struktur dari tabel `invoice_details`
+-- Table structure for table `invoice_details`
 --
 
 CREATE TABLE `invoice_details` (
@@ -86,7 +88,7 @@ CREATE TABLE `invoice_details` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data untuk tabel `invoice_details`
+-- Dumping data for table `invoice_details`
 --
 
 INSERT INTO `invoice_details` (`id_detail`, `no_invoice`, `nama_item`, `harga_item`, `deskripsi_tambahan`) VALUES
@@ -103,15 +105,19 @@ INSERT INTO `invoice_details` (`id_detail`, `no_invoice`, `nama_item`, `harga_it
 (25, 'INV-20260610-0B1C', 'Layanan Paket Standard Maintenance Package', 150000, 'Harga flat paket perawatan berkala'),
 (26, 'INV-20260610-59DA', 'Mati Total', 34556456, 'Estimasi awal pilihan customer'),
 (27, 'INV-20260610-59DA', 'RAM', 435634, 'gf'),
-(28, 'INV-20260610-1918', 'Masalah Wifi', 175000, 'Estimasi awal pilihan customer'),
+(28, 'INV-20260610-1918', 'Masalah Wifi', 175001, 'Estimasi awal pilihan customer'),
 (29, 'INV-20260610-4C57', 'Masalah Wifi', 175000, 'Estimasi awal pilihan customer'),
 (30, 'INV-20260610-98CB', 'Laptop Lemot', 175000, 'Estimasi awal pilihan customer'),
-(31, 'INV-20260611-547D', 'Keyboard Error', 250000, 'Estimasi awal pilihan customer');
+(31, 'INV-20260611-547D', 'Keyboard Error', 250000, 'Estimasi awal pilihan customer'),
+(32, 'INV-20260614-4A89', 'Mobo Rusak', 1000000, 'Ganti IC'),
+(33, 'INV-20260618-5404', 'Layanan Paket Basic Maintenance Package', 75000, 'Harga flat paket perawatan berkala'),
+(34, 'INV-20260614-4A89', 'RAM', 235435, 'Tes'),
+(35, 'INV-20260618-5B29', 'Layanan Paket Standard Maintenance Package', 150000, 'Harga flat paket perawatan berkala');
 
 -- --------------------------------------------------------
 
 --
--- Struktur dari tabel `laptop_brands`
+-- Table structure for table `laptop_brands`
 --
 
 CREATE TABLE `laptop_brands` (
@@ -121,7 +127,7 @@ CREATE TABLE `laptop_brands` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data untuk tabel `laptop_brands`
+-- Dumping data for table `laptop_brands`
 --
 
 INSERT INTO `laptop_brands` (`id_brand`, `nama_brand`, `logo`) VALUES
@@ -137,7 +143,7 @@ INSERT INTO `laptop_brands` (`id_brand`, `nama_brand`, `logo`) VALUES
 -- --------------------------------------------------------
 
 --
--- Struktur dari tabel `laptop_series`
+-- Table structure for table `laptop_series`
 --
 
 CREATE TABLE `laptop_series` (
@@ -148,7 +154,7 @@ CREATE TABLE `laptop_series` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data untuk tabel `laptop_series`
+-- Dumping data for table `laptop_series`
 --
 
 INSERT INTO `laptop_series` (`id_series`, `id_brand`, `nama_series`, `foto`) VALUES
@@ -217,7 +223,7 @@ INSERT INTO `laptop_series` (`id_series`, `id_brand`, `nama_series`, `foto`) VAL
 -- --------------------------------------------------------
 
 --
--- Struktur dari tabel `master_masalah`
+-- Table structure for table `master_masalah`
 --
 
 CREATE TABLE `master_masalah` (
@@ -231,11 +237,11 @@ CREATE TABLE `master_masalah` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data untuk tabel `master_masalah`
+-- Dumping data for table `master_masalah`
 --
 
 INSERT INTO `master_masalah` (`id_masalah`, `nama_masalah`, `deskripsi_masalah`, `penyebab_masalah`, `saran_teknisi`, `harga_estimasi`, `deskripsi`) VALUES
-(1, 'Mati Total', 'Laptop tidak menyala sama sekali, tidak ada indikator lampu, atau No Power.', 'Terjadi short circuit (korsleting) pada jalur power IC utama, kerusakan komponen mofset motherboard, atau kerusakan total pada adaptor charger.', 'Diperlukan pembongkaran unit sasis untuk melakukan remap skema kelistrikan motherboard, penggantian IC power yang short, serta kalibrasi tegangan arus masuk.', 650000, NULL),
+(1, 'Mati Total', 'Laptop tidak menyala sama sekali, tidak ada indikator lampu, atau No Power.', 'Terjadi short circuit (korsleting) pada jalur power IC utama, kerusakan komponen mofset motherboard, atau kerusakan total pada adaptor charger.', 'Diperlukan pembongkaran unit sasis untuk melakukan remap skema kelistrikan motherboard, penggantian IC power yang short, serta kalibrasi tegangan arus masuk.', 750000, NULL),
 (2, 'Layar Bermasalah', 'Layar LCD bergaris, pecah fisik, berkedip (flicker), atau tidak tampil gambar.', 'Kerusakan fisik pada panel kristal cair LCD akibat tekanan, jalur flexible screen yang robek/korosi, atau gangguan output signal dari IC Display VRAM.', 'Disarankan melakukan penggantian satu set panel LCD Assembly baru dengan kualitas original bawaan pabrik serta pengecekan kelayakan kabel flexible display.', 750000, NULL),
 (3, 'Keyboard Error', 'Tombol keyboard macet, tidak merespons saat ditekan, atau mengetik sendiri.', 'Adanya kerusakan pada jalur sirkuit membran konduktif di bawah tombol akibat tumpahan cairan, tumpukan debu tebal, atau aus karena faktor usia pemakaian.', 'Diperlukan penggantian part modul keyboard baru secara keseluruhan (replacement) guna mengembalikan fungsi input pengetikan agar normal dan responsif kembali.', 250000, NULL),
 (4, 'Laptop Lemot', 'Performa lambat, laptop cepat panas, pembersihan debu internal, dan ganti thermal paste.', 'Mengeringnya thermal paste bawaan yang memicu overheat (suhu ekstrem), penyumbatan debu pada fan cooler, serta penumpukan berkas cache file sampah pada sistem operasi.', 'Perlu dilakukan tindakan Premium Cleaning (pembersihan total debu internal), repasting menggunakan thermal paste berkualitas tinggi (high-performance), serta optimasi konfigurasi startup OS.', 175000, NULL),
@@ -246,7 +252,7 @@ INSERT INTO `master_masalah` (`id_masalah`, `nama_masalah`, `deskripsi_masalah`,
 -- --------------------------------------------------------
 
 --
--- Struktur dari tabel `master_packages`
+-- Table structure for table `master_packages`
 --
 
 CREATE TABLE `master_packages` (
@@ -260,7 +266,7 @@ CREATE TABLE `master_packages` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data untuk tabel `master_packages`
+-- Dumping data for table `master_packages`
 --
 
 INSERT INTO `master_packages` (`id_paket`, `kode_paket`, `nama_paket`, `harga_kantoran`, `harga_gaming`, `garansi`, `benefits`) VALUES
@@ -271,7 +277,7 @@ INSERT INTO `master_packages` (`id_paket`, `kode_paket`, `nama_paket`, `harga_ka
 -- --------------------------------------------------------
 
 --
--- Struktur dari tabel `reservations`
+-- Table structure for table `reservations`
 --
 
 CREATE TABLE `reservations` (
@@ -290,34 +296,38 @@ CREATE TABLE `reservations` (
   `tanggal_selesai` date DEFAULT NULL,
   `status_order` varchar(30) NOT NULL DEFAULT 'PENDING',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `catatan_teknisi` text DEFAULT NULL
+  `catatan_teknisi` text DEFAULT NULL,
+  `estimasi_selesai` varchar(50) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data untuk tabel `reservations`
+-- Dumping data for table `reservations`
 --
 
-INSERT INTO `reservations` (`no_invoice`, `id_customer`, `nama_pelanggan`, `no_whatsapp`, `laptop_detail`, `alamat_pelanggan`, `email_pelanggan`, `paket_tipe`, `segmen_laptop`, `total_harga`, `tanggal_booking`, `tanggal_dikerjakan`, `tanggal_selesai`, `status_order`, `created_at`, `catatan_teknisi`) VALUES
-('INV-20260610-0B1C', 13, 'Kenneth Hansel', '628991839055', '5656', '5656', NULL, 'standard', 'kantoran', 150000, '2026-06-19', '2026-06-13', NULL, 'PENGECEKAN', '2026-06-10 10:33:23', NULL),
-('INV-20260610-1918', 13, 'Kenneth Hansel', '628991839055', 'Dell Inspiron', 'frer', NULL, 'custom_estimasi', '', 175000, '2026-06-23', '2026-06-13', NULL, 'PENGECEKAN', '2026-06-10 12:48:22', NULL),
-('INV-20260610-282B', 13, 'Kenneth Hansel', '628991839055', 'Dell Inspiron', 'dsds', NULL, 'custom_estimasi', '', 175000, '2026-06-10', NULL, NULL, 'PENDING', '2026-06-10 05:10:30', NULL),
-('INV-20260610-2C55', 13, 'Kenneth Hansel', '628991839055', 'Asus Transformer', 'fdfdf', NULL, 'custom_estimasi', '', 175000, '2026-06-10', NULL, NULL, 'PENDING', '2026-06-10 05:10:14', NULL),
-('INV-20260610-304A', 13, 'Kenneth Hansel', '628991839055', 'Acer Chromebook', 'dfgfg', NULL, 'custom_estimasi', '', 20000, '2026-06-26', NULL, NULL, 'PENDING', '2026-06-10 04:40:54', NULL),
-('INV-20260610-4C57', 13, 'Kenneth Hansel', '628991839055', 'Asus Transformer', 'dfdf', NULL, 'custom_estimasi', '', 175000, '2026-06-18', '2026-06-10', '2026-06-10', 'SELESAI', '2026-06-10 12:50:53', ''),
-('INV-20260610-59DA', 13, 'Kenneth Hansel', '628991839055', 'Lenovo Yoga Series', 'tyhgyh', NULL, 'custom_estimasi', '', 34992090, '2026-06-18', '2026-06-10', NULL, 'PENDING', '2026-06-10 11:23:38', ''),
-('INV-20260610-88F4', 13, 'Kenneth Hansel', '628991839055', 'Advan Pixelwar Gaming', '898', NULL, 'custom_estimasi', '', 3523426, '2026-06-11', '2026-06-10', NULL, 'PERBAIKAN', '2026-06-10 10:17:33', 'tes'),
-('INV-20260610-98CB', 13, 'Kenneth Hansel', '628991839055', 'Lenovo Thinkpad', 'df', NULL, 'custom_estimasi', '', 175000, '2026-06-20', '2026-06-10', NULL, 'PENGECEKAN', '2026-06-10 12:53:22', NULL),
-('INV-20260610-98EF', 13, 'Kenneth Hansel', '628991839055', 'Acer Chromebook', 'gfg', NULL, 'custom_estimasi', '', 17500, '2026-06-19', '2026-06-10', NULL, 'PERBAIKAN', '2026-06-10 04:49:19', 'fgfdg'),
-('INV-20260610-9A7F', 13, 'Kenneth Hansel', '628991839055', 'Axioo Slimbook', 'rer', NULL, 'custom_estimasi', '', 175000, '2026-06-11', NULL, '2026-06-10', 'SELESAI', '2026-06-10 04:59:21', NULL),
-('INV-20260610-D615', 13, 'Kenneth Hansel', '628991839055', 'Advan Pixelwar Gaming', 'fg', NULL, 'custom_estimasi', 'Tes', 0, '2026-06-12', '2026-06-13', NULL, 'PENGECEKAN', '2026-06-10 09:39:51', NULL),
-('INV-20260610-D769', 13, 'Kenneth Hansel', '628991839055', 'Acer Swift Series', 'fd', NULL, 'custom_estimasi', '', 250000, '2026-06-24', '2026-06-10', '2026-06-10', 'SELESAI', '2026-06-10 04:37:18', 'dsfds'),
-('INV-20260610-F5C8', 13, 'Kenneth Hansel', '628991839055', 'fdf', 'dfd', NULL, 'basic', 'kantoran', 75000, '2026-06-19', NULL, NULL, 'PENDING_ADMIN', '2026-06-10 04:56:28', 'tes'),
-('INV-20260611-547D', 13, 'Kenneth Hansel', '628991839055', 'Msi Titan Gt', 'd', NULL, 'custom_estimasi', '', 250000, '2026-06-17', '2026-06-11', '2026-06-11', 'SELESAI', '2026-06-11 03:57:56', '');
+INSERT INTO `reservations` (`no_invoice`, `id_customer`, `nama_pelanggan`, `no_whatsapp`, `laptop_detail`, `alamat_pelanggan`, `email_pelanggan`, `paket_tipe`, `segmen_laptop`, `total_harga`, `tanggal_booking`, `tanggal_dikerjakan`, `tanggal_selesai`, `status_order`, `created_at`, `catatan_teknisi`, `estimasi_selesai`) VALUES
+('INV-20260610-0B1C', 13, 'Kenneth Hansel', '628991839055', '5656', '5656', NULL, 'standard', 'kantoran', 150000, '2026-06-19', '2026-06-13', NULL, 'PENGECEKAN', '2026-06-10 10:33:23', NULL, NULL),
+('INV-20260610-1918', 13, 'Kenneth Hansel', '628991839055', 'Dell Inspiron', 'frer', NULL, 'custom_estimasi', '', 175001, '2026-06-23', '2026-06-13', NULL, 'PENGECEKAN', '2026-06-10 12:48:22', NULL, NULL),
+('INV-20260610-282B', 13, 'Kenneth Hansel', '628991839055', 'Dell Inspiron', 'dsds', NULL, 'custom_estimasi', '', 175000, '2026-06-10', NULL, NULL, 'PENDING_ADMIN', '2026-06-10 05:10:30', NULL, NULL),
+('INV-20260610-2C55', 13, 'Kenneth Hansel', '628991839055', 'Asus Transformer', 'fdfdf', NULL, 'custom_estimasi', '', 175000, '2026-06-10', NULL, NULL, 'PENDING', '2026-06-10 05:10:14', NULL, NULL),
+('INV-20260610-304A', 13, 'Kenneth Hansel', '628991839055', 'Acer Chromebook', 'dfgfg', NULL, 'custom_estimasi', '', 20000, '2026-06-26', NULL, NULL, 'PENDING', '2026-06-10 04:40:54', NULL, NULL),
+('INV-20260610-4C57', 13, 'Kenneth Hansel', '628991839055', 'Asus Transformer', 'dfdf', NULL, 'custom_estimasi', '', 175000, '2026-06-18', '2026-06-10', '2026-06-10', 'SELESAI', '2026-06-10 12:50:53', '', NULL),
+('INV-20260610-59DA', 13, 'Kenneth Hansel', '628991839055', 'Lenovo Yoga Series', 'tyhgyh', NULL, 'custom_estimasi', '', 34992090, '2026-06-18', '2026-06-10', NULL, 'PENDING_ADMIN', '2026-06-10 11:23:38', '', NULL),
+('INV-20260610-88F4', 13, 'Kenneth Hansel', '628991839055', 'Advan Pixelwar Gaming', '898', NULL, 'custom_estimasi', '', 3523426, '2026-06-11', '2026-06-10', NULL, 'PERBAIKAN', '2026-06-10 10:17:33', 'tes', NULL),
+('INV-20260610-98CB', 13, 'Kenneth Hansel', '628991839055', 'Lenovo Thinkpad', 'df', NULL, 'custom_estimasi', '', 175000, '2026-06-20', '2026-06-10', NULL, 'PENGECEKAN', '2026-06-10 12:53:22', NULL, NULL),
+('INV-20260610-98EF', 13, 'Kenneth Hansel', '628991839055', 'Acer Chromebook', 'gfg', NULL, 'custom_estimasi', '', 17500, '2026-06-19', '2026-06-10', NULL, 'PERBAIKAN', '2026-06-10 04:49:19', 'fgfdg', NULL),
+('INV-20260610-9A7F', 13, 'Kenneth Hansel', '628991839055', 'Axioo Slimbook', 'rer', NULL, 'custom_estimasi', '', 175000, '2026-06-11', NULL, '2026-06-10', 'SELESAI', '2026-06-10 04:59:21', NULL, NULL),
+('INV-20260610-D615', 13, 'Kenneth Hansel', '628991839055', 'Advan Pixelwar Gaming', 'fg', NULL, 'custom_estimasi', 'Tes', 0, '2026-06-12', '2026-06-13', NULL, 'PENGECEKAN', '2026-06-10 09:39:51', NULL, NULL),
+('INV-20260610-D769', 13, 'Kenneth Hansel', '628991839055', 'Acer Swift Series', 'fd', NULL, 'custom_estimasi', '', 250000, '2026-06-24', '2026-06-10', '2026-06-10', 'SELESAI', '2026-06-10 04:37:18', 'dsfds', NULL),
+('INV-20260610-F5C8', 13, 'Kenneth Hansel', '628991839055', 'fdf', 'dfd', NULL, 'basic', 'kantoran', 75000, '2026-06-19', NULL, NULL, 'PENDING_ADMIN', '2026-06-10 04:56:28', 'tes', NULL),
+('INV-20260611-547D', 13, 'Kenneth Hansel', '628991839055', 'Msi Titan Gt', 'd', NULL, 'custom_estimasi', '', 250000, '2026-06-17', '2026-06-11', '2026-06-11', 'SELESAI', '2026-06-11 03:57:56', '', NULL),
+('INV-20260614-4A89', 13, 'Kenneth Hansel', '628991839055', 'Msi Stealth', 'er', NULL, 'custom_estimasi', 'tes', 1235435, '2026-06-27', '2026-06-17', NULL, 'PERBAIKAN', '2026-06-14 07:38:39', 'Unit fisik laptop Msi Stealth telah diterima oleh teknisi pada tanggal 19 Juni 2026. Saat ini sedang dilakukan pembongkaran sasis untuk pengecekan fisik menyeluruh, diagnosa tegangan short sirkuit, dan pengecekan komponen internal.', NULL),
+('INV-20260618-5404', 14, 'Rudi', '6285159794427', 'TEs', 'tes', NULL, 'basic', 'kantoran', 75000, '2026-06-18', '2026-06-18', NULL, 'PENGECEKAN', '2026-06-18 15:01:09', 'Unit fisik laptop TEs telah diterima oleh teknisi pada tanggal 18 Juni 2026. Saat ini sedang dilakukan pembongkaran sasis untuk pengecekan fisik menyeluruh, diagnosa tegangan short sirkuit, dan pengecekan komponen internal.', NULL),
+('INV-20260618-5B29', 13, 'Kenneth Hansel', '628991839055', 'df', 'erfe', NULL, 'standard', 'kantoran', 150000, '2026-06-26', NULL, NULL, 'PENDING', '2026-06-18 18:28:23', NULL, NULL);
 
 -- --------------------------------------------------------
 
 --
--- Struktur dari tabel `tb_katalog`
+-- Table structure for table `tb_katalog`
 --
 
 CREATE TABLE `tb_katalog` (
@@ -331,7 +341,7 @@ CREATE TABLE `tb_katalog` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data untuk tabel `tb_katalog`
+-- Dumping data for table `tb_katalog`
 --
 
 INSERT INTO `tb_katalog` (`id_produk`, `nama_produk`, `kategori`, `harga`, `deskripsi`, `gambar`, `link_ecommerce`) VALUES
@@ -342,7 +352,7 @@ INSERT INTO `tb_katalog` (`id_produk`, `nama_produk`, `kategori`, `harga`, `desk
 -- --------------------------------------------------------
 
 --
--- Struktur dari tabel `tb_kategori_katalog`
+-- Table structure for table `tb_kategori_katalog`
 --
 
 CREATE TABLE `tb_kategori_katalog` (
@@ -352,7 +362,7 @@ CREATE TABLE `tb_kategori_katalog` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data untuk tabel `tb_kategori_katalog`
+-- Dumping data for table `tb_kategori_katalog`
 --
 
 INSERT INTO `tb_kategori_katalog` (`id_kategori`, `nama_kategori`, `slug_kategori`) VALUES
@@ -368,7 +378,7 @@ INSERT INTO `tb_kategori_katalog` (`id_kategori`, `nama_kategori`, `slug_kategor
 -- --------------------------------------------------------
 
 --
--- Struktur dari tabel `tb_kategori_porto`
+-- Table structure for table `tb_kategori_porto`
 --
 
 CREATE TABLE `tb_kategori_porto` (
@@ -378,7 +388,7 @@ CREATE TABLE `tb_kategori_porto` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data untuk tabel `tb_kategori_porto`
+-- Dumping data for table `tb_kategori_porto`
 --
 
 INSERT INTO `tb_kategori_porto` (`id_kategori`, `nama_kategori`, `slug_kategori`) VALUES
@@ -390,7 +400,7 @@ INSERT INTO `tb_kategori_porto` (`id_kategori`, `nama_kategori`, `slug_kategori`
 -- --------------------------------------------------------
 
 --
--- Struktur dari tabel `tb_portofolio`
+-- Table structure for table `tb_portofolio`
 --
 
 CREATE TABLE `tb_portofolio` (
@@ -403,7 +413,7 @@ CREATE TABLE `tb_portofolio` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data untuk tabel `tb_portofolio`
+-- Dumping data for table `tb_portofolio`
 --
 
 INSERT INTO `tb_portofolio` (`id_porto`, `kategori`, `tipe_media`, `judul`, `deskripsi`, `sumber_media`) VALUES
@@ -416,65 +426,65 @@ INSERT INTO `tb_portofolio` (`id_porto`, `kategori`, `tipe_media`, `judul`, `des
 --
 
 --
--- Indeks untuk tabel `admin_accounts`
+-- Indexes for table `admin_accounts`
 --
 ALTER TABLE `admin_accounts`
   ADD PRIMARY KEY (`id_admin`),
   ADD UNIQUE KEY `username` (`username`);
 
 --
--- Indeks untuk tabel `customers`
+-- Indexes for table `customers`
 --
 ALTER TABLE `customers`
   ADD PRIMARY KEY (`id_customer`);
 
 --
--- Indeks untuk tabel `invoice_details`
+-- Indexes for table `invoice_details`
 --
 ALTER TABLE `invoice_details`
   ADD PRIMARY KEY (`id_detail`),
   ADD KEY `no_invoice` (`no_invoice`);
 
 --
--- Indeks untuk tabel `laptop_brands`
+-- Indexes for table `laptop_brands`
 --
 ALTER TABLE `laptop_brands`
   ADD PRIMARY KEY (`id_brand`);
 
 --
--- Indeks untuk tabel `laptop_series`
+-- Indexes for table `laptop_series`
 --
 ALTER TABLE `laptop_series`
   ADD PRIMARY KEY (`id_series`),
   ADD KEY `id_brand` (`id_brand`);
 
 --
--- Indeks untuk tabel `master_masalah`
+-- Indexes for table `master_masalah`
 --
 ALTER TABLE `master_masalah`
   ADD PRIMARY KEY (`id_masalah`);
 
 --
--- Indeks untuk tabel `master_packages`
+-- Indexes for table `master_packages`
 --
 ALTER TABLE `master_packages`
   ADD PRIMARY KEY (`id_paket`),
   ADD UNIQUE KEY `kode_paket` (`kode_paket`);
 
 --
--- Indeks untuk tabel `reservations`
+-- Indexes for table `reservations`
 --
 ALTER TABLE `reservations`
   ADD PRIMARY KEY (`no_invoice`);
 
 --
--- Indeks untuk tabel `tb_katalog`
+-- Indexes for table `tb_katalog`
 --
 ALTER TABLE `tb_katalog`
   ADD PRIMARY KEY (`id_produk`);
 
 --
--- Indeks untuk tabel `tb_kategori_katalog`
+-- Indexes for table `tb_kategori_katalog`
 --
 ALTER TABLE `tb_kategori_katalog`
   ADD PRIMARY KEY (`id_kategori`),
@@ -482,7 +492,7 @@ ALTER TABLE `tb_kategori_katalog`
   ADD UNIQUE KEY `slug_kategori` (`slug_kategori`);
 
 --
--- Indeks untuk tabel `tb_kategori_porto`
+-- Indexes for table `tb_kategori_porto`
 --
 ALTER TABLE `tb_kategori_porto`
   ADD PRIMARY KEY (`id_kategori`),
@@ -490,93 +500,93 @@ ALTER TABLE `tb_kategori_porto`
   ADD UNIQUE KEY `slug_kategori` (`slug_kategori`);
 
 --
--- Indeks untuk tabel `tb_portofolio`
+-- Indexes for table `tb_portofolio`
 --
 ALTER TABLE `tb_portofolio`
   ADD PRIMARY KEY (`id_porto`);
 
 --
--- AUTO_INCREMENT untuk tabel yang dibuang
+-- AUTO_INCREMENT for dumped tables
 --
 
 --
--- AUTO_INCREMENT untuk tabel `admin_accounts`
+-- AUTO_INCREMENT for table `admin_accounts`
 --
 ALTER TABLE `admin_accounts`
-  MODIFY `id_admin` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id_admin` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
--- AUTO_INCREMENT untuk tabel `customers`
+-- AUTO_INCREMENT for table `customers`
 --
 ALTER TABLE `customers`
   MODIFY `id_customer` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
--- AUTO_INCREMENT untuk tabel `invoice_details`
+-- AUTO_INCREMENT for table `invoice_details`
 --
 ALTER TABLE `invoice_details`
-  MODIFY `id_detail` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
+  MODIFY `id_detail` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
 
 --
--- AUTO_INCREMENT untuk tabel `laptop_brands`
+-- AUTO_INCREMENT for table `laptop_brands`
 --
 ALTER TABLE `laptop_brands`
   MODIFY `id_brand` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
--- AUTO_INCREMENT untuk tabel `laptop_series`
+-- AUTO_INCREMENT for table `laptop_series`
 --
 ALTER TABLE `laptop_series`
   MODIFY `id_series` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=66;
 
 --
--- AUTO_INCREMENT untuk tabel `master_masalah`
+-- AUTO_INCREMENT for table `master_masalah`
 --
 ALTER TABLE `master_masalah`
   MODIFY `id_masalah` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
--- AUTO_INCREMENT untuk tabel `master_packages`
+-- AUTO_INCREMENT for table `master_packages`
 --
 ALTER TABLE `master_packages`
   MODIFY `id_paket` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
--- AUTO_INCREMENT untuk tabel `tb_katalog`
+-- AUTO_INCREMENT for table `tb_katalog`
 --
 ALTER TABLE `tb_katalog`
   MODIFY `id_produk` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
--- AUTO_INCREMENT untuk tabel `tb_kategori_katalog`
+-- AUTO_INCREMENT for table `tb_kategori_katalog`
 --
 ALTER TABLE `tb_kategori_katalog`
   MODIFY `id_kategori` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
--- AUTO_INCREMENT untuk tabel `tb_kategori_porto`
+-- AUTO_INCREMENT for table `tb_kategori_porto`
 --
 ALTER TABLE `tb_kategori_porto`
   MODIFY `id_kategori` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
--- AUTO_INCREMENT untuk tabel `tb_portofolio`
+-- AUTO_INCREMENT for table `tb_portofolio`
 --
 ALTER TABLE `tb_portofolio`
   MODIFY `id_porto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
--- Ketidakleluasaan untuk tabel pelimpahan (Dumped Tables)
+-- Constraints for dumped tables
 --
 
 --
--- Ketidakleluasaan untuk tabel `invoice_details`
+-- Constraints for table `invoice_details`
 --
 ALTER TABLE `invoice_details`
   ADD CONSTRAINT `invoice_details_ibfk_1` FOREIGN KEY (`no_invoice`) REFERENCES `reservations` (`no_invoice`) ON DELETE CASCADE;
 
 --
--- Ketidakleluasaan untuk tabel `laptop_series`
+-- Constraints for table `laptop_series`
 --
 ALTER TABLE `laptop_series`
   ADD CONSTRAINT `laptop_series_ibfk_1` FOREIGN KEY (`id_brand`) REFERENCES `laptop_brands` (`id_brand`) ON DELETE CASCADE;
