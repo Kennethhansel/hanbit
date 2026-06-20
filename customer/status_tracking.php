@@ -23,7 +23,7 @@ $status_num = 1;
 $status_teks = "PENDING";
 $catatan_teknisi_tampil = "";
 $lebar_aktif = "w-0";
-$akses_invoice_terbuka = false; // Default awal terkunci demi keamanan
+$akses_invoice_terbuka = false; 
 
 if ($data_pesanan) {
     $status_db_raw = strtoupper(trim($data_pesanan['status_order']));
@@ -74,7 +74,6 @@ if ($data_pesanan) {
         $lebar_aktif = "w-full";
     }
 
-    // Invoice dibuka di status Perbaikan/Selesai untuk Kustom Estimasi
     if (!$is_custom_estimasi) {
         $akses_invoice_terbuka = true;
     } else {
@@ -85,15 +84,29 @@ if ($data_pesanan) {
         }
     }
 
-    // SINKRONISASI TOTAL HARGA LIVE DARI DATABASE UTAMA
+    // 🌟 REVISI MATANG: ENGINE HITUNG ESTIMASI BIAYA AWAL & HARGA TAMPILAN
     $harga_tampilan = 0;
-    if ($is_custom_estimasi) {
-        if ($status_num < 3) {
-            $harga_tampilan = 0;
+    $invoice_clean = mysqli_real_escape_string($koneksi, $data_pesanan['no_invoice']);
+    
+    // Ambil nilai akumulasi harga master dari form booking awal untuk kustom
+    $q_sum_estimasi = mysqli_query($koneksi, "SELECT SUM(mm.harga_estimasi) as total_est 
+         FROM invoice_details id 
+         JOIN master_masalah mm ON id.nama_item = mm.nama_masalah 
+         WHERE id.no_invoice = '$invoice_clean'");
+    $res_sum_estimasi = mysqli_fetch_assoc($q_sum_estimasi);
+    $estimasi_awal_db = $res_sum_estimasi['total_est'] ?? 0;
+
+    if ($status_num < 3) { // Status Masih PENDING (1) atau PENGECEKAN (2)
+        if ($is_custom_estimasi) {
+            // Jika ada nilai dari master_masalah, tampilkan itu sebagai estimasi terkunci
+            // Jika 0 (artinya ngetik sendiri/masalah lain), maka otomatis bernilai 0 ("Menunggu Cek Fisik")
+            $harga_tampilan = $estimasi_awal_db;
         } else {
+            // Paket reguler selalu menampilkan harga paketnya sejak awal booking
             $harga_tampilan = $data_pesanan['total_harga'];
         }
-    } else {
+    } else { // Status Sudah Naik ke PERBAIKAN (3) atau SELESAI (4)
+        // Buka gembok! Tampilkan nominal final yang sudah diolah/diubah admin di panel dalam
         $harga_tampilan = $data_pesanan['total_harga'];
     }
 }
@@ -153,7 +166,6 @@ $halaman_aktif = basename($_SERVER['SCRIPT_NAME']);
         <?php if ($data_pesanan): ?>
             <div class="bg-white border border-gray-200 rounded-[2rem] shadow-2xl overflow-hidden max-w-3xl w-full mx-auto flex flex-col justify-between">
 
-                <!-- HEADER BANNER UTAMA DENGAN ESTIMASI WAKTU SELESAI POSISI ATAS -->
                 <div class="bg-slate-900 py-6 px-6 md:px-8 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
                     <div class="space-y-0.5">
                         <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">NOMOR INVOICE</p>
@@ -178,7 +190,6 @@ $halaman_aktif = basename($_SERVER['SCRIPT_NAME']);
                 </div>
 
                 <div class="p-6 md:p-8 space-y-8 bg-white">
-                    <!-- PROGRESS STEPPER BAR -->
                     <div class="relative flex flex-row justify-between items-center w-full px-4 md:px-8">
                         <div class="absolute top-5 left-8 right-8 h-[3px] bg-gray-200 z-0"></div>
                         <div class="absolute top-5 left-8 right-8 h-[3px] bg-yellow-400 z-0 transition-all duration-500 <?= $lebar_aktif; ?>"></div>
@@ -205,7 +216,6 @@ $halaman_aktif = basename($_SERVER['SCRIPT_NAME']);
                         <?php endforeach; ?>
                     </div>
 
-                    <!-- GRID INFORMASI UNIT -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4 border-t border-gray-100">
                         <div class="space-y-0.5">
                             <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">UNIT DEVICE LAPTOP</p>
@@ -219,7 +229,6 @@ $halaman_aktif = basename($_SERVER['SCRIPT_NAME']);
                         </div>
                     </div>
 
-                    <!-- BLOK CATATAN PEMBARUAN TEKNISI -->
                     <div class="bg-blue-50/60 border-l-4 border-blue-500 rounded-r-2xl p-5 space-y-2">
                         <div class="flex items-center gap-2 text-blue-600 text-xs font-extrabold uppercase tracking-wide">
                             <i class="fas fa-comment-dots text-sm"></i> Catatan Pembaruan Teknisi:
@@ -230,11 +239,16 @@ $halaman_aktif = basename($_SERVER['SCRIPT_NAME']);
                     </div>
                 </div>
 
-                <!-- BOTTOM BANNER: HARGA & TOMBOL AKSI -->
                 <div class="bg-[#f8fafc] border-t border-gray-100 p-6 flex flex-col sm:flex-row justify-between items-center gap-4">
                     <div>
                         <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                            <?= ($is_custom_estimasi && $status_num < 3) ? 'TOTAL ESTIMASI BIAYA SERVIS' : 'TOTAL TAGIHAN BIAYA SERVIS'; ?>
+                            <?php 
+                            if ($status_num < 3) {
+                                echo ($is_custom_estimasi && $estimasi_awal_db == 0) ? 'BIAYA REALISASI SERVIS' : 'ESTIMASI AWAL BIAYA SERVIS';
+                            } else {
+                                echo 'TOTAL TAGIHAN BIAYA SERVIS';
+                            }
+                            ?>
                         </p>
                         <h2 class="text-2xl font-black text-slate-900 mt-0.5">
                             <?= ($harga_tampilan == 0) ? 'Menunggu Cek Fisik' : 'Rp ' . number_format($harga_tampilan, 0, ',', '.'); ?>
@@ -261,7 +275,6 @@ $halaman_aktif = basename($_SERVER['SCRIPT_NAME']);
         <?php endif; ?>
     </main>
 
-    <!-- CONTAINER MODAL POPUP INVOICE (JIKA TERBUKA) -->
     <?php if ($data_pesanan && $akses_invoice_terbuka): ?>
         <div id="modal_invoice_live" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden items-center justify-center p-4 overflow-y-auto">
             <div class="max-w-xl w-full flex flex-col gap-4 my-auto">
@@ -393,7 +406,6 @@ $halaman_aktif = basename($_SERVER['SCRIPT_NAME']);
             }
         }
 
-        // Fungsi Eksport html2canvas
         function cetakNotaGambar() {
             html2canvas(document.getElementById('invoice_print_card'), {
                 scale: 3,
