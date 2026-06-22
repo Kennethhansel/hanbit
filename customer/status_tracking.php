@@ -1,7 +1,5 @@
 <?php
-// =========================================================================
-// SISI BACKEND: PENCARIAN TIKET TRANSAKSI DARI DATABASE HANBIT LABS
-// =========================================================================
+
 require_once '../admin/koneksi.php';
 
 $invoice_id = isset($_GET['invoice']) ? mysqli_real_escape_string($koneksi, trim($_GET['invoice'])) : '';
@@ -18,12 +16,12 @@ if (!empty($invoice_id)) {
     }
 }
 
-// Inisialisasi awal variabel stepper progres bar
+
 $status_num = 1;
 $status_teks = "PENDING";
 $catatan_teknisi_tampil = "";
 $lebar_aktif = "w-0";
-$akses_invoice_terbuka = false; 
+$akses_invoice_terbuka = false;
 
 if ($data_pesanan) {
     $status_db_raw = strtoupper(trim($data_pesanan['status_order']));
@@ -31,7 +29,6 @@ if ($data_pesanan) {
 
     $is_custom_estimasi = ($data_pesanan['paket_tipe'] === 'custom_estimasi');
 
-    // Format Tanggal Cantik Indonesia untuk Teks Realtime
     function formatTglIndo($dateStr)
     {
         if (empty($dateStr) || $dateStr === '0000-00-00') return '-';
@@ -44,7 +41,7 @@ if ($data_pesanan) {
     $tgl_kerja_cpt   = formatTglIndo($data_pesanan['tanggal_dikerjakan'] ?? '');
     $tgl_selesai_cpt = formatTglIndo($data_pesanan['tanggal_selesai'] ?? '');
 
-    // Logika Catatan Teknisi Dinamis Lintas Status
+
     if (!empty($data_pesanan['catatan_teknisi'])) {
         $catatan_teknisi_tampil = $data_pesanan['catatan_teknisi'];
     } else {
@@ -59,7 +56,7 @@ if ($data_pesanan) {
         }
     }
 
-    // Mengatur nomor step visual tracking bar
+
     if ($status_teks == 'PENDING') {
         $status_num = 1;
         $lebar_aktif = "w-0";
@@ -84,11 +81,10 @@ if ($data_pesanan) {
         }
     }
 
-    // 🌟 REVISI MATANG: ENGINE HITUNG ESTIMASI BIAYA AWAL & HARGA TAMPILAN
+
     $harga_tampilan = 0;
     $invoice_clean = mysqli_real_escape_string($koneksi, $data_pesanan['no_invoice']);
-    
-    // Ambil nilai akumulasi harga master dari form booking awal untuk kustom
+
     $q_sum_estimasi = mysqli_query($koneksi, "SELECT SUM(mm.harga_estimasi) as total_est 
          FROM invoice_details id 
          JOIN master_masalah mm ON id.nama_item = mm.nama_masalah 
@@ -96,17 +92,16 @@ if ($data_pesanan) {
     $res_sum_estimasi = mysqli_fetch_assoc($q_sum_estimasi);
     $estimasi_awal_db = $res_sum_estimasi['total_est'] ?? 0;
 
-    if ($status_num < 3) { // Status Masih PENDING (1) atau PENGECEKAN (2)
+    if ($status_num < 3) {
         if ($is_custom_estimasi) {
-            // Jika ada nilai dari master_masalah, tampilkan itu sebagai estimasi terkunci
-            // Jika 0 (artinya ngetik sendiri/masalah lain), maka otomatis bernilai 0 ("Menunggu Cek Fisik")
+
             $harga_tampilan = $estimasi_awal_db;
         } else {
-            // Paket reguler selalu menampilkan harga paketnya sejak awal booking
+
             $harga_tampilan = $data_pesanan['total_harga'];
         }
-    } else { // Status Sudah Naik ke PERBAIKAN (3) atau SELESAI (4)
-        // Buka gembok! Tampilkan nominal final yang sudah diolah/diubah admin di panel dalam
+    } else {
+
         $harga_tampilan = $data_pesanan['total_harga'];
     }
 }
@@ -124,7 +119,10 @@ $halaman_aktif = basename($_SERVER['SCRIPT_NAME']);
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
     </style>
 </head>
 
@@ -171,11 +169,11 @@ $halaman_aktif = basename($_SERVER['SCRIPT_NAME']);
                         <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">NOMOR INVOICE</p>
                         <h2 class="text-2xl md:text-3xl font-black text-[#ffd54f] tracking-tight"><?= $data_pesanan['no_invoice']; ?></h2>
                     </div>
-                    
+
                     <div class="flex flex-wrap items-center sm:justify-end gap-2 shrink-0">
                         <span class="bg-blue-600/20 text-blue-400 border border-blue-500/30 text-[10px] font-black uppercase px-3.5 py-2 rounded-full tracking-wider flex items-center gap-1">
-                            <i class="fas fa-hourglass-half text-[9px]"></i> Est: 
-                            <?php 
+                            <i class="fas fa-hourglass-half text-[9px]"></i> Est:
+                            <?php
                             if (!empty($data_pesanan['estimasi_selesai'])) {
                                 echo htmlspecialchars($data_pesanan['estimasi_selesai']);
                             } else {
@@ -242,7 +240,7 @@ $halaman_aktif = basename($_SERVER['SCRIPT_NAME']);
                 <div class="bg-[#f8fafc] border-t border-gray-100 p-6 flex flex-col sm:flex-row justify-between items-center gap-4">
                     <div>
                         <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                            <?php 
+                            <?php
                             if ($status_num < 3) {
                                 echo ($is_custom_estimasi && $estimasi_awal_db == 0) ? 'BIAYA REALISASI SERVIS' : 'ESTIMASI AWAL BIAYA SERVIS';
                             } else {
@@ -426,4 +424,5 @@ $halaman_aktif = basename($_SERVER['SCRIPT_NAME']);
         }
     </script>
 </body>
+
 </html>

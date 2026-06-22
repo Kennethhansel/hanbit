@@ -3,55 +3,50 @@ require_once 'config.php';
 require_once 'koneksi.php';
 proteksi_halaman();
 
-// Ambil konfigurasi global target omzet dari tabel admin
+
 $id_admin = $_SESSION['id_user'] ?? 1;
 $q_config = mysqli_query($koneksi, "SELECT target_omzet FROM admin_accounts WHERE id_admin = '$id_admin' LIMIT 1");
 $target_omzet_db = mysqli_fetch_assoc($q_config)['target_omzet'] ?? 5000000;
 
-// =========================================================================
-// LOGIKA FILTER MAKRO (BULANAN & TAHUNAN SAJA - DEFAULT: BULANAN)
-// =========================================================================
+
 $pilihan_bulan = isset($_GET['bulan']) ? intval($_GET['bulan']) : intval(date('m'));
 $pilihan_tahun = isset($_GET['tahun']) ? intval($_GET['tahun']) : intval(date('Y'));
-$mode_filter   = isset($_GET['mode']) ? trim($_GET['mode']) : 'bulan'; // Default langsung bulanan
+$mode_filter   = isset($_GET['mode']) ? trim($_GET['mode']) : 'bulan'; 
 
-// Fondasi kriteria waktu SQL berdasarkan mode filter
 if ($mode_filter === 'tahun') {
     $sql_kondisi_selesai = " AND YEAR(tanggal_booking) = $pilihan_tahun"; 
     $sql_kondisi_masuk   = " AND YEAR(created_at) = $pilihan_tahun";
 } else {
-    // Default mode: bulan
+
     $sql_kondisi_selesai = " AND MONTH(tanggal_booking) = $pilihan_bulan AND YEAR(tanggal_booking) = $pilihan_tahun";
     $sql_kondisi_masuk   = " AND MONTH(created_at) = $pilihan_bulan AND YEAR(created_at) = $pilihan_tahun";
 }
 
-// 1. Hitung Omzet & Total Laptop Selesai (status_order = 'SELESAI')
+
 $res_finansial = mysqli_query($koneksi, "SELECT SUM(total_harga) as omzet, COUNT(*) as total_selesai FROM reservations WHERE status_order = 'SELESAI' $sql_kondisi_selesai");
 $data_finansial = mysqli_fetch_assoc($res_finansial);
 $total_pendapatan = $data_finansial['omzet'] ?? 0;
 $total_selesai_period = $data_finansial['total_selesai'] ?? 0;
 
-// 2. Hitung Tiket Masuk Baru
+
 $res_masuk = mysqli_query($koneksi, "SELECT COUNT(*) as total_masuk FROM reservations WHERE 1=1 $sql_kondisi_masuk");
 $total_masuk_period = mysqli_fetch_assoc($res_masuk)['total_masuk'] ?? 0;
 
-// 3. Hitung Beban Meja Kerja (Antrean Berjalan Aktif)
+
 $res_antrean = mysqli_query($koneksi, "SELECT COUNT(*) as total_aktif FROM reservations WHERE status_order NOT IN ('SELESAI', 'BATAL') $sql_kondisi_selesai");
 $total_antrean_period = mysqli_fetch_assoc($res_antrean)['total_aktif'] ?? 0;
 
-// Kalkulasi Rasio Pencapaian Finansial Toko terhadap Target Manajemen
+
 $persentase_target = ($target_omzet_db > 0) ? ($total_pendapatan / $target_omzet_db) * 100 : 0;
 if ($persentase_target > 100) {
     $persentase_target = 100;
 }
 
-// DATA GRAFIK DOUGHNUT (LIVE RATIO CHART BERDASARKAN PERIODE)
+
 $total_chart_maintenance = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT COUNT(*) as total FROM reservations WHERE paket_tipe != 'custom_estimasi' $sql_kondisi_selesai"))['total'] ?? 0;
 $total_chart_custom      = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT COUNT(*) as total FROM reservations WHERE paket_tipe = 'custom_estimasi' $sql_kondisi_selesai"))['total'] ?? 0;
 
-// =========================================================================
-// 🔥 DATA QUERY BAR CHART: MEREK LAPTOP PALING SERING SERVIS (LIVE SQL)
-// =========================================================================
+
 $labels_brand = [];
 $data_brand_counts = [];
 $q_top_brand = mysqli_query($koneksi, "SELECT SUBSTRING_INDEX(laptop_detail, ' ', 1) as brand_name, COUNT(*) as total FROM reservations GROUP BY brand_name ORDER BY total DESC LIMIT 5");
@@ -304,7 +299,6 @@ while ($row_tb = mysqli_fetch_assoc($q_top_brand)) {
         }
 
         document.addEventListener("DOMContentLoaded", function() {
-            // RENDERING CHART 1: DOUGHNUT CHART VARIATION
             const ctx1 = document.getElementById('grafikPerbandinganBooking').getContext('2d');
             new Chart(ctx1, {
                 type: 'doughnut',
@@ -326,7 +320,6 @@ while ($row_tb = mysqli_fetch_assoc($q_top_brand)) {
                 }
             });
 
-            // RENDERING CHART 2: 🔥 LIVE BAR CHART TOP 5 BRAND LAPTOP (NEW SCRIPT)
             const ctx2 = document.getElementById('grafikBatangBrandLaptop').getContext('2d');
             new Chart(ctx2, {
                 type: 'bar',

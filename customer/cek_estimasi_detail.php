@@ -1,7 +1,5 @@
 <?php
-// =========================================================================
-// SISI BACKEND: PROSES CEK PARAMETER DAN KONEKSI DATABASE
-// =========================================================================
+
 $host = "localhost";
 $user = "root";
 $pass = "";
@@ -24,9 +22,7 @@ while ($row_kuota = mysqli_fetch_assoc($q_cek_kuota)) {
     $daftar_tanggal_penuh[] = $row_kuota['tanggal_booking'];
 }
 
-// =========================================================================
-// 🔥 AMBIL DATA SECARA DINAMIS TERMASUK PENYEBAB & SARAN TERPISAH
-// =========================================================================
+
 $brand_id        = isset($_GET['brand_id']) ? mysqli_real_escape_string($koneksi, $_GET['brand_id']) : '';
 $series_id       = isset($_GET['series_id']) ? mysqli_real_escape_string($koneksi, $_GET['series_id']) : '';
 $id_masalah_raw  = isset($_GET['id_masalah']) ? mysqli_real_escape_string($koneksi, $_GET['id_masalah']) : '';

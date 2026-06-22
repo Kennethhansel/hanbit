@@ -1,16 +1,16 @@
 <?php
 require_once '../admin/koneksi.php';
 
-// REVISI TOTAL: Membuang array statis lama dan mengambil data dinamis riil dari database
+
 $brands_list = [];
 $query = "SELECT ID_Brand, Nama_Brand, logo FROM laptop_brands ORDER BY Nama_Brand ASC";
 $result = mysqli_query($koneksi, $query);
 
 if ($result) {
     while ($row = mysqli_fetch_assoc($result)) {
-        // Deteksi jalur folder logo (bawaan lama ada 'images/' vs upload baru langsung nama file)
+
         $jalur_logo = (strpos($row['logo'], 'images/') !== false) ? $row['logo'] : 'images/logo/' . $row['logo'];
-        
+
         $brands_list[] = [
             'id'   => $row['ID_Brand'],
             'nama' => strtoupper($row['Nama_Brand']),
@@ -31,7 +31,10 @@ $halaman_aktif = basename($_SERVER['SCRIPT_NAME']);
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
     </style>
 </head>
 
@@ -83,7 +86,7 @@ $halaman_aktif = basename($_SERVER['SCRIPT_NAME']);
     </nav>
 
     <main class="max-w-5xl mx-auto w-full px-6 pt-10 pb-16 flex-1 flex flex-col justify-start gap-5">
-        
+
         <div class="text-center space-y-1">
             <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900">Pilih Merek Laptop Anda</h1>
             <p class="text-sm text-slate-400 font-medium">Silakan pilih merek Laptop yang sesuai dengan Laptop anda.</p>
@@ -91,25 +94,25 @@ $halaman_aktif = basename($_SERVER['SCRIPT_NAME']);
 
         <div class="flex flex-row flex-nowrap items-center justify-center gap-x-3 md:gap-x-5 text-[11px] md:text-xs font-black uppercase overflow-x-auto whitespace-nowrap">
             <div class="text-slate-900 flex items-center gap-2 shrink-0">
-                <span class="w-7 h-7 rounded-full bg-[#facc15] text-slate-950 flex items-center justify-center font-black text-xs shadow-sm">1</span> 
+                <span class="w-7 h-7 rounded-full bg-[#facc15] text-slate-950 flex items-center justify-center font-black text-xs shadow-sm">1</span>
                 <span class="whitespace-nowrap">Pilih Merek</span>
             </div>
             <div class="h-[2px] w-6 md:w-10 bg-gray-200 shrink-0"></div>
-            
+
             <div class="text-slate-400 flex items-center gap-2 shrink-0">
-                <span class="w-7 h-7 rounded-full bg-gray-200 text-slate-400 flex items-center justify-center font-black text-xs">2</span> 
+                <span class="w-7 h-7 rounded-full bg-gray-200 text-slate-400 flex items-center justify-center font-black text-xs">2</span>
                 <span class="whitespace-nowrap">Pilih Series</span>
             </div>
             <div class="h-[2px] w-6 md:w-10 bg-gray-200 shrink-0"></div>
-            
+
             <div class="text-slate-400 flex items-center gap-2 shrink-0">
-                <span class="w-7 h-7 rounded-full bg-gray-200 text-slate-400 flex items-center justify-center font-black text-xs">3</span> 
+                <span class="w-7 h-7 rounded-full bg-gray-200 text-slate-400 flex items-center justify-center font-black text-xs">3</span>
                 <span class="whitespace-nowrap">Pilih Masalah</span>
             </div>
             <div class="h-[2px] w-6 md:w-10 bg-gray-200 shrink-0"></div>
-            
+
             <div class="text-slate-400 flex items-center gap-2 shrink-0">
-                <span class="w-7 h-7 rounded-full bg-gray-200 text-slate-400 flex items-center justify-center font-black text-xs">4</span> 
+                <span class="w-7 h-7 rounded-full bg-gray-200 text-slate-400 flex items-center justify-center font-black text-xs">4</span>
                 <span class="whitespace-nowrap">Detail & Book</span>
             </div>
         </div>
@@ -119,11 +122,11 @@ $halaman_aktif = basename($_SERVER['SCRIPT_NAME']);
 
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-5">
                 <?php foreach ($brands_list as $brand): ?>
-                    <div type="button" onclick="pilihBrand(this, '<?= $brand['id']; ?>')" 
-                            class="brand-card flex flex-col items-center justify-center pt-8 pb-6 px-4 bg-white border border-gray-200 rounded-2xl cursor-pointer hover:border-yellow-400 hover:bg-yellow-50/10 transition-all duration-200 group select-none shadow-sm shadow-slate-100">
+                    <div type="button" onclick="pilihBrand(this, '<?= $brand['id']; ?>')"
+                        class="brand-card flex flex-col items-center justify-center pt-8 pb-6 px-4 bg-white border border-gray-200 rounded-2xl cursor-pointer hover:border-yellow-400 hover:bg-yellow-50/10 transition-all duration-200 group select-none shadow-sm shadow-slate-100">
                         <div class="w-28 h-16 flex items-center justify-center mb-4 bg-white">
-                            <img src="<?= $brand['logo']; ?>?v=<?= time(); ?>" alt="Logo <?= $brand['nama']; ?>" 
-                                 class="max-w-full max-h-full object-contain filter grayscale group-hover:grayscale-0 transition-all duration-200" onerror="this.src='images/logo/default.png'">
+                            <img src="<?= $brand['logo']; ?>?v=<?= time(); ?>" alt="Logo <?= $brand['nama']; ?>"
+                                class="max-w-full max-h-full object-contain filter grayscale group-hover:grayscale-0 transition-all duration-200" onerror="this.src='images/logo/default.png'">
                         </div>
                         <span class="text-xs font-extrabold uppercase tracking-normal text-slate-700 group-hover:text-slate-900">
                             <?= $brand['nama']; ?>
@@ -177,7 +180,7 @@ $halaman_aktif = basename($_SERVER['SCRIPT_NAME']);
             elemenTarget.classList.remove('border-gray-200', 'bg-white');
             elemenTarget.classList.add('border-2', 'border-yellow-400', 'bg-yellow-50/10');
             elemenTarget.querySelector('img').classList.remove('grayscale');
-            
+
             document.getElementById('selected_brand_id').value = idBrand;
         }
 
@@ -185,9 +188,9 @@ $halaman_aktif = basename($_SERVER['SCRIPT_NAME']);
             const idMerekTerpilih = document.getElementById('selected_brand_id').value;
             if (idMerekTerpilih === "" || idMerekTerpilih === null) {
                 document.getElementById('modal_validasi_merek').classList.remove('hidden');
-                return false; 
+                return false;
             }
-            return true; 
+            return true;
         }
 
         function tutupModalValidasi() {
@@ -195,4 +198,5 @@ $halaman_aktif = basename($_SERVER['SCRIPT_NAME']);
         }
     </script>
 </body>
+
 </html>

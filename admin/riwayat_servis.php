@@ -3,13 +3,13 @@ require_once 'config.php';
 require_once 'koneksi.php';
 proteksi_halaman();
 
-// LOGIKA ENGINE: Proses Hapus Massal Berkas Arsip Riwayat Servis
+
 if (isset($_POST['eksekusi_hapus_arsip_massal'])) {
     if (!empty($_POST['arsip_invoice_hapus'])) {
-        $ids = array_map(function($id) use ($koneksi) {
+        $ids = array_map(function ($id) use ($koneksi) {
             return "'" . mysqli_real_escape_string($koneksi, $id) . "'";
         }, $_POST['arsip_invoice_hapus']);
-        
+
         $set_ids = implode(',', $ids);
         $query_del = "DELETE FROM reservations WHERE no_invoice IN ($set_ids)";
         mysqli_query($koneksi, $query_del);
@@ -18,19 +18,19 @@ if (isset($_POST['eksekusi_hapus_arsip_massal'])) {
     exit;
 }
 
-// 🌟 REVISI: Ambil parameter filter periode
+
 $pilihan_bulan = isset($_GET['bulan']) ? intval($_GET['bulan']) : intval(date('m'));
 $pilihan_tahun = isset($_GET['tahun']) ? intval($_GET['tahun']) : intval(date('Y'));
 $mode_filter   = isset($_GET['mode']) ? trim($_GET['mode']) : 'bulan';
 $search        = isset($_GET['search']) ? mysqli_real_escape_string($koneksi, trim($_GET['search'])) : '';
 $sort_tgl      = isset($_GET['sort_tgl']) ? trim($_GET['sort_tgl']) : 'terbaru';
 
-// Query dasar
+
 $query = "SELECT no_invoice, nama_pelanggan, no_whatsapp, laptop_detail, tanggal_booking, status_order, created_at, tanggal_selesai 
           FROM reservations 
           WHERE status_order = 'SELESAI'";
 
-// 🔥 REVISI QUERY: Filter otomatis berdasarkan mode bulan atau tahun
+
 if ($mode_filter == 'bulan') {
     $query .= " AND MONTH(tanggal_selesai) = $pilihan_bulan AND YEAR(tanggal_selesai) = $pilihan_tahun";
 } else {
@@ -46,6 +46,7 @@ $result = mysqli_query($koneksi, $query);
 ?>
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -54,24 +55,28 @@ $result = mysqli_query($koneksi, $query);
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700;800;900&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
     </style>
 </head>
+
 <body class="bg-[#f8fafc] text-slate-800 antialiased flex min-h-screen">
 
     <?php include 'sidebar.php'; ?>
 
     <main class="flex-1 p-8 overflow-y-auto">
         <div class="max-w-full mx-auto space-y-6">
-            
+
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 min-h-[56px]">
                 <div>
                     <h1 class="text-2xl font-black tracking-tight text-slate-900">Riwayat Transaksi Servis</h1>
                     <p class="text-xs text-slate-400 font-medium">Rekam jejak seluruh berkas pengerjaan perbaikan laptop yang telah selesai total.</p>
                 </div>
-                
-                <button type="button" id="btn_hapus_arsip_massal" onclick="bukaModalHapusMassal()" 
-                        class="hidden bg-red-500 hover:bg-red-600 text-white font-black px-6 py-2.5 rounded-xl text-xs uppercase tracking-wider transition-all duration-300 shadow-md flex items-center gap-2 transform scale-95 opacity-0">
+
+                <button type="button" id="btn_hapus_arsip_massal" onclick="bukaModalHapusMassal()"
+                    class="hidden bg-red-500 hover:bg-red-600 text-white font-black px-6 py-2.5 rounded-xl text-xs uppercase tracking-wider transition-all duration-300 shadow-md flex items-center gap-2 transform scale-95 opacity-0">
                     <i class="fas fa-trash-alt text-xs"></i> Hapus Terpilih (<span id="count_arsip_terpilih">0</span>)
                 </button>
             </div>
@@ -83,17 +88,17 @@ $result = mysqli_query($koneksi, $query);
                         <button type="button" onclick="setMode('tahun')" class="px-4 py-1.5 rounded-lg transition <?= $mode_filter == 'tahun' ? 'bg-white shadow-sm font-black' : '' ?>">Tahunan</button>
                     </div>
                     <input type="hidden" name="mode" id="mode_input" value="<?= $mode_filter ?>">
-                    
-                    <?php if($mode_filter == 'bulan'): ?>
-                    <select name="bulan" onchange="this.form.submit()" class="px-3 py-2 bg-slate-50 border rounded-xl cursor-pointer">
-                        <?php for($i=1; $i<=12; $i++) echo "<option value='$i' ".($pilihan_bulan==$i?'selected':'').">".date('F', mktime(0,0,0,$i,1))."</option>"; ?>
-                    </select>
+
+                    <?php if ($mode_filter == 'bulan'): ?>
+                        <select name="bulan" onchange="this.form.submit()" class="px-3 py-2 bg-slate-50 border rounded-xl cursor-pointer">
+                            <?php for ($i = 1; $i <= 12; $i++) echo "<option value='$i' " . ($pilihan_bulan == $i ? 'selected' : '') . ">" . date('F', mktime(0, 0, 0, $i, 1)) . "</option>"; ?>
+                        </select>
                     <?php endif; ?>
-                    
+
                     <select name="tahun" onchange="this.form.submit()" class="px-3 py-2 bg-slate-50 border rounded-xl cursor-pointer">
-                        <?php for($y=date('Y'); $y>=date('Y')-3; $y--) echo "<option value='$y' ".($pilihan_tahun==$y?'selected':'').">$y</option>"; ?>
+                        <?php for ($y = date('Y'); $y >= date('Y') - 3; $y--) echo "<option value='$y' " . ($pilihan_tahun == $y ? 'selected' : '') . ">$y</option>"; ?>
                     </select>
-                    
+
                     <select name="sort_tgl" onchange="this.form.submit()" class="px-3 py-2 bg-slate-50 border rounded-xl cursor-pointer">
                         <option value="terbaru" <?= $sort_tgl == 'terbaru' ? 'selected' : ''; ?>>📅 Terbaru</option>
                         <option value="terlama" <?= $sort_tgl == 'terlama' ? 'selected' : ''; ?>>📅 Terlama</option>
@@ -120,7 +125,7 @@ $result = mysqli_query($koneksi, $query);
                             Selesai: <?= mysqli_num_rows($result); ?> Unit
                         </span>
                     </div>
-                    
+
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse text-xs">
                             <thead>
@@ -137,7 +142,7 @@ $result = mysqli_query($koneksi, $query);
                             </thead>
                             <tbody class="divide-y divide-gray-100 font-medium text-slate-700">
                                 <?php if (mysqli_num_rows($result) > 0): ?>
-                                    <?php while($row = mysqli_fetch_assoc($result)): ?>
+                                    <?php while ($row = mysqli_fetch_assoc($result)): ?>
                                         <tr class="hover:bg-slate-50/60 transition">
                                             <td class="p-4 text-center"><input type="checkbox" name="arsip_invoice_hapus[]" value="<?= htmlspecialchars($row['no_invoice']); ?>" onchange="hitungArsipTerpilih()" class="check_arsip_child w-4 h-4 rounded text-blue-600 border-gray-300 focus:ring-blue-500 cursor-pointer"></td>
                                             <td class="p-4 font-bold text-slate-400">#<?= htmlspecialchars($row['no_invoice']); ?></td>
@@ -157,7 +162,9 @@ $result = mysqli_query($koneksi, $query);
                                         </tr>
                                     <?php endwhile; ?>
                                 <?php else: ?>
-                                    <tr><td colspan="8" class="p-8 text-center text-slate-400 font-bold">Tidak ada riwayat servis untuk periode ini.</td></tr>
+                                    <tr>
+                                        <td colspan="8" class="p-8 text-center text-slate-400 font-bold">Tidak ada riwayat servis untuk periode ini.</td>
+                                    </tr>
                                 <?php endif; ?>
                             </tbody>
                         </table>
@@ -186,35 +193,48 @@ $result = mysqli_query($koneksi, $query);
             document.getElementById('mode_input').value = mode;
             document.getElementById('form_filter').submit();
         }
+
         function toggleSemuaArsip(master) {
             const checkboxes = document.querySelectorAll('.check_arsip_child');
             checkboxes.forEach(cb => cb.checked = master.checked);
             hitungArsipTerpilih();
         }
+
         function hitungArsipTerpilih() {
             const checkboxes = document.querySelectorAll('.check_arsip_child');
             let totalTerpilih = 0;
-            checkboxes.forEach(cb => { if(cb.checked) totalTerpilih++; });
+            checkboxes.forEach(cb => {
+                if (cb.checked) totalTerpilih++;
+            });
             const btnHapus = document.getElementById('btn_hapus_arsip_massal');
             document.getElementById('count_arsip_terpilih').innerText = totalTerpilih;
-            if(totalTerpilih > 0) {
+            if (totalTerpilih > 0) {
                 btnHapus.classList.remove('hidden');
-                setTimeout(() => { btnHapus.classList.remove('scale-95', 'opacity-0'); btnHapus.classList.add('scale-100', 'opacity-100'); }, 10);
+                setTimeout(() => {
+                    btnHapus.classList.remove('scale-95', 'opacity-0');
+                    btnHapus.classList.add('scale-100', 'opacity-100');
+                }, 10);
             } else {
-                btnHapus.classList.remove('scale-100', 'opacity-100'); btnHapus.classList.add('scale-95', 'opacity-0');
-                setTimeout(() => { btnHapus.classList.add('hidden'); }, 300);
+                btnHapus.classList.remove('scale-100', 'opacity-100');
+                btnHapus.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => {
+                    btnHapus.classList.add('hidden');
+                }, 300);
             }
         }
+
         function bukaModalHapusMassal() {
             const total = document.getElementById('count_arsip_terpilih').innerText;
             document.getElementById('text_arsip_total').innerText = total;
             document.getElementById('modal_hapus_massal_arsip').classList.remove('hidden');
             document.getElementById('modal_hapus_massal_arsip').classList.add('flex');
         }
+
         function tutupModalHapusMassal() {
             document.getElementById('modal_hapus_massal_arsip').classList.remove('flex');
             document.getElementById('modal_hapus_massal_arsip').classList.add('hidden');
         }
     </script>
 </body>
+
 </html>

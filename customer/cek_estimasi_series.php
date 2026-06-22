@@ -1,5 +1,5 @@
 <?php
-// 1. BUAT KONEKSI MANDIRI DI BARIS PALING ATAS
+
 $host = "localhost";
 $user = "root";
 $pass = "";
@@ -10,7 +10,7 @@ if (!$koneksi) {
     die("Koneksi database Hanbit gagal: " . mysqli_connect_error());
 }
 
-// 2. AMBIL PARAMETER BRAND ID DARI URL
+
 $brand_id = isset($_GET['brand_id']) ? mysqli_real_escape_string($koneksi, $_GET['brand_id']) : '1';
 
 if (empty($brand_id)) {
@@ -18,7 +18,7 @@ if (empty($brand_id)) {
     exit();
 }
 
-// 3. AMBIL NAMA BRAND AKTIF UNTUK JUDUL
+
 $query_brand = "SELECT nama_brand FROM laptop_brands WHERE id_brand = '$brand_id' LIMIT 1";
 $res_brand = mysqli_query($koneksi, $query_brand);
 $data_brand = mysqli_fetch_assoc($res_brand);
@@ -26,21 +26,20 @@ $nama_brand_aktif = strtoupper($data_brand['nama_brand'] ?? 'LAPTOP');
 
 $series_list = [];
 
-// 4. TARIK DATA SERIES SECARA DINAMIS DARI DATABASE (LENGKAP DENGAN KOLOM FOTO BARU)
+
 $query_series = "SELECT id_series, nama_series, foto FROM laptop_series WHERE id_brand = '$brand_id' ORDER BY nama_series ASC";
 $result_series = mysqli_query($koneksi, $query_series);
 
 while ($row = mysqli_fetch_assoc($result_series)) {
     $nama_clean = trim($row['nama_series']);
-    
-    // REVISI TOTAL PATH GAMBAR: Mendeteksi jika ada data lama (mengandung 'images/') vs hasil upload admin baru
+
+
     if (strpos($row['foto'], 'images/') !== false) {
         $jalur_foto_lengkap = $row['foto'];
     } else {
         $jalur_foto_lengkap = 'images/series/' . $row['foto'];
     }
 
-    // REVISI CASE SENSITIVE: Mengubah dari $row['ID_Series'] menjadi $row['id_series'] huruf kecil
     $series_list[] = [
         'id' => $row['id_series'],
         'nama' => strtoupper($nama_clean),
@@ -59,7 +58,10 @@ while ($row = mysqli_fetch_assoc($result_series)) {
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
     </style>
 </head>
 
@@ -214,9 +216,9 @@ while ($row = mysqli_fetch_assoc($result_series)) {
             const idSeriesTerpilih = document.getElementById('selected_series_id').value;
             if (idSeriesTerpilih === "" || idSeriesTerpilih === null) {
                 document.getElementById('modal_validasi_series').classList.remove('hidden');
-                return false; 
+                return false;
             }
-            return true; 
+            return true;
         }
 
         function tutupModalValidasi() {
@@ -224,4 +226,5 @@ while ($row = mysqli_fetch_assoc($result_series)) {
         }
     </script>
 </body>
+
 </html>

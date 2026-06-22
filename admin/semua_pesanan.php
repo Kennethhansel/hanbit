@@ -3,9 +3,7 @@ require_once 'config.php';
 require_once 'koneksi.php';
 proteksi_halaman();
 
-// =========================================================================
-// ENGINE SINKRONISASI MUTLAK: Menyimpan Perubahan Status ke DB & Tracking Customer
-// =========================================================================
+
 if (isset($_POST['update_status_instan'])) {
     $invoice_input = mysqli_real_escape_string($koneksi, trim($_POST['invoice']));
     $status_baru   = mysqli_real_escape_string($koneksi, trim($_POST['status_baru']));
@@ -14,14 +12,14 @@ if (isset($_POST['update_status_instan'])) {
         $status_baru = 'PENDING_ADMIN';
     }
 
-    // Ambil data tanggal lama terlebih dahulu dari database untuk proteksi data log
+
     $q_tgl_lama = mysqli_query($koneksi, "SELECT tanggal_dikerjakan, tanggal_selesai FROM reservations WHERE no_invoice = '$invoice_input' LIMIT 1");
     $d_tgl_lama = mysqli_fetch_assoc($q_tgl_lama);
 
     $tgl_kerja   = $d_tgl_lama['tanggal_dikerjakan'] ? "'" . $d_tgl_lama['tanggal_dikerjakan'] . "'" : "NULL";
     $tgl_selesai = $d_tgl_lama['tanggal_selesai'] ? "'" . $d_tgl_lama['tanggal_selesai'] . "'" : "NULL";
 
-    // 🔥 AUTOMATION LOGGER: Dropdown depan halaman utama sekarang resmi memicu pencatatan tanggal otomatis
+
     if (($status_baru === 'PENGECEKAN' || $status_baru === 'SEDANG DIKERJAKAN') && empty($d_tgl_lama['tanggal_dikerjakan'])) {
         $tgl_kerja = "'" . date('Y-m-d') . "'";
     }
@@ -38,7 +36,7 @@ if (isset($_POST['update_status_instan'])) {
     exit;
 }
 
-// LOGIKA ENGINE: Proses Hapus Massal Berbasis Checkbox Array POST
+
 if (isset($_POST['eksekusi_hapus_massal'])) {
     if (!empty($_POST['ids_hapus'])) {
         $ids = array_map(function ($id) use ($koneksi) {
@@ -54,16 +52,16 @@ if (isset($_POST['eksekusi_hapus_massal'])) {
     exit;
 }
 
-// Catch parameter filter pencarian, tab view, jenis paket, dan sorting tanggal
+
 $search      = isset($_GET['search']) ? mysqli_real_escape_string($koneksi, trim($_GET['search'])) : '';
 $view_tab    = isset($_GET['view']) ? trim($_GET['view']) : 'aktif';
 $filter_tipe = isset($_GET['filter_tipe']) ? trim($_GET['filter_tipe']) : 'semua';
 $sort_tgl    = isset($_GET['sort_tgl']) ? trim($_GET['sort_tgl']) : 'terbaru_booking';
 
-// Fondasi Query Dasar
+
 $query_str = "SELECT no_invoice, nama_pelanggan, no_whatsapp, laptop_detail, tanggal_booking, status_order, paket_tipe, created_at FROM reservations WHERE 1=1";
 
-// 1. Kondisi Filter Tab View
+
 if ($view_tab == 'hari_ini') {
     $query_str .= " AND DATE(created_at) = CURDATE()";
 } elseif ($view_tab == 'datang_hari_ini') {
@@ -72,19 +70,19 @@ if ($view_tab == 'hari_ini') {
     $query_str .= " AND status_order != 'SELESAI'";
 }
 
-// 2. Kondisi Filter Input Pencarian (Invoice / Nama Pelanggan)
+
 if (!empty($search)) {
     $query_str .= " AND (no_invoice LIKE '%$search%' OR nama_pelanggan LIKE '%$search%')";
 }
 
-// 3. Kondisi Filter Jenis Paket (Maintenance vs Custom)
+
 if ($filter_tipe == 'maintenance') {
     $query_str .= " AND paket_tipe != 'custom_estimasi'";
 } elseif ($filter_tipe == 'custom') {
     $query_str .= " AND paket_tipe = 'custom_estimasi'";
 }
 
-// 4. Kondisi Sorting Tanggal
+
 if ($sort_tgl == 'menyerahkan_laptop') {
     $query_str .= " ORDER BY tanggal_booking ASC, created_at DESC";
 } else {
@@ -233,12 +231,10 @@ $result = mysqli_query($koneksi, $query_str);
                                                 <?php
                                                 $curr_status = strtoupper(trim($row['status_order']));
 
-                                                // Jika status masih bawaan pendaftaran customer (PENDING atau kosong), kotak select box berwarna abu-abu (Muted)
+
                                                 if ($curr_status === 'PENDING' || $curr_status == '' || empty($curr_status)) {
                                                     $color_class = 'border-slate-200 text-slate-400 bg-slate-50/50 font-medium';
-                                                }
-                                                // Jika diubah oleh admin, warna disesuaikan seperti biasa
-                                                elseif ($curr_status === 'PENDING_ADMIN') {
+                                                } elseif ($curr_status === 'PENDING_ADMIN') {
                                                     $color_class = 'border-blue-200 text-blue-600 bg-blue-50/20 font-extrabold';
                                                 } elseif ($curr_status === 'PENGECEKAN' || $curr_status === 'SEDANG DIKERJAKAN') {
                                                     $color_class = 'border-amber-200 text-amber-600 bg-amber-50/20 font-extrabold';
@@ -372,8 +368,7 @@ $result = mysqli_query($koneksi, $query_str);
             window.location.href = `semua_pesanan.php?view=<?= $view_tab; ?>&filter_tipe=<?= $filter_tipe; ?>&sort_tgl=<?= $sort_tgl; ?>&search=${encodeURIComponent(s)}`;
         }
 
-        // 🌟 REVISI PENUH TEMPLATE CHAT WA CRM HANBIT LABS
-        // 🌟 REVISI SCRIPT JAVASCRIPT BAWAH FILE semua_pesanan.php (Ganti Fungsi pemicuPerubahanStatus)
+
         function pemicuPerubahanStatus(invoice, whatsapp, nama, paketTipe, laptop, selectElement) {
             activeInvoice = invoice;
             activeWhatsApp = whatsapp;
@@ -391,7 +386,7 @@ $result = mysqli_query($koneksi, $query_str);
                 tglDatangCustomer = rowElemen.cells[5].innerText.trim();
             }
 
-            // Tentukan estimasi bawaan untuk disisipkan di pesan WhatsApp instan halaman depan
+
             let estimasiDefault = isCustom ? "7-14 Hari Kerja" : "1-2 Hari Kerja";
             if (activeStatusBaru === 'SELESAI') estimasiDefault = "Selesai";
 

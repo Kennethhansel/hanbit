@@ -1,5 +1,5 @@
 <?php
-// 1. BUAT KONEKSI KE DATABASE UTAMA
+
 $host = "localhost";
 $user = "root";
 $pass = "";
@@ -10,9 +10,9 @@ if (!$koneksi) {
     die("Koneksi database Hanbit gagal: " . mysqli_connect_error());
 }
 
-// 2. AMBIL DATA DARI DATABASE (Sudah Diperbaiki Menggunakan nama tabel asli: tb_katalog)
+
 $katalog_produk = [];
-// id_produk diubah AS id, dan nama_produk diubah AS nama agar sinkron dengan variabel HTML bawaan di bawah
+
 $query = "SELECT id_produk AS id, kategori, nama_produk AS nama, deskripsi, harga, gambar, link_ecommerce FROM tb_katalog ORDER BY id_produk DESC";
 $result = mysqli_query($koneksi, $query);
 
@@ -149,9 +149,9 @@ $halaman_aktif = basename($_SERVER['SCRIPT_NAME']);
                                 ?>
                             </span>
 
-                            <?php 
-                                // REVISI AMAN: Deteksi otomatis tipe path gambar lama vs file baru dari admin agar tidak pecah
-                                $src_gambar = (strpos($produk['gambar'], 'images/') !== false) ? $produk['gambar'] : 'images/katalog/' . $produk['gambar'];
+                            <?php
+                            // REVISI AMAN: Deteksi otomatis tipe path gambar lama vs file baru dari admin agar tidak pecah
+                            $src_gambar = (strpos($produk['gambar'], 'images/') !== false) ? $produk['gambar'] : 'images/katalog/' . $produk['gambar'];
                             ?>
                             <img src="<?= $src_gambar; ?>?v=<?= time(); ?>" alt="<?= htmlspecialchars($produk['nama']); ?>"
                                 class="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-300">
@@ -207,7 +207,7 @@ $halaman_aktif = basename($_SERVER['SCRIPT_NAME']);
                 if (kategoriTerpilih === 'semua' || kategoriItem === kategoriTerpilih) {
                     item.classList.remove('hidden');
                 } else {
-                    item.hidden = true; 
+                    item.hidden = true;
                     item.classList.add('hidden');
                 }
             });

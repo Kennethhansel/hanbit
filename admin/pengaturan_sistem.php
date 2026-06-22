@@ -3,23 +3,21 @@ require_once 'config.php';
 require_once 'koneksi.php';
 proteksi_halaman();
 
-// SINKRONISASI KOLOM: Menggunakan session id_user bawaan login lu
-$id_admin = $_SESSION['id_user'] ?? 1; 
+
+$id_admin = $_SESSION['id_user'] ?? 1;
 $pesan_sukses = '';
 $pesan_error = '';
 
-// -------------------------------------------------------------------------
-// PROSES A: SIMPAN PARAMETER OPERASIONAL (SINKRON id_admin)
-// -------------------------------------------------------------------------
+
 if (isset($_POST['simpan_pengaturan']) || isset($_POST['ajax_action'])) {
     $kuota_baru    = mysqli_real_escape_string($koneksi, $_POST['kuota_harian'] ?? 50);
-    $target_baru   = mysqli_real_escape_string($koneksi, $_POST['target_omzet'] ?? 5000000); 
+    $target_baru   = mysqli_real_escape_string($koneksi, $_POST['target_omzet'] ?? 5000000);
     $status_baru   = mysqli_real_escape_string($koneksi, $_POST['status_toko']);
     $jam_buka_baru = mysqli_real_escape_string($koneksi, $_POST['jam_buka_store'] ?? '09:00');
-    $jam_tutup_baru= mysqli_real_escape_string($koneksi, $_POST['jam_tutup_store'] ?? '18:00');
+    $jam_tutup_baru = mysqli_real_escape_string($koneksi, $_POST['jam_tutup_store'] ?? '18:00');
     $pesan_baru    = mysqli_real_escape_string($koneksi, $_POST['pesan_penutupan'] ?? '');
-    
-    // 🛠️ REVISI: Menggunakan id_admin sesuai struktur phpMyAdmin lu
+
+
     $update_query = "UPDATE admin_accounts SET 
                         max_kuota_harian = '$kuota_baru',
                         target_omzet = '$target_baru',
@@ -28,21 +26,19 @@ if (isset($_POST['simpan_pengaturan']) || isset($_POST['ajax_action'])) {
                         jam_tutup_store = '$jam_tutup_baru',
                         pesan_penutupan = '$pesan_baru'
                      WHERE id_admin = '$id_admin'";
-    
+
     if (mysqli_query($koneksi, $update_query)) {
         $pesan_sukses = 'Konfigurasi operasional sistem berhasil disimpan dan disinkronkan!';
     }
 }
 
-// -------------------------------------------------------------------------
-// PROSES B: GANTI USERNAME & PASSWORD ADMIN AKTIF (SINKRON username & password)
-// -------------------------------------------------------------------------
+
 if (isset($_POST['proses_ganti_kredensial'])) {
     $username_baru = mysqli_real_escape_string($koneksi, trim($_POST['username_baru']));
     $password_lama = $_POST['password_lama'];
     $password_baru = $_POST['password_baru'];
 
-    // 🛠️ REVISI: id_admin, username, password (huruf kecil sesuai DB)
+
     $q_cek = mysqli_query($koneksi, "SELECT password FROM admin_accounts WHERE id_admin = '$id_admin' LIMIT 1");
     $d_cek = mysqli_fetch_assoc($q_cek);
 
@@ -54,7 +50,7 @@ if (isset($_POST['proses_ganti_kredensial'])) {
         }
 
         if (mysqli_query($koneksi, $update_kredensial)) {
-            $_SESSION['username'] = $username_baru; 
+            $_SESSION['username'] = $username_baru;
             $pesan_sukses = 'Kredensial login Anda (Username/Password) berhasil diperbarui!';
         } else {
             $pesan_error = 'Gagal memperbarui kredensial ke database.';
@@ -64,20 +60,18 @@ if (isset($_POST['proses_ganti_kredensial'])) {
     }
 }
 
-// -------------------------------------------------------------------------
-// PROSES C: TAMBAH PENGGUNA ADMIN BARU (SINKRON nama_lengkap, username, password)
-// -------------------------------------------------------------------------
+
 if (isset($_POST['proses_tambah_admin'])) {
     $nama_baru = mysqli_real_escape_string($koneksi, trim($_POST['nama_admin_baru']));
     $user_baru = mysqli_real_escape_string($koneksi, trim($_POST['username_admin_baru']));
     $pass_baru = mysqli_real_escape_string($koneksi, $_POST['password_admin_baru']);
 
-    // 🛠️ REVISI: Cek username di DB
+
     $q_validasi = mysqli_query($koneksi, "SELECT username FROM admin_accounts WHERE username = '$user_baru' LIMIT 1");
     if (mysqli_num_rows($q_validasi) > 0) {
         $pesan_error = "Username '$user_baru' sudah terdaftar di sistem! Gunakan username lain.";
     } else {
-        // 🛠️ REVISI: Menggunakan kolom nama_lengkap sesuai tabel asli lu
+
         $q_add = "INSERT INTO admin_accounts (username, password, nama_lengkap) VALUES ('$user_baru', '$pass_baru', '$nama_baru')";
         if (mysqli_query($koneksi, $q_add)) {
             $pesan_sukses = "Akun Admin baru atas nama '$nama_baru' berhasil ditambahkan ke database Hanbit!";
@@ -87,20 +81,21 @@ if (isset($_POST['proses_tambah_admin'])) {
     }
 }
 
-// 🛠️ REVISI BARIS 89: Menggunakan id_admin (Menghilangkan Error Utama)
+
 $ambil_data = mysqli_query($koneksi, "SELECT username, max_kuota_harian, target_omzet, status_toko, jam_buka_store, jam_tutup_store, pesan_penutupan FROM admin_accounts WHERE id_admin = '$id_admin'");
 $data_skrg  = mysqli_fetch_assoc($ambil_data);
 
 $username_skrg   = $data_skrg['username'] ?? '';
 $kuota_skrg      = $data_skrg['max_kuota_harian'] ?? 50;
-$target_skrg     = $data_skrg['target_omzet'] ?? 5000000; 
+$target_skrg     = $data_skrg['target_omzet'] ?? 5000000;
 $status_skrg     = $data_skrg['status_toko'] ?? 'buka';
 $jam_buka_skrg   = $data_skrg['jam_buka_store'] ?? '09:00';
 $jam_tutup_skrg  = $data_skrg['jam_tutup_store'] ?? '18:00';
-$pesan_tutup_skrg= $data_skrg['pesan_penutupan'] ?? '';
+$pesan_tutup_skrg = $data_skrg['pesan_penutupan'] ?? '';
 ?>
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -109,16 +104,20 @@ $pesan_tutup_skrg= $data_skrg['pesan_penutupan'] ?? '';
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700;800;900&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
     </style>
 </head>
+
 <body class="bg-[#f8fafc] text-slate-800 antialiased flex min-h-screen">
 
     <?php include 'sidebar.php'; ?>
 
     <main class="flex-1 p-8 overflow-y-auto">
         <div class="max-w-full mx-auto px-2 space-y-6">
-            
+
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 min-h-[56px]">
                 <div>
                     <h1 class="text-2xl font-black tracking-tight text-slate-900">Konfigurasi Pengaturan Sistem</h1>
@@ -178,7 +177,7 @@ $pesan_tutup_skrg= $data_skrg['pesan_penutupan'] ?? '';
                 <h3 class="text-xs font-extrabold uppercase text-slate-900 tracking-wider border-b pb-2">
                     📋 Parameter Batas & Pesan Gerbang Toko
                 </h3>
-                
+
                 <form id="form_utama_pengaturan" action="" method="POST" class="space-y-4 text-xs font-semibold text-slate-600">
                     <input type="hidden" name="ajax_action" id="ajax_action" value="">
                     <input type="radio" name="status_toko" value="buka" class="hidden" <?= $status_skrg == 'buka' ? 'checked' : ''; ?>>
@@ -289,4 +288,5 @@ $pesan_tutup_skrg= $data_skrg['pesan_penutupan'] ?? '';
     </script>
     <button id="form_predikat_submit_opsi" form="form_utama_pengaturan" type="submit" name="simpan_pengaturan" class="hidden"></button>
 </body>
+
 </html>

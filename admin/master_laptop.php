@@ -3,9 +3,7 @@ require_once 'config.php';
 require_once 'koneksi.php';
 proteksi_halaman();
 
-// ==========================================
-// 1. LOGIKA PROSES DATA BRAND (CRUD)
-// ==========================================
+
 if (isset($_POST['tambah_brand'])) {
     $nama_brand = mysqli_real_escape_string($koneksi, strtoupper(trim($_POST['nama_brand'])));
     $nama_file   = $_FILES['logo_file']['name'];
@@ -79,9 +77,7 @@ if (isset($_POST['eksekusi_hapus_brand_massal'])) {
     }
 }
 
-// ==========================================
-// 2. LOGIKA PROSES DATA SERIES (CRUD)
-// ==========================================
+
 if (isset($_POST['tambah_series'])) {
     $id_brand    = intval($_POST['id_brand']);
     $nama_series = mysqli_real_escape_string($koneksi, strtoupper(trim($_POST['nama_series'])));
@@ -151,9 +147,7 @@ if (isset($_POST['eksekusi_hapus_series_massal'])) {
     }
 }
 
-// ==========================================
-// 3. LOGIKA PROSES MASTER MASALAH (CRUD + MASS DELETION)
-// ==========================================
+
 if (isset($_POST['tambah_masalah'])) {
     $nama_masalah      = mysqli_real_escape_string($koneksi, trim($_POST['nama_masalah']));
     $deskripsi_masalah = mysqli_real_escape_string($koneksi, trim($_POST['deskripsi_masalah']));
@@ -197,7 +191,7 @@ if (isset($_POST['eksekusi_hapus_masalah_massal'])) {
     }
 }
 
-// Ambil Data Terkini
+
 $result_brand = mysqli_query($koneksi, "SELECT * FROM laptop_brands ORDER BY nama_brand ASC");
 $brands_array = [];
 while ($b_row = mysqli_fetch_assoc($result_brand)) {
@@ -219,7 +213,10 @@ $result_series = mysqli_query($koneksi, $query_series);
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700;800;900&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
     </style>
 </head>
 
@@ -318,7 +315,7 @@ $result_series = mysqli_query($koneksi, $query_series);
                         <h3 class="text-xs font-extrabold uppercase text-slate-900 tracking-wider">Master Kerusakan & Harga</h3>
                         <span class="bg-emerald-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase"><?= mysqli_num_rows($result_masalah); ?> Opsi</span>
                     </div>
-                    
+
                     <form id="form_masalah_massal" action="master_laptop.php" method="POST" class="overflow-x-auto">
                         <table class="w-full text-left border-collapse text-xs">
                             <thead>
@@ -569,7 +566,8 @@ $result_series = mysqli_query($koneksi, $query_series);
                 btn.className = "bg-blue-500 hover:bg-blue-600 text-white font-bold px-4 py-2 rounded-xl transition uppercase text-[10px]";
             }
             const m = document.getElementById('modal_masalah');
-            m.classList.remove('hidden'); m.classList.add('flex');
+            m.classList.remove('hidden');
+            m.classList.add('flex');
         }
 
         function tutupModalMasalah() {
@@ -577,9 +575,7 @@ $result_series = mysqli_query($koneksi, $query_series);
             document.getElementById('modal_masalah').classList.add('hidden');
         }
 
-        // ==========================================
-        // FITUR SCRIPT SELECT ALL & MASALAH MASS HAPUS
-        // ==========================================
+
         function toggleSemuaMasalah(master) {
             const checkboxes = document.querySelectorAll('.check_masalah_child');
             checkboxes.forEach(cb => cb.checked = master.checked);
@@ -589,11 +585,13 @@ $result_series = mysqli_query($koneksi, $query_series);
         function hitungMasalahTerpilih() {
             const checkboxes = document.querySelectorAll('.check_masalah_child');
             let totalTerpilih = 0;
-            checkboxes.forEach(cb => { if (cb.checked) totalTerpilih++; });
-            
+            checkboxes.forEach(cb => {
+                if (cb.checked) totalTerpilih++;
+            });
+
             const btnHapus = document.getElementById('btn_hapus_masalah_massal');
             document.getElementById('count_masalah_terpilih').innerText = totalTerpilih;
-            
+
             if (totalTerpilih > 0) {
                 btnHapus.classList.remove('hidden');
                 setTimeout(() => {
@@ -603,7 +601,9 @@ $result_series = mysqli_query($koneksi, $query_series);
             } else {
                 btnHapus.classList.remove('scale-100', 'opacity-100');
                 btnHapus.classList.add('scale-95', 'opacity-0');
-                setTimeout(() => { btnHapus.classList.add('hidden'); }, 300);
+                setTimeout(() => {
+                    btnHapus.classList.add('hidden');
+                }, 300);
                 document.getElementById('master_check_masalah').checked = false;
             }
         }
@@ -613,7 +613,10 @@ $result_series = mysqli_query($koneksi, $query_series);
             document.getElementById('text_masalah_total').innerText = total;
             document.getElementById('modal_hapus_masalah_massal').className = "fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4";
         }
-        function tutupModalHapusMasalahMassal() { document.getElementById('modal_hapus_masalah_massal').className = "hidden"; }
+
+        function tutupModalHapusMasalahMassal() {
+            document.getElementById('modal_hapus_masalah_massal').className = "hidden";
+        }
 
         document.getElementById('modal_hapus_masalah_massal').innerHTML = `<div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-gray-100 space-y-4 text-center"><div class="w-12 h-12 bg-red-50 text-red-500 rounded-full flex items-center justify-center text-xl mx-auto border border-red-100"><i class="fas fa-exclamation-triangle"></i></div><div class="space-y-1"><h3 class="text-sm font-black uppercase text-slate-900 tracking-wide">Hapus Masalah Terpilih</h3><p class="text-xs font-semibold text-slate-400 leading-relaxed">Apakah Anda yakin menghapus permanen (<span id="text_masalah_total" class="text-red-500 font-bold">0</span> opsi) dari database?</p></div><div class="pt-2 flex gap-2"><button type="button" onclick="tutupModalHapusMasalahMassal()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-2.5 rounded-xl transition uppercase text-[10px]">Batal</button><button type="submit" form="form_masalah_massal" name="eksekusi_hapus_masalah_massal" class="flex-1 bg-red-500 hover:bg-red-600 text-white font-black py-2.5 rounded-xl transition uppercase text-[10px]">Ya, Hapus</button></div></div>`;
 
@@ -648,7 +651,9 @@ $result_series = mysqli_query($koneksi, $query_series);
         function hitungBrandTerpilih() {
             const checkboxes = document.querySelectorAll('.check_brand_child');
             let totalTerpilih = 0;
-            checkboxes.forEach(cb => { if (cb.checked) totalTerpilih++; });
+            checkboxes.forEach(cb => {
+                if (cb.checked) totalTerpilih++;
+            });
             const btnHapus = document.getElementById('btn_hapus_brand_massal');
             document.getElementById('count_brand_terpilih').innerText = totalTerpilih;
             if (totalTerpilih > 0) {
@@ -660,7 +665,9 @@ $result_series = mysqli_query($koneksi, $query_series);
             } else {
                 btnHapus.classList.remove('scale-100', 'opacity-100');
                 btnHapus.classList.add('scale-95', 'opacity-0');
-                setTimeout(() => { btnHapus.classList.add('hidden'); }, 300);
+                setTimeout(() => {
+                    btnHapus.classList.add('hidden');
+                }, 300);
                 document.getElementById('master_check_brand').checked = false;
             }
         }
@@ -670,7 +677,10 @@ $result_series = mysqli_query($koneksi, $query_series);
             document.getElementById('text_brand_total').innerText = total;
             document.getElementById('modal_hapus_brand_massal').className = "fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4";
         }
-        function tutupModalHapusBrand() { document.getElementById('modal_hapus_brand_massal').className = "hidden"; }
+
+        function tutupModalHapusBrand() {
+            document.getElementById('modal_hapus_brand_massal').className = "hidden";
+        }
 
         function toggleSemuaSeries(master) {
             const checkboxes = document.querySelectorAll('.row-series-item:not(.hidden) .check_series_child');
@@ -683,7 +693,9 @@ $result_series = mysqli_query($koneksi, $query_series);
         function hitungSeriesTerpilih() {
             const checkboxes = document.querySelectorAll('.check_series_child');
             let totalTerpilih = 0;
-            checkboxes.forEach(cb => { if (cb.checked) totalTerpilih++; });
+            checkboxes.forEach(cb => {
+                if (cb.checked) totalTerpilih++;
+            });
             const btnHapus = document.getElementById('btn_hapus_series_massal');
             document.getElementById('count_series_terpilih').innerText = totalTerpilih;
             if (totalTerpilih > 0) {
@@ -696,7 +708,9 @@ $result_series = mysqli_query($koneksi, $query_series);
             } else {
                 btnHapus.classList.remove('scale-100', 'opacity-100');
                 btnHapus.classList.add('scale-95', 'opacity-0');
-                setTimeout(() => { btnHapus.classList.add('hidden'); }, 300);
+                setTimeout(() => {
+                    btnHapus.classList.add('hidden');
+                }, 300);
                 document.getElementById('master_check_series').checked = false;
             }
         }
@@ -706,7 +720,10 @@ $result_series = mysqli_query($koneksi, $query_series);
             document.getElementById('text_series_total').innerText = total;
             document.getElementById('modal_hapus_series_massal').className = "fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4";
         }
-        function tutupModalHapusSeries() { document.getElementById('modal_hapus_series_massal').className = "hidden"; }
+
+        function tutupModalHapusSeries() {
+            document.getElementById('modal_hapus_series_massal').className = "hidden";
+        }
 
         document.getElementById('modal_hapus_series_massal').innerHTML = `<div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-gray-100 space-y-4 text-center"><div class="w-12 h-12 bg-red-50 text-red-500 rounded-full flex items-center justify-center text-xl mx-auto border border-red-100"><i class="fas fa-exclamation-triangle"></i></div><div class="space-y-1"><h3 class="text-sm font-black uppercase text-slate-900 tracking-wide">Hapus Varian Tipe Terpilih</h3><p class="text-xs font-semibold text-slate-400 leading-relaxed">Apakah Anda yakin menghapus permanen (<span id="text_series_total" class="text-red-500 font-bold">0</span> tipe) varian laptop yang dicentang?</p></div><div class="pt-2 flex gap-2"><button type="button" onclick="tutupModalHapusSeries()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-2.5 rounded-xl transition uppercase text-[10px]">Batal</button><button type="submit" form="form_series_massal" name="eksekusi_hapus_series_massal" class="flex-1 bg-red-500 hover:bg-red-600 text-white font-black py-2.5 rounded-xl transition uppercase text-[10px]">Ya, Hapus</button></div></div>`;
 
@@ -720,24 +737,28 @@ $result_series = mysqli_query($koneksi, $query_series);
 
             if (mode === 'tambah') {
                 judul.innerHTML = '<i class="fas fa-plus-circle text-slate-800 mr-1"></i> Tambah Brand Baru';
-                btn.name = 'tambah_brand'; btn.innerText = 'Simpan Brand';
+                btn.name = 'tambah_brand';
+                btn.innerText = 'Simpan Brand';
                 labelFoto.innerText = "File Gambar Logo Brand (Wajib)";
                 fileInput.setAttribute('required', 'required');
                 btn.className = "bg-black hover:bg-slate-900 text-white font-bold px-4 py-2 rounded-xl transition uppercase tracking-wider text-[10px]";
             } else {
                 judul.innerHTML = '<i class="fas fa-edit text-blue-500 mr-1"></i> Edit Data Brand';
-                btn.name = 'edit_brand'; btn.innerText = 'Perbarui Brand';
+                btn.name = 'edit_brand';
+                btn.innerText = 'Perbarui Brand';
                 labelFoto.innerText = "Ganti Logo Brand (Kosongkan jika tidak diubah)";
                 fileInput.removeAttribute('required');
                 btn.className = "bg-blue-500 hover:bg-blue-600 text-white font-bold px-4 py-2 rounded-xl transition uppercase tracking-wider text-[10px]";
             }
             const m = document.getElementById('modal_brand');
-            m.classList.remove('hidden'); m.classList.add('flex');
+            m.classList.remove('hidden');
+            m.classList.add('flex');
         }
 
         function tutupModalBrand() {
             const m = document.getElementById('modal_brand');
-            m.classList.remove('flex'); m.classList.add('hidden');
+            m.classList.remove('flex');
+            m.classList.add('hidden');
         }
 
         function bukaModalSeries(mode, id = '', nama = '', id_brand = '') {
@@ -752,24 +773,28 @@ $result_series = mysqli_query($koneksi, $query_series);
 
             if (mode === 'tambah') {
                 judul.innerHTML = '<i class="fas fa-plus-circle text-yellow-500 mr-1"></i> Tambah Series Baru';
-                btn.name = 'tambah_series'; btn.innerText = 'Simpan Series';
+                btn.name = 'tambah_series';
+                btn.innerText = 'Simpan Series';
                 labelFoto.innerText = "Foto Fisik Unit Laptop (Wajib)";
                 fileInput.setAttribute('required', 'required');
                 btn.className = "bg-[#facc15] hover:bg-[#eab308] text-slate-955 font-black px-4 py-2 rounded-xl transition uppercase tracking-wider text-[10px]";
             } else {
                 judul.innerHTML = '<i class="fas fa-edit text-blue-500 mr-1"></i> Edit Konfigurasi Series';
-                btn.name = 'edit_series'; btn.innerText = 'Perbarui Series';
+                btn.name = 'edit_series';
+                btn.innerText = 'Perbarui Series';
                 labelFoto.innerText = "Ganti Foto Unit Laptop (Kosongkan jika tidak diubah)";
                 fileInput.removeAttribute('required');
                 btn.className = "bg-blue-500 hover:bg-blue-600 text-white font-bold px-4 py-2 rounded-xl transition uppercase tracking-wider text-[10px]";
             }
             const m = document.getElementById('modal_series');
-            m.classList.remove('hidden'); m.classList.add('flex');
+            m.classList.remove('hidden');
+            m.classList.add('flex');
         }
 
         function tutupModalSeries() {
             const m = document.getElementById('modal_series');
-            m.classList.remove('flex'); m.classList.add('hidden');
+            m.classList.remove('flex');
+            m.classList.add('hidden');
         }
     </script>
 </body>

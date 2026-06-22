@@ -3,7 +3,7 @@ require_once 'config.php';
 require_once 'koneksi.php';
 proteksi_halaman();
 
-// LOGIKA ENGINE: Proses Hapus Massal Database Customer via Form Post Checkbox
+
 if (isset($_POST['eksekusi_hapus_customer_massal'])) {
     if (!empty($_POST['customers_id_hapus'])) {
         $ids = array_map('intval', $_POST['customers_id_hapus']);
@@ -15,21 +15,21 @@ if (isset($_POST['eksekusi_hapus_customer_massal'])) {
     exit;
 }
 
-// Catch parameter filter pencarian dan parameter sorting loyalitas
+
 $search = isset($_GET['search']) ? mysqli_real_escape_string($koneksi, trim($_GET['search'])) : '';
 $sort_loyal = isset($_GET['sort_loyal']) ? trim($_GET['sort_loyal']) : 'tidak';
 
-// Query Utama: Menghitung jumlah transaksi secara real-time dari tabel reservations berdasarkan id_customer
+
 $query_str = "SELECT c.*, 
               (SELECT COUNT(*) FROM reservations r WHERE r.id_customer = c.id_customer) as total_transaksi 
               FROM customers c WHERE 1=1";
 
-// Kondisi Filter Input Pencarian (Mencari berdasarkan nama, hp, email, atau alamat)
+
 if (!empty($search)) {
     $query_str .= " AND (c.nama_customer LIKE '%$search%' OR c.no_hp LIKE '%$search%' OR c.email LIKE '%$search%' OR c.alamat LIKE '%$search%')";
 }
 
-// Kondisi Sorting Berdasarkan Jumlah Transaksi Terbanyak (Loyalitas Customer)
+
 if ($sort_loyal == 'ya') {
     $query_str .= " ORDER BY total_transaksi DESC, c.nama_customer ASC";
 } else {
@@ -40,6 +40,7 @@ $result = mysqli_query($koneksi, $query_str);
 ?>
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -48,25 +49,29 @@ $result = mysqli_query($koneksi, $query_str);
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700;800;900&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
     </style>
 </head>
+
 <body class="bg-[#f8fafc] text-slate-800 antialiased flex min-h-screen">
 
     <?php include 'sidebar.php'; ?>
 
     <main class="flex-1 p-8 overflow-y-auto">
         <div class="max-w-full mx-auto space-y-6">
-            
+
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 min-h-[56px]">
                 <div>
                     <h1 class="text-2xl font-black tracking-tight text-slate-900">Manajemen Database Pelanggan</h1>
                     <p class="text-xs text-slate-400 font-medium">Kelola berkas identitas konsumen internal & riwayat kontak CRM yang terdaftar dalam sistem Hanbit Labs.</p>
                 </div>
-                
+
                 <div class="flex items-center gap-3 shrink-0">
-                    <button type="button" id="btn_hapus_customer_massal" onclick="bukaModalHapusMassal()" 
-                            class="hidden bg-red-500 hover:bg-red-600 text-white font-black px-6 py-2.5 rounded-xl text-xs uppercase tracking-wider transition-all duration-300 shadow-md flex items-center gap-2 transform scale-95 opacity-0">
+                    <button type="button" id="btn_hapus_customer_massal" onclick="bukaModalHapusMassal()"
+                        class="hidden bg-red-500 hover:bg-red-600 text-white font-black px-6 py-2.5 rounded-xl text-xs uppercase tracking-wider transition-all duration-300 shadow-md flex items-center gap-2 transform scale-95 opacity-0">
                         <i class="fas fa-trash-alt text-xs"></i> Hapus Terpilih (<span id="count_customer_terpilih">0</span>)
                     </button>
                 </div>
@@ -78,7 +83,7 @@ $result = mysqli_query($koneksi, $query_str);
                         🔤 Urut Abjad A-Z
                     </a>
                     <a href="manajemen_pelanggan.php?sort_loyal=ya&search=<?= urlencode($search); ?>" class="px-4 py-2 rounded-xl border transition <?= $sort_loyal == 'ya' ? 'bg-amber-500 text-slate-950 border-amber-500 shadow-sm' : 'bg-slate-50 border-gray-200 text-slate-500 hover:bg-slate-100' ?>">
-                        🏆 Transaksi Terbanyak 
+                        🏆 Transaksi Terbanyak
                     </a>
                 </div>
 
@@ -92,7 +97,7 @@ $result = mysqli_query($koneksi, $query_str);
             </div>
 
             <form id="form_customer_massal" action="manajemen_pelanggan.php" method="POST">
-                
+
                 <div class="bg-white border border-gray-200/80 rounded-2xl shadow-sm overflow-hidden">
                     <div class="p-4 border-b border-gray-100 bg-slate-50/50 flex justify-between items-center">
                         <h3 class="text-xs font-extrabold uppercase text-slate-900 tracking-wider">Daftar Konsumen Terdaftar</h3>
@@ -100,7 +105,7 @@ $result = mysqli_query($koneksi, $query_str);
                             Total Record: <?= mysqli_num_rows($result); ?> Orang
                         </span>
                     </div>
-                    
+
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse text-xs">
                             <thead>
@@ -118,7 +123,7 @@ $result = mysqli_query($koneksi, $query_str);
                             </thead>
                             <tbody class="divide-y divide-gray-100 font-medium text-slate-700">
                                 <?php if (mysqli_num_rows($result) > 0): ?>
-                                    <?php while($row = mysqli_fetch_assoc($result)): ?>
+                                    <?php while ($row = mysqli_fetch_assoc($result)): ?>
                                         <tr class="hover:bg-slate-50/60 transition">
                                             <td class="p-4 text-center">
                                                 <input type="checkbox" name="customers_id_hapus[]" value="<?= $row['id_customer']; ?>" onchange="hitungCustomerTerpilih()" class="check_customer_child w-4 h-4 rounded text-blue-600 border-gray-300 focus:ring-blue-500 cursor-pointer">
@@ -128,10 +133,12 @@ $result = mysqli_query($koneksi, $query_str);
                                                 <?= htmlspecialchars($row['nama_customer']); ?>
                                             </td>
                                             <td class="p-4">
-                                                <?php 
-                                                    $raw_phone = $row['no_hp'];
-                                                    $clean_phone = preg_replace('/[^0-9]/', '', $raw_phone);
-                                                    if (strpos($clean_phone, '0') === 0) { $clean_phone = '62' . substr($clean_phone, 1); }
+                                                <?php
+                                                $raw_phone = $row['no_hp'];
+                                                $clean_phone = preg_replace('/[^0-9]/', '', $raw_phone);
+                                                if (strpos($clean_phone, '0') === 0) {
+                                                    $clean_phone = '62' . substr($clean_phone, 1);
+                                                }
                                                 ?>
                                                 <a href="https://api.whatsapp.com/send?phone=<?= $clean_phone; ?>" target="_blank" class="inline-flex items-center gap-1 text-emerald-600 hover:text-emerald-700 font-bold bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-100/40 text-[11px] transition shadow-xs">
                                                     <i class="fab fa-whatsapp text-sm"></i> <?= htmlspecialchars($row['no_hp']); ?>
@@ -144,7 +151,7 @@ $result = mysqli_query($koneksi, $query_str);
                                                 <?= !empty($row['alamat']) ? htmlspecialchars($row['alamat']) : '<span class="text-slate-300 italic text-[10px] normal-case">Belum mengisi alamat</span>'; ?>
                                             </td>
                                             <td class="p-4 text-center">
-                                                <?php 
+                                                <?php
                                                 $total_tx = intval($row['total_transaksi']);
                                                 if ($total_tx >= 3) {
                                                     $badge_class = "bg-amber-100 text-amber-800 border-amber-200";
@@ -195,35 +202,48 @@ $result = mysqli_query($koneksi, $query_str);
             checkboxes.forEach(cb => cb.checked = master.checked);
             hitungCustomerTerpilih();
         }
+
         function hitungCustomerTerpilih() {
             const checkboxes = document.querySelectorAll('.check_customer_child');
             let totalTerpilih = 0;
-            checkboxes.forEach(cb => { if(cb.checked) totalTerpilih++; });
+            checkboxes.forEach(cb => {
+                if (cb.checked) totalTerpilih++;
+            });
             const btnHapus = document.getElementById('btn_hapus_customer_massal');
             document.getElementById('count_customer_terpilih').innerText = totalTerpilih;
-            if(totalTerpilih > 0) {
+            if (totalTerpilih > 0) {
                 btnHapus.classList.remove('hidden');
-                setTimeout(() => { btnHapus.classList.remove('scale-95', 'opacity-0'); btnHapus.classList.add('scale-100', 'opacity-100'); }, 10);
+                setTimeout(() => {
+                    btnHapus.classList.remove('scale-95', 'opacity-0');
+                    btnHapus.classList.add('scale-100', 'opacity-100');
+                }, 10);
             } else {
-                btnHapus.classList.remove('scale-100', 'opacity-100'); btnHapus.classList.add('scale-95', 'opacity-0');
-                setTimeout(() => { btnHapus.classList.add('hidden'); }, 300);
+                btnHapus.classList.remove('scale-100', 'opacity-100');
+                btnHapus.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => {
+                    btnHapus.classList.add('hidden');
+                }, 300);
                 document.getElementById('check_all_customer').checked = false;
             }
         }
+
         function bukaModalHapusMassal() {
             const total = document.getElementById('count_customer_terpilih').innerText;
             document.getElementById('text_customer_total').innerText = total;
             document.getElementById('modal_hapus_massal_customer').classList.remove('hidden');
             document.getElementById('modal_hapus_massal_customer').classList.add('flex');
         }
+
         function tutupModalHapusMassal() {
             document.getElementById('modal_hapus_massal_customer').classList.remove('flex');
             document.getElementById('modal_hapus_massal_customer').classList.add('hidden');
         }
+
         function jalankanCari() {
             const s = document.getElementById('search_input').value;
             window.location.href = `manajemen_pelanggan.php?sort_loyal=<?= $sort_loyal; ?>&search=${encodeURIComponent(s)}`;
         }
     </script>
 </body>
+
 </html>

@@ -1,8 +1,8 @@
 <?php
-// Mendapatkan nama file aktif untuk memberikan status class 'active' otomatis
+
 $current_page = basename($_SERVER['PHP_SELF']);
 
-// 🌟 LOGIKA INTEGRASI: Cek apakah halaman aktif adalah menu induk Semua Pesanan ATAU halaman detail update pesanan
+
 $is_pesanan_aktif = ($current_page == 'semua_pesanan.php' || $current_page == 'detail_update_pesanan.php');
 ?>
 <style>

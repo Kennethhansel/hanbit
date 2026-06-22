@@ -38,6 +38,7 @@ $ambil_paket = mysqli_query($koneksi, "SELECT * FROM master_packages ORDER BY id
 ?>
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -46,16 +47,20 @@ $ambil_paket = mysqli_query($koneksi, "SELECT * FROM master_packages ORDER BY id
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700;800;900&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
     </style>
 </head>
+
 <body class="bg-[#f8fafc] text-slate-800 antialiased flex min-h-screen">
 
     <?php include 'sidebar.php'; ?>
 
     <main class="flex-1 p-8 overflow-y-auto">
         <div class="max-w-full mx-auto px-2 space-y-6">
-            
+
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 min-h-[56px]">
                 <div>
                     <h1 class="text-2xl font-black tracking-tight text-slate-900">Kelola Paket Perawatan</h1>
@@ -70,7 +75,7 @@ $ambil_paket = mysqli_query($koneksi, "SELECT * FROM master_packages ORDER BY id
             <?php endif; ?>
 
             <div class="grid grid-cols-1 gap-6">
-                <?php while($pkg = mysqli_fetch_assoc($ambil_paket)): ?>
+                <?php while ($pkg = mysqli_fetch_assoc($ambil_paket)): ?>
                     <div class="bg-white border border-gray-200/80 p-6 rounded-2xl shadow-sm space-y-4">
                         <div class="flex items-center justify-between border-b border-gray-100 pb-3">
                             <h3 class="text-xs font-extrabold uppercase text-slate-900 tracking-wider flex items-center gap-2">
@@ -123,4 +128,5 @@ $ambil_paket = mysqli_query($koneksi, "SELECT * FROM master_packages ORDER BY id
     </main>
 
 </body>
+
 </html>

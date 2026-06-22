@@ -2,7 +2,7 @@
 require_once 'koneksi.php';
 require_once 'config.php';
 
-// Jika admin sudah login, langsung lempar ke dashboard
+
 if (isset($_SESSION['login_admin'])) {
     header("Location: dashboard.php");
     exit;
@@ -20,7 +20,7 @@ if (isset($_POST['login'])) {
     if (mysqli_num_rows($result) === 1) {
         $row = mysqli_fetch_assoc($result);
 
-        // Menggunakan pencocokan teks biasa (Plain Text) agar anti-gagal di database saat ini
+
         if ($password === $row['password']) {
             $_SESSION['login_admin'] = true;
             $_SESSION['id_user']     = $row['ID_User'];

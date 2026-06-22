@@ -3,11 +3,8 @@ require_once 'config.php';
 require_once 'koneksi.php';
 proteksi_halaman();
 
-// ==========================================
-// 🌟 NEW FEATURE: LOGIKA UTAMA MANAJEMEN KATEGORI (CRUD KATEGORI)
-// ==========================================
 
-// 1. TAMBAH KATEGORI
+
 if (isset($_POST['tambah_kategori_baru'])) {
     $nama_kat = mysqli_real_escape_string($koneksi, trim($_POST['nama_kategori_baru']));
     $slug_kat = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $nama_kat));
@@ -20,36 +17,34 @@ if (isset($_POST['tambah_kategori_baru'])) {
     }
 }
 
-// =========================================================================
-// 🌟 REVISI PROSES 2: LOGIKA EDIT KATEGORI DAN GENERATE SLUG YANG BENAR
-// =========================================================================
+
 if (isset($_POST['update_kategori_master'])) {
     $id_kat_edit   = intval($_POST['id_kategori_master']);
     $nama_kat_baru = mysqli_real_escape_string($koneksi, trim($_POST['nama_kategori_edit']));
 
-    // PERBAIKAN UTAMA: Penyeragaman regex pembersih slug kategori agar sinkron dengan database
+
     $slug_kat_baru = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $nama_kat_baru));
 
     if (!empty($nama_kat_baru)) {
-        // Ambil slug lama sebelum diupdate untuk kebutuhan sinkronisasi data relasi
+
         $q_slug_lama = mysqli_query($koneksi, "SELECT slug_kategori FROM tb_kategori_porto WHERE id_kategori = $id_kat_edit");
         $d_slug_lama = mysqli_fetch_assoc($q_slug_lama);
 
         if ($d_slug_lama) {
             $slug_lama = $d_slug_lama['slug_kategori'];
 
-            // Proteksi Pencegahan Duplikasi: Cek apakah slug baru sudah dipakai oleh ID lain
+
             $cek_duplikat = mysqli_query($koneksi, "SELECT id_kategori FROM tb_kategori_porto WHERE slug_kategori = '$slug_kat_baru' AND id_kategori != $id_kat_edit LIMIT 1");
 
             if (mysqli_num_rows($cek_duplikat) > 0) {
-                // Jika slug ternyata kembar dengan data lain, bypass paksa dengan menambahkan suffix ID unik
+
                 $slug_kat_baru = $slug_kat_baru . $id_kat_edit;
             }
 
-            // Update nama dan slug kategori pada tabel master
+
             mysqli_query($koneksi, "UPDATE tb_kategori_porto SET nama_kategori = '$nama_kat_baru', slug_kategori = '$slug_kat_baru' WHERE id_kategori = $id_kat_edit");
 
-            // SINKRONISASI RELASI: Update seluruh portofolio yang pakai kategori lama agar beralih ke slug baru
+
             mysqli_query($koneksi, "UPDATE tb_portofolio SET kategori = '$slug_kat_baru' WHERE kategori = '$slug_lama'");
         }
         header("Location: portofolio_produk.php?status=diperbarui_kat");
@@ -57,19 +52,19 @@ if (isset($_POST['update_kategori_master'])) {
     }
 }
 
-// 3. HAPUS KATEGORI INDIVIDU
+
 if (isset($_GET['hapus_kategori_id'])) {
     $id_kat_hapus = intval($_GET['hapus_kategori_id']);
 
-    // Ambil slug yang mau dihapus
+
     $q_slug_hapus = mysqli_query($koneksi, "SELECT slug_kategori FROM tb_kategori_porto WHERE id_kategori = $id_kat_hapus");
     $d_slug_hapus = mysqli_fetch_assoc($q_slug_hapus);
 
     if ($d_slug_hapus) {
         $slug_hapus = $d_slug_hapus['slug_kategori'];
-        // Hapus kategorinya
+
         mysqli_query($koneksi, "DELETE FROM tb_kategori_porto WHERE id_kategori = $id_kat_hapus");
-        // SINKRONISASI KEAMANAN: Set portofolio yang kategorinya dihapus menjadi 'uncategorized' agar web tidak crash
+
         mysqli_query($koneksi, "UPDATE tb_portofolio SET kategori='uncategorized' WHERE kategori='$slug_hapus'");
     }
     header("Location: portofolio_produk.php?status=terhapus_kat");
@@ -77,9 +72,7 @@ if (isset($_GET['hapus_kategori_id'])) {
 }
 
 
-// ==========================================
-// A. LOGIKA PROSES TAMBAH PORTOFOLIO (CREATE)
-// ==========================================
+
 if (isset($_POST['tambah_porto'])) {
     $judul       = mysqli_real_escape_string($koneksi, trim($_POST['judul']));
     $kategori    = mysqli_real_escape_string($koneksi, $_POST['kategori']);
@@ -107,9 +100,7 @@ if (isset($_POST['tambah_porto'])) {
     exit;
 }
 
-// ==========================================
-// B. LOGIKA PROSES EDIT PORTOFOLIO (UPDATE)
-// ==========================================
+
 if (isset($_POST['edit_porto'])) {
     $id_porto    = intval($_POST['id_porto']);
     $judul       = mysqli_real_escape_string($koneksi, trim($_POST['judul']));
@@ -155,9 +146,7 @@ if (isset($_POST['edit_porto'])) {
     exit;
 }
 
-// ==========================================
-// C. LOGIKA ENGINE HAPUS MASSAL (BULK DELETE)
-// ==========================================
+
 if (isset($_POST['eksekusi_hapus_porto_massal'])) {
     if (!empty($_POST['porto_id_hapus'])) {
         foreach ($_POST['porto_id_hapus'] as $id_porto_hapus) {
@@ -546,7 +535,7 @@ $ambil_porto = mysqli_query($koneksi, "SELECT * FROM tb_portofolio ORDER BY id_p
             });
         });
 
-        // Handler Pop-up Manajemen Kategori Dinamis
+
         function bukaModalEditKategori(id, nama) {
             document.getElementById('edit_id_kategori_master').value = id;
             document.getElementById('edit_nama_kategori_master').value = nama;

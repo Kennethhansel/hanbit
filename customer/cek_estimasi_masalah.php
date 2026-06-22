@@ -1,5 +1,5 @@
 <?php
-// 1. BUAT KONEKSI KE DATABASE
+
 $host = "localhost";
 $user = "root";
 $pass = "";
@@ -10,7 +10,7 @@ if (!$koneksi) {
     die("Koneksi database Hanbit gagal: " . mysqli_connect_error());
 }
 
-// 2. TANGKAP PARAMETER DARI HALAMAN SEBELUMNYA
+
 $brand_id = isset($_GET['brand_id']) ? mysqli_real_escape_string($koneksi, $_GET['brand_id']) : '1';
 $series_id = isset($_GET['series_id']) ? mysqli_real_escape_string($koneksi, $_GET['series_id']) : '';
 
@@ -138,7 +138,7 @@ $halaman_aktif = basename($_SERVER['SCRIPT_NAME']);
 
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5 justify-center">
                 <?php while ($m = mysqli_fetch_assoc($res_masalah)):
-                    // Mengatur icon agar tetap muncul berwarna sesuai ID masalah lama (1-7)
+            
                     $icon_aktif = isset($icon_pilihan[$m['id_masalah']]) ? $icon_pilihan[$m['id_masalah']] : 'fa-tools text-amber-500';
                 ?>
                     <div type="button" data-id="<?= $m['id_masalah']; ?>" onclick="toggleMasalah(this, '<?= $m['id_masalah']; ?>')"

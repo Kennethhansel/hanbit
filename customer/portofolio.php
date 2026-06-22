@@ -1,5 +1,5 @@
 <?php
-// 1. BUAT KONEKSI DATABASE
+
 $host = "localhost";
 $user = "root";
 $pass = "";
@@ -10,7 +10,7 @@ if (!$koneksi) {
     die("Koneksi database Hanbit gagal: " . mysqli_connect_error());
 }
 
-// 2. AMBIL DATA DINAMIS DARI DATABASE (Menggantikan Array Manual)
+
 $portofolio_list = [];
 $query = "SELECT id_porto AS id, kategori, tipe_media, judul, deskripsi, sumber_media FROM tb_portofolio ORDER BY id_porto DESC";
 $result = mysqli_query($koneksi, $query);

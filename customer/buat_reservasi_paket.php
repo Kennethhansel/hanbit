@@ -1,30 +1,38 @@
 <?php
-// =========================================================================
-// SISI BACKEND: AMBIL DATA DARI TABEL MASTER_PACKAGES SECARA DINAMIS
-// =========================================================================
+
 require_once '../admin/koneksi.php';
 
-// 🔥 TAMBAHAN LOGIKA: Ambil status toko dari database untuk mencegah input order saat libur/tutup
+
 $query_status = mysqli_query($koneksi, "SELECT status_toko FROM admin_accounts LIMIT 1");
 $status_toko = mysqli_fetch_assoc($query_status);
 $is_tutup = (isset($status_toko['status_toko']) && $status_toko['status_toko'] == 'tutup');
 
 $paket_pilihan = isset($_GET['paket']) ? trim(htmlspecialchars($_GET['paket'])) : 'basic';
 
-// Tarik data konfigurasi paket dari database riil
+
 $query_pkg = mysqli_query($koneksi, "SELECT * FROM master_packages WHERE kode_paket = '" . mysqli_real_escape_string($koneksi, $paket_pilihan) . "' LIMIT 1");
 $data_pkg = mysqli_fetch_assoc($query_pkg);
 
-// Jika di database belum di-insert datanya oleh admin, gunakan fallback aman agar halaman tidak crash saat demo
+
 if (!$data_pkg) {
     if ($paket_pilihan == 'standard') {
-        $nama_paket_id = "Paket Standard (Repaste & Maintenance)"; $harga_kantoran = 150000; $harga_gaming = 200000; $garansi = "Garansi 14 Hari";
+        $nama_paket_id = "Paket Standard (Repaste & Maintenance)";
+        $harga_kantoran = 150000;
+        $harga_gaming = 200000;
+        $garansi = "Garansi 14 Hari";
         $benefits_raw = "Pembersihan menyeluruh debu & kotoran pada komponen internal\nPembersihan sasis luar, sela-sela keyboard, dan layar laptop\nPenggantian Thermal Paste Premium untuk menurunkan suhu panas\nPembersihan mendalam pada bilah kipas (fan) & jalur heatsink\nPengecekan kesehatan hardware dasar & stabilitas software";
     } elseif ($paket_pilihan == 'premium') {
-        $nama_paket_id = "Paket Premium (Full Optimization)"; $harga_kantoran = 250000; $harga_gaming = 250000; $garansi = "Garansi 30 Hari";
+        $nama_paket_id = "Paket Premium (Full Optimization)";
+        $harga_kantoran = 250000;
+        $harga_gaming = 250000;
+        $garansi = "Garansi 30 Hari";
         $benefits_raw = "Semua layanan pembersihan mendalam pada Paket Standard\nPenggantian Thermal Paste performa tinggi (High-Performance)\nOptimasi penuh kecepatan sistem operasi (OS) agar anti-lemot\nPembaruan (Update) driver hardware dan aplikasi esensial\nLayanan Install Ulang OS Windows secara bersih (Optional)";
     } else {
-        $paket_pilihan = 'basic'; $nama_paket_id = "Paket Basic (Cleaning & Pembersihan)"; $harga_kantoran = 75000; $harga_gaming = 100000; $garansi = "Garansi 7 Hari";
+        $paket_pilihan = 'basic';
+        $nama_paket_id = "Paket Basic (Cleaning & Pembersihan)";
+        $harga_kantoran = 75000;
+        $harga_gaming = 100000;
+        $garansi = "Garansi 7 Hari";
         $benefits_raw = "Pembersihan debu & kotoran sasis bagian internal laptop\nPembersihan eksternal pada sela-sela tombol keyboard\nPembersihan bercak noda dan debu pada permukaan layar\nPelumasan poros kipas laptop agar putaran kembali senyap";
     }
     $benefits_detail = explode("\n", $benefits_raw);
@@ -39,6 +47,7 @@ $halaman_aktif = basename($_SERVER['SCRIPT_NAME']);
 ?>
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -47,9 +56,13 @@ $halaman_aktif = basename($_SERVER['SCRIPT_NAME']);
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
     </style>
 </head>
+
 <body class="bg-[#f8fafc] text-slate-900 antialiased min-h-screen flex flex-col justify-between">
 
     <nav class="bg-white border-b border-gray-100 sticky top-0 z-50 shadow-sm px-6">
@@ -120,8 +133,8 @@ $halaman_aktif = basename($_SERVER['SCRIPT_NAME']);
                     </div>
                     <div class="space-y-3.5">
                         <ul class="space-y-3 text-xs text-slate-600 font-medium">
-                            <?php foreach($benefits_detail as $benefit): ?>
-                                <?php if(empty(trim($benefit))) continue; ?>
+                            <?php foreach ($benefits_detail as $benefit): ?>
+                                <?php if (empty(trim($benefit))) continue; ?>
                                 <li class="flex items-start gap-3 leading-tight">
                                     <i class="fas fa-check-circle text-emerald-500 mt-0.5 shrink-0 text-sm"></i>
                                     <span><?= htmlspecialchars($benefit); ?></span>
@@ -179,7 +192,7 @@ $halaman_aktif = basename($_SERVER['SCRIPT_NAME']);
                     <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">TANGGAL MENYERAHKAN UNIT</label>
                     <input type="date" name="tanggal_booking" id="tanggal_booking" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200/60 rounded-xl text-sm focus:outline-none text-slate-600 font-medium">
                 </div>
-                
+
                 <div class="flex gap-3 pt-2">
                     <button type="submit" <?= $is_tutup ? 'disabled' : ''; ?>
                         class="w-full text-slate-900 font-black text-xs uppercase py-3.5 rounded-xl tracking-wider transition shadow-sm flex items-center justify-center gap-2 <?= $is_tutup ? 'bg-gray-300 text-slate-400 cursor-not-allowed shadow-none' : 'bg-[#ffd54f] hover:bg-[#ffca28]'; ?>">
@@ -200,6 +213,7 @@ $halaman_aktif = basename($_SERVER['SCRIPT_NAME']);
         document.addEventListener("DOMContentLoaded", function() {
             document.getElementById('tanggal_booking').setAttribute('min', new Date().toISOString().split('T')[0]);
         });
+
         function pilihSegmen(tipe, harga) {
             document.getElementById('input_segmen_laptop').value = tipe;
             document.getElementById('input_harga_final').value = harga;
@@ -216,4 +230,5 @@ $halaman_aktif = basename($_SERVER['SCRIPT_NAME']);
         }
     </script>
 </body>
+
 </html>

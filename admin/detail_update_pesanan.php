@@ -10,10 +10,8 @@ if (empty($invoice_id)) {
     exit;
 }
 
-// -------------------------------------------------------------------------
-// FUNGSI UTILITAS: Hitung Ulang Total Harga & Sinkronisasi ke Tabel Utama
-// -------------------------------------------------------------------------
-function sinkronkanTotalHargaReservasi($koneksi, $invoice) {
+function sinkronkanTotalHargaReservasi($koneksi, $invoice)
+{
     $q_hitung = mysqli_query($koneksi, "SELECT SUM(harga_item) as total_riil FROM invoice_details WHERE no_invoice = '$invoice'");
     $res_hitung = mysqli_fetch_assoc($q_hitung);
     $total_baru = $res_hitung['total_riil'] ?? 0;
@@ -21,19 +19,17 @@ function sinkronkanTotalHargaReservasi($koneksi, $invoice) {
     mysqli_query($koneksi, "UPDATE reservations SET total_harga = '$total_baru' WHERE no_invoice = '$invoice'");
 }
 
-// -------------------------------------------------------------------------
-// PROSES A: LOGIKA UPDATE STATUS (BERSIH TANPA LOG AKTIVITAS)
-// -------------------------------------------------------------------------
+
 if (isset($_POST['update_antrean'])) {
     $status_baru = mysqli_real_escape_string($koneksi, $_POST['status_order']);
     $catatan     = mysqli_real_escape_string($koneksi, $_POST['catatan_teknisi'] ?? '');
-    $estimasi    = mysqli_real_escape_string($koneksi, $_POST['estimasi_selesai'] ?? ''); // 🌟 AMBIL INPUT ESTIMASI
+    $estimasi    = mysqli_real_escape_string($koneksi, $_POST['estimasi_selesai'] ?? '');
 
     $q_tgl_lama = mysqli_query($koneksi, "SELECT tanggal_dikerjakan, tanggal_selesai FROM reservations WHERE no_invoice = '$invoice_id' LIMIT 1");
     $d_tgl_lama = mysqli_fetch_assoc($q_tgl_lama);
-    
-    $tgl_kerja   = $d_tgl_lama['tanggal_dikerjakan'] ? "'".$d_tgl_lama['tanggal_dikerjakan']."'" : "NULL";
-    $tgl_selesai = $d_tgl_lama['tanggal_selesai'] ? "'".$d_tgl_lama['tanggal_selesai']."'" : "NULL";
+
+    $tgl_kerja   = $d_tgl_lama['tanggal_dikerjakan'] ? "'" . $d_tgl_lama['tanggal_dikerjakan'] . "'" : "NULL";
+    $tgl_selesai = $d_tgl_lama['tanggal_selesai'] ? "'" . $d_tgl_lama['tanggal_selesai'] . "'" : "NULL";
 
     if (($status_baru === 'PENGECEKAN' || $status_baru === 'PERBAIKAN') && (empty($d_tgl_lama['tanggal_dikerjakan']) || $d_tgl_lama['tanggal_dikerjakan'] == '0000-00-00')) {
         $tgl_kerja = "'" . date('Y-m-d') . "'";
@@ -42,7 +38,7 @@ if (isset($_POST['update_antrean'])) {
         $tgl_selesai = "'" . date('Y-m-d') . "'";
     }
 
-    // 🌟 SUNTIKKAN kolom estimasi_selesai ke dalam Query Update
+
     $q_up = "UPDATE reservations SET 
                 status_order = '$status_baru', 
                 tanggal_dikerjakan = $tgl_kerja, 
@@ -50,7 +46,7 @@ if (isset($_POST['update_antrean'])) {
                 catatan_teknisi = '$catatan',
                 estimasi_selesai = '$estimasi' 
              WHERE no_invoice = '$invoice_id'";
-             
+
     if (mysqli_query($koneksi, $q_up)) {
         sinkronkanTotalHargaReservasi($koneksi, $invoice_id);
         header("Location: detail_update_pesanan.php?invoice=" . $invoice_id . "&notif=sukses_status");
@@ -58,9 +54,7 @@ if (isset($_POST['update_antrean'])) {
     }
 }
 
-// -------------------------------------------------------------------------
-// PROSES B: LOGIKA TAMBAH ITEM DETAIL BARU (BERSIH TANPA LOG AKTIVITAS)
-// -------------------------------------------------------------------------
+
 if (isset($_POST['tambah_komponen_kustom'])) {
     $nama_item  = mysqli_real_escape_string($koneksi, trim($_POST['nama_item']));
     $harga_item = intval($_POST['harga_item']);
@@ -76,9 +70,7 @@ if (isset($_POST['tambah_komponen_kustom'])) {
     }
 }
 
-// -------------------------------------------------------------------------
-// PROSES C: LOGIKA EDIT RINCIAN ITEM BREAKDOWN (BERSIH TANPA LOG AKTIVITAS)
-// -------------------------------------------------------------------------
+
 if (isset($_POST['proses_edit_item_invoice'])) {
     $id_detail_edit = intval($_POST['id_detail_item']);
     $nama_item_edit = mysqli_real_escape_string($koneksi, trim($_POST['nama_item_edit']));
@@ -93,12 +85,10 @@ if (isset($_POST['proses_edit_item_invoice'])) {
     }
 }
 
-// -------------------------------------------------------------------------
-// PROSES D: LOGIKA HAPUS INDIVIDU ITEM DETAIL (BERSIH TANPA LOG AKTIVITAS)
-// -------------------------------------------------------------------------
+
 if (isset($_GET['hapus_item_id'])) {
     $id_hapus = mysqli_real_escape_string($koneksi, $_GET['hapus_item_id']);
-    
+
     $q_del = "DELETE FROM invoice_details WHERE id_detail = '$id_hapus' AND no_invoice = '$invoice_id'";
     if (mysqli_query($koneksi, $q_del)) {
         sinkronkanTotalHargaReservasi($koneksi, $invoice_id);
@@ -119,6 +109,7 @@ $tanggal_booking_raw = $data['tanggal_booking'] ?? date('Y-m-d', strtotime($data
 ?>
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -127,16 +118,20 @@ $tanggal_booking_raw = $data['tanggal_booking'] ?? date('Y-m-d', strtotime($data
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700;800;900&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
     </style>
 </head>
+
 <body class="bg-[#f8fafc] text-slate-800 antialiased flex min-h-screen">
 
     <?php include 'sidebar.php'; ?>
 
     <main class="flex-1 p-8 overflow-y-auto">
         <div class="max-w-full mx-auto space-y-6">
-            
+
             <div class="flex justify-between items-center border-b border-gray-200 pb-4">
                 <div>
                     <a href="semua_pesanan.php" class="text-xs font-bold text-blue-500 hover:text-blue-600 flex items-center gap-1 mb-1">
@@ -153,16 +148,16 @@ $tanggal_booking_raw = $data['tanggal_booking'] ?? date('Y-m-d', strtotime($data
                 <div class="bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold px-4 py-3 rounded-xl flex items-center gap-2">
                     <i class="fas fa-check-circle text-emerald-500"></i>
                     <?php
-                    if($_GET['notif'] == 'sukses_status') echo "Status antrean otomatis disinkronkan!";
-                    if($_GET['notif'] == 'sukses_item') echo "Komponen/jasa kustom tambahan baru sukses dipasang ke invoice!";
-                    if($_GET['notif'] == 'sukses_update_item') echo "Perubahan data harga/deskripsi item breakdown sukses diperbarui!";
-                    if($_GET['notif'] == 'sukses_hapus') echo "Item rincian perbaikan berhasil dihapus dan total tagihan disinkronkan!";
+                    if ($_GET['notif'] == 'sukses_status') echo "Status antrean otomatis disinkronkan!";
+                    if ($_GET['notif'] == 'sukses_item') echo "Komponen/jasa kustom tambahan baru sukses dipasang ke invoice!";
+                    if ($_GET['notif'] == 'sukses_update_item') echo "Perubahan data harga/deskripsi item breakdown sukses diperbarui!";
+                    if ($_GET['notif'] == 'sukses_hapus') echo "Item rincian perbaikan berhasil dihapus dan total tagihan disinkronkan!";
                     ?>
                 </div>
             <?php endif; ?>
 
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-                
+
                 <div class="lg:col-span-7 bg-white border border-gray-200/80 rounded-2xl p-6 shadow-sm space-y-5">
                     <h2 class="text-xs font-extrabold uppercase text-slate-400 tracking-wider flex items-center gap-1.5 border-b pb-2">
                         <i class="fas fa-sliders-h"></i> Parameter Informasi Teknisi
@@ -230,7 +225,7 @@ $tanggal_booking_raw = $data['tanggal_booking'] ?? date('Y-m-d', strtotime($data
                 </div>
 
                 <div class="lg:col-span-5 space-y-6">
-                    
+
                     <div class="bg-white border border-gray-200/80 rounded-2xl p-6 shadow-sm space-y-4">
                         <h2 class="text-xs font-extrabold uppercase text-slate-400 tracking-wider flex items-center gap-1.5 border-b pb-2">
                             <i class="fas fa-plus-circle"></i> Tambah Tindakan / Sparepart Baru
@@ -238,7 +233,7 @@ $tanggal_booking_raw = $data['tanggal_booking'] ?? date('Y-m-d', strtotime($data
 
                         <form action="" method="POST" class="space-y-3 text-xs font-bold text-slate-600">
                             <input type="hidden" name="tambah_komponen_kustom" value="1">
-                            
+
                             <div class="space-y-1">
                                 <label class="text-slate-500 uppercase tracking-wide text-[10px]">Nama Tindakan / Komponen</label>
                                 <input type="text" name="nama_item" required placeholder="Contoh: Upgrade SSD NVMe 512GB" class="w-full px-3 py-2 bg-slate-50 border border-gray-200 text-slate-700 font-medium rounded-xl focus:outline-none focus:bg-white focus:border-blue-400 transition">
@@ -281,32 +276,32 @@ $tanggal_booking_raw = $data['tanggal_booking'] ?? date('Y-m-d', strtotime($data
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-50 text-slate-600 font-semibold">
-                                    <?php 
+                                    <?php
                                     $q_item = mysqli_query($koneksi, "SELECT * FROM invoice_details WHERE no_invoice = '$invoice_id' ORDER BY id_detail ASC");
                                     if (mysqli_num_rows($q_item) > 0):
                                         while ($row_item = mysqli_fetch_assoc($q_item)):
                                     ?>
-                                        <tr class="hover:bg-slate-50/60 transition">
-                                            <td class="p-3 uppercase">
-                                                <div class="text-slate-800 font-bold leading-tight"><?= htmlspecialchars($row_item['nama_item']); ?></div>
-                                                <div class="text-[9px] text-slate-400 lowercase font-medium mt-0.5 italic normal-case"><?= htmlspecialchars($row_item['deskripsi_tambahan'] ?? 'estimasi awal pilihan customer'); ?></div>
-                                            </td>
-                                            <td class="p-3 text-right text-slate-900 font-extrabold">Rp <?= number_format($row_item['harga_item'], 0, ',', '.'); ?></td>
-                                            <td class="p-3 text-center space-x-1.5 shrink-0">
-                                                <button type="button" onclick="bukaPopUpEditItem('<?= $row_item['id_detail']; ?>', '<?= htmlspecialchars($row_item['nama_item'], ENT_QUOTES); ?>', '<?= $row_item['harga_item']; ?>', '<?= htmlspecialchars($row_item['deskripsi_tambahan'] ?? '', ENT_QUOTES); ?>')" class="text-blue-500 hover:text-blue-700 transition" title="Edit Item">
-                                                    <i class="fas fa-edit text-xs"></i>
-                                                </button>
-                                                <a href="detail_update_pesanan.php?invoice=<?= $invoice_id; ?>&hapus_item_id=<?= $row_item['id_detail']; ?>" 
-                                                   onclick="return confirm('Apakah Anda yakin menghapus item tindakan ini? Total tagihan akan langsung dikalkulasi ulang otomatis.')" 
-                                                   class="text-red-500 hover:text-red-700 transition" title="Hapus Item">
-                                                    <i class="fas fa-times-circle text-xs"></i>
-                                                </a>
-                                            </td>
-                                        </tr>
-                                    <?php 
+                                            <tr class="hover:bg-slate-50/60 transition">
+                                                <td class="p-3 uppercase">
+                                                    <div class="text-slate-800 font-bold leading-tight"><?= htmlspecialchars($row_item['nama_item']); ?></div>
+                                                    <div class="text-[9px] text-slate-400 lowercase font-medium mt-0.5 italic normal-case"><?= htmlspecialchars($row_item['deskripsi_tambahan'] ?? 'estimasi awal pilihan customer'); ?></div>
+                                                </td>
+                                                <td class="p-3 text-right text-slate-900 font-extrabold">Rp <?= number_format($row_item['harga_item'], 0, ',', '.'); ?></td>
+                                                <td class="p-3 text-center space-x-1.5 shrink-0">
+                                                    <button type="button" onclick="bukaPopUpEditItem('<?= $row_item['id_detail']; ?>', '<?= htmlspecialchars($row_item['nama_item'], ENT_QUOTES); ?>', '<?= $row_item['harga_item']; ?>', '<?= htmlspecialchars($row_item['deskripsi_tambahan'] ?? '', ENT_QUOTES); ?>')" class="text-blue-500 hover:text-blue-700 transition" title="Edit Item">
+                                                        <i class="fas fa-edit text-xs"></i>
+                                                    </button>
+                                                    <a href="detail_update_pesanan.php?invoice=<?= $invoice_id; ?>&hapus_item_id=<?= $row_item['id_detail']; ?>"
+                                                        onclick="return confirm('Apakah Anda yakin menghapus item tindakan ini? Total tagihan akan langsung dikalkulasi ulang otomatis.')"
+                                                        class="text-red-500 hover:text-red-700 transition" title="Hapus Item">
+                                                        <i class="fas fa-times-circle text-xs"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        <?php
                                         endwhile;
                                     else:
-                                    ?>
+                                        ?>
                                         <tr>
                                             <td colspan="3" class="p-4 text-center text-slate-400 italic font-medium text-[10px]">
                                                 Belum ada rincian tindakan khusus. Silakan masukkan rincian di form atas.
@@ -331,7 +326,7 @@ $tanggal_booking_raw = $data['tanggal_booking'] ?? date('Y-m-d', strtotime($data
             </div>
             <form action="" method="POST" class="space-y-4 text-xs font-semibold text-slate-600">
                 <input type="hidden" name="id_detail_item" id="edit_modal_id_detail">
-                
+
                 <div class="space-y-1">
                     <label class="text-[10px] font-bold text-slate-400 uppercase block">Nama Item/Tindakan</label>
                     <input type="text" name="nama_item_edit" id="edit_modal_nama_item" required class="w-full px-3 py-2 bg-slate-50 border rounded-xl font-bold text-slate-800 focus:outline-none focus:border-blue-400">
@@ -371,16 +366,15 @@ $tanggal_booking_raw = $data['tanggal_booking'] ?? date('Y-m-d', strtotime($data
             const statusTerpilih = document.getElementById('pilihan_status_order').value;
             const boxCatatan = document.getElementById('box_catatan_teknisi');
             const boxEstimasi = document.getElementById('box_estimasi_selesai');
-            
-            const namaPelanggan  = "<?= htmlspecialchars($data['nama_pelanggan'], ENT_QUOTES); ?>";
-            const detailLaptop   = "<?= htmlspecialchars($data['laptop_detail'], ENT_QUOTES); ?>";
-            const tglBookingRaw  = "<?= $tanggal_booking_raw; ?>";
-            const tipePaket      = "<?= $data['paket_tipe']; ?>";
-            
+
+            const namaPelanggan = "<?= htmlspecialchars($data['nama_pelanggan'], ENT_QUOTES); ?>";
+            const detailLaptop = "<?= htmlspecialchars($data['laptop_detail'], ENT_QUOTES); ?>";
+            const tglBookingRaw = "<?= $tanggal_booking_raw; ?>";
+            const tipePaket = "<?= $data['paket_tipe']; ?>";
+
             const tglBookingIndo = formatTanggalIndonesia(tglBookingRaw);
             const tglHariIniIndo = dapatkanTanggalHariIni();
 
-            // 🌟 LOGIKA INJECT ESTIMASI OTOMATIS BERDASARKAN TIPE LAYANAN
             if (boxEstimasi.value.trim() === "" || boxEstimasi.getAttribute('data-changed') !== 'true') {
                 if (tipePaket === 'custom_estimasi') {
                     boxEstimasi.value = "7-14 Hari Kerja";
@@ -406,7 +400,7 @@ $tanggal_booking_raw = $data['tanggal_booking'] ?? date('Y-m-d', strtotime($data
         document.addEventListener("DOMContentLoaded", function() {
             const boxCatatan = document.getElementById('box_catatan_teknisi');
             const boxEstimasi = document.getElementById('box_estimasi_selesai');
-            
+
             boxEstimasi.addEventListener('input', function() {
                 boxEstimasi.setAttribute('data-changed', 'true');
             });
@@ -422,17 +416,21 @@ $tanggal_booking_raw = $data['tanggal_booking'] ?? date('Y-m-d', strtotime($data
             document.getElementById('edit_modal_harga_item').value = harga;
             document.getElementById('edit_modal_desc_item').value = desc;
             const m = document.getElementById('modal_edit_item_breakdown');
-            m.classList.remove('hidden'); m.classList.add('flex');
+            m.classList.remove('hidden');
+            m.classList.add('flex');
         }
 
         function tutupPopUpEditItem() {
             const m = document.getElementById('modal_edit_item_breakdown');
-            m.classList.remove('flex'); m.classList.add('hidden');
+            m.classList.remove('flex');
+            m.classList.add('hidden');
         }
 
         function kirimWaManual(no_hp, nama, status, invoice) {
             let nomorBersih = no_hp.replace(/[^0-9]/g, '');
-            if (nomorBersih.startsWith('0')) { nomorBersih = '62' + nomorBersih.slice(1); }
+            if (nomorBersih.startsWith('0')) {
+                nomorBersih = '62' + nomorBersih.slice(1);
+            }
             const est = document.getElementById('box_estimasi_selesai').value;
             let pesan = `Halo ${nama}, status pesanan Anda ${invoice} saat ini adalah: *${status}*. Estimasi waktu penyelesaian: *${est}*. Terima kasih telah mempercayakan perbaikan laptop Anda di Hanbit Labs.`;
             let waUrl = "https://api.whatsapp.com/send?phone=" + nomorBersih + "&text=" + encodeURIComponent(pesan);
@@ -440,4 +438,5 @@ $tanggal_booking_raw = $data['tanggal_booking'] ?? date('Y-m-d', strtotime($data
         }
     </script>
 </body>
+
 </html>

@@ -1,18 +1,18 @@
 <?php
-// Perbaikan path koneksi: admin berada satu tingkat di luar folder customer
+
 require_once '../admin/koneksi.php';
 
-// 🔥 TAMBAHAN LOGIKA: Ambil parameter status operasional DAN jam kerja dari database admin
+
 $query_status = mysqli_query($koneksi, "SELECT status_toko, jam_buka_store, jam_tutup_store, pesan_penutupan FROM admin_accounts LIMIT 1");
 $status_toko = mysqli_fetch_assoc($query_status);
 $is_tutup = (isset($status_toko['status_toko']) && $status_toko['status_toko'] == 'tutup');
 $pesan_tutup = $status_toko['pesan_penutupan'] ?? 'Maaf, toko kami saat ini sedang tutup.';
 
-// Format tampilan jam operasional dari database (ambil format HH:MM)
+
 $jam_buka = isset($status_toko['jam_buka_store']) ? substr($status_toko['jam_buka_store'], 0, 5) : '09:00';
 $jam_tutup = isset($status_toko['jam_tutup_store']) ? substr($status_toko['jam_tutup_store'], 0, 5) : '18:00';
 
-// 🔥 SINKRONISASI UTAMA: Ambil data seluruh paket maintenance secara live dari database terpusat
+
 $query_paket = mysqli_query($koneksi, "SELECT * FROM master_packages ORDER BY id_paket ASC");
 $list_paket = [];
 while ($row_p = mysqli_fetch_assoc($query_paket)) {
